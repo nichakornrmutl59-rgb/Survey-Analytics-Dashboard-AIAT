@@ -435,7 +435,6 @@ export default function Dashboard() {
               <div className="status-summary-heading">
                 <div>
                   <h2 id="status-summary-heading">ภาพรวมสถานะปัจจุบัน</h2>
-                  <p>สรุปเส้นทางล่าสุดของผู้เข้าร่วมโครงการ</p>
                 </div>
                 <span>เลือกการ์ดเพื่อดูรายชื่อและรายละเอียด</span>
               </div>

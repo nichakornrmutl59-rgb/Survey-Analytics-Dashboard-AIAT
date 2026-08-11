@@ -117,7 +117,6 @@ a { color: inherit; }
 .status-summary-section { margin-top: 54px; }
 .status-summary-heading { margin-bottom: 22px; display: flex; align-items: flex-end; justify-content: space-between; gap: 28px; }
 .status-summary-heading h2 { margin: 0; font-family: "Noto Sans Thai", sans-serif; font-size: clamp(30px, 3.2vw, 44px); line-height: 1.25; font-weight: 700; letter-spacing: -.02em; color: var(--ink); }
-.status-summary-heading p { margin: 7px 0 0; color: var(--muted); font-size: 14px; line-height: 1.7; }
 .status-summary-heading > span { padding-bottom: 4px; color: var(--blue); font-size: 11px; font-weight: 650; }
 .stat-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
 
@@ -560,7 +559,6 @@ td code { font-family: ui-monospace, monospace; font-size: 10px; background: #ed
   .status-summary-section { margin-top: 42px; }
   .status-summary-heading { margin-bottom: 17px; align-items: flex-start; flex-direction: column; gap: 6px; }
   .status-summary-heading h2 { font-size: 31px; }
-  .status-summary-heading p { margin-top: 5px; font-size: 13px; }
   .status-summary-heading > span { font-size: 10px; }
   .stat-strip { grid-template-columns: 1fr 1fr; gap: 12px; }
   .insight-grid { grid-template-columns: 1fr; margin-top: 48px; }
