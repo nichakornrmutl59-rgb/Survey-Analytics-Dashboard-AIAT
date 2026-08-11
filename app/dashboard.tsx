@@ -1,5 +1,6 @@
 "use client";
 
+import { GradientCard } from "@/components/ui/gradient-card";
 import Image from "next/image";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
@@ -32,10 +33,10 @@ type ApiResponse = {
 };
 
 const GROUPS = [
-  { name: "ทำงาน", color: "#FF7A1A", soft: "#FFF0E2", short: "ทำงาน" },
-  { name: "เรียน", color: "#2F6BFF", soft: "#EAF0FF", short: "เรียน" },
-  { name: "เรียนและทำงาน", color: "#FF4FA3", soft: "#FFEAF5", short: "เรียน + ทำงาน" },
-  { name: "ว่างงาน", color: "#19BCEB", soft: "#E8FAFF", short: "ว่างงาน" },
+  { name: "ทำงาน", color: "#FF7A1A", soft: "#FFF0E2", short: "ทำงาน", gradient: "orange" },
+  { name: "เรียน", color: "#2F6BFF", soft: "#EAF0FF", short: "เรียน", gradient: "blue" },
+  { name: "เรียนและทำงาน", color: "#FF4FA3", soft: "#FFEAF5", short: "เรียน + ทำงาน", gradient: "pink" },
+  { name: "ว่างงาน", color: "#19BCEB", soft: "#E8FAFF", short: "ว่างงาน", gradient: "cyan" },
 ] as const;
 
 const GROUP_COLOR: Record<string, string> = Object.fromEntries(
@@ -430,14 +431,30 @@ export default function Dashboard() {
               </div>
             </section>
 
-            <section className="stat-strip" aria-label="สรุปสถานะผู้เข้าร่วม">
-              {GROUPS.map((group, index) => (
-                <button key={group.name} className="stat-item" type="button" onClick={() => selectGroup(group.name)}>
-                  <span className="stat-index">0{index + 1}</span>
-                  <div><strong>{loading ? "—" : (totals[group.name] ?? 0).toLocaleString("th-TH")}</strong><span>{group.short}</span></div>
-                  <i style={{ background: group.color }} />
-                </button>
-              ))}
+            <section className="status-summary-section" aria-labelledby="status-summary-heading">
+              <div className="status-summary-heading">
+                <div>
+                  <h2 id="status-summary-heading">ภาพรวมสถานะปัจจุบัน</h2>
+                  <p>สรุปเส้นทางล่าสุดของผู้เข้าร่วมโครงการ</p>
+                </div>
+                <span>เลือกการ์ดเพื่อดูรายชื่อและรายละเอียด</span>
+              </div>
+              <div className="stat-strip">
+                {GROUPS.map((group) => (
+                  <GradientCard
+                    key={group.name}
+                    gradient={group.gradient}
+                    badgeText={group.short}
+                    badgeColor={group.color}
+                    value={loading ? "—" : (totals[group.name] ?? 0).toLocaleString("th-TH")}
+                    description={`${percent(totals[group.name] ?? 0, total)}% ของผู้เข้าร่วมทั้งหมด`}
+                    actionText="ดูรายชื่อ"
+                    imageUrl="/super-ai-logo.png"
+                    onClick={() => selectGroup(group.name)}
+                    aria-label={`ดูรายชื่อกลุ่ม${group.short}`}
+                  />
+                ))}
+              </div>
             </section>
 
             <section className="insight-grid">
