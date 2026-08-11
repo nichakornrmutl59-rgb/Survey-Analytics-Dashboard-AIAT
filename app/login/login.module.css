@@ -56,9 +56,13 @@
 }
 
 .topLogo {
-  width: clamp(74px, 6vw, 108px);
-  height: clamp(52px, 4.4vw, 70px);
-  border-radius: 13px;
+  width: clamp(86px, 7vw, 122px);
+  height: clamp(62px, 5.2vw, 84px);
+  overflow: visible;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
 }
 
 .logoImage {
@@ -66,9 +70,9 @@
   padding: var(--logo-pad) !important;
 }
 
-.topAiAt { width: clamp(104px, 9vw, 150px); --logo-pad: 5px; }
-.topAnniversary { --logo-pad: 12px; }
-.topSuperAi { --logo-pad: 17px; }
+.topAiAt { width: clamp(122px, 10vw, 166px); --logo-pad: 0px; }
+.topAnniversary { --logo-pad: 3px; }
+.topSuperAi { --logo-pad: 4px; }
 
 .heroCopy {
   width: min(49%, 570px);
@@ -327,8 +331,8 @@
   .page { display: block; overflow: visible; }
   .brandPanel { min-height: 790px; padding: 24px 20px 28px; gap: 18px; }
   .topLogos { gap: 7px; }
-  .topLogo { width: 65px; height: 48px; border-radius: 10px; }
-  .topAiAt { width: 94px; }
+  .topLogo { width: 74px; height: 58px; }
+  .topAiAt { width: 104px; }
   .splineStage { width: min(94vw, 580px); height: 390px; right: -9vw; top: 88px; }
   .heroCopy { width: min(88%, 480px); align-self: end; padding: 340px 0 24px; }
   .heroCopy h1 { font-size: clamp(38px, 11vw, 52px); }
@@ -340,8 +344,8 @@
 
 @media (max-width: 430px) {
   .brandPanel { min-height: 750px; }
-  .topLogo { width: 58px; height: 44px; }
-  .topAiAt { width: 84px; }
+  .topLogo { width: 68px; height: 52px; }
+  .topAiAt { width: 94px; }
   .splineStage { width: 98vw; height: 360px; right: -13vw; top: 78px; }
   .heroCopy { width: 100%; padding-top: 325px; }
   .heroCopy h1 { font-size: 39px; }
