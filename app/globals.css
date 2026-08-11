@@ -447,10 +447,11 @@ footer button { border: 0; background: transparent; cursor: pointer; color: var(
 }
 .login-supporter-logo {
   min-width: 0;
-  height: 50px;
-  padding: 8px;
+  height: 56px;
+  padding: 9px 10px;
   display: grid;
   place-items: center;
+  overflow: hidden;
   border: 1px solid rgba(255,255,255,.10);
   border-radius: 11px;
   background: rgba(255,255,255,.065);
@@ -458,7 +459,24 @@ footer button { border: 0; background: transparent; cursor: pointer; color: var(
   transition: transform .18s ease, border-color .18s ease, background .18s ease;
 }
 .login-supporter-logo:hover { transform: translateY(-3px); border-color: rgba(114,220,255,.42); background: rgba(255,255,255,.11); }
-.login-supporter-logo img { width: 100%; height: 100%; object-fit: contain; }
+.login-supporter-logo img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: contain;
+  transform: scale(var(--supporter-logo-scale, 1));
+  transform-origin: center;
+}
+.login-supporter-logo.fit-seal { --supporter-logo-scale: .88; }
+.login-supporter-logo.fit-tsri { --supporter-logo-scale: 1.28; }
+.login-supporter-logo.fit-standard { --supporter-logo-scale: .94; }
+.login-supporter-logo.fit-bpko { --supporter-logo-scale: 1.12; }
+.login-supporter-logo.fit-wide { --supporter-logo-scale: .9; }
+.login-supporter-logo.fit-aiat { --supporter-logo-scale: 1.08; }
+.login-supporter-logo.fit-aiat10 { --supporter-logo-scale: 1.18; }
+.login-supporter-logo.fit-nectec { --supporter-logo-scale: 1.1; }
+.login-supporter-logo.fit-rmutl { --supporter-logo-scale: .78; }
+.login-supporter-logo.fit-superai { --supporter-logo-scale: 1.02; }
 .login-form-panel {
   min-height: 100vh;
   padding: 52px clamp(30px, 4.5vw, 82px);

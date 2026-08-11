@@ -13,17 +13,17 @@ const TOP_LOGOS = [
 ] as const;
 
 const SUPPORTER_LOGOS = [
-  { src: "/sponsor-mhesi.png", alt: "กระทรวงการอุดมศึกษา วิทยาศาสตร์ วิจัยและนวัตกรรม" },
-  { src: "/sponsor-tsri.png", alt: "สำนักงานคณะกรรมการส่งเสริมวิทยาศาสตร์ วิจัยและนวัตกรรม" },
-  { src: "/sponsor-rorworpo.png", alt: "สำนักงานเร่งรัดการวิจัยและนวัตกรรม" },
-  { src: "/sponsor-bpko.png", alt: "หน่วยบริหารและจัดการทุนด้านการพัฒนาระดับพื้นที่" },
-  { src: "/sponsor-ailoveu.jpg", alt: "AI Love U" },
-  { src: "/sponsor-aiat.jpg", alt: "สมาคมปัญญาประดิษฐ์ประเทศไทย" },
-  { src: "/sponsor-aiat10.png", alt: "AIAT ครบรอบ 10 ปี" },
-  { src: "/sponsor-nectec.png", alt: "NECTEC" },
-  { src: "/sponsor-rmutl.png", alt: "มหาวิทยาลัยเทคโนโลยีราชมงคลล้านนา" },
-  { src: "/sponsor-siit.png", alt: "สถาบันเทคโนโลยีนานาชาติสิรินธร" },
-  { src: "/sponsor-superai.png", alt: "Super AI Engineer" },
+  { src: "/sponsor-mhesi.png", alt: "กระทรวงการอุดมศึกษา วิทยาศาสตร์ วิจัยและนวัตกรรม", fit: "fit-seal" },
+  { src: "/sponsor-tsri.png", alt: "สำนักงานคณะกรรมการส่งเสริมวิทยาศาสตร์ วิจัยและนวัตกรรม", fit: "fit-tsri" },
+  { src: "/sponsor-rorworpo.png", alt: "สำนักงานเร่งรัดการวิจัยและนวัตกรรม", fit: "fit-standard" },
+  { src: "/sponsor-bpko.png", alt: "หน่วยบริหารและจัดการทุนด้านการพัฒนาระดับพื้นที่", fit: "fit-bpko" },
+  { src: "/sponsor-ailoveu.jpg", alt: "AI Love U", fit: "fit-wide" },
+  { src: "/sponsor-aiat.jpg", alt: "สมาคมปัญญาประดิษฐ์ประเทศไทย", fit: "fit-aiat" },
+  { src: "/sponsor-aiat10.png", alt: "AIAT ครบรอบ 10 ปี", fit: "fit-aiat10" },
+  { src: "/sponsor-nectec.png", alt: "NECTEC", fit: "fit-nectec" },
+  { src: "/sponsor-rmutl.png", alt: "มหาวิทยาลัยเทคโนโลยีราชมงคลล้านนา", fit: "fit-rmutl" },
+  { src: "/sponsor-siit.png", alt: "สถาบันเทคโนโลยีนานาชาติสิรินธร", fit: "fit-wide" },
+  { src: "/sponsor-superai.png", alt: "Super AI Engineer", fit: "fit-superai" },
 ] as const;
 
 export default function LoginForm() {
@@ -84,7 +84,7 @@ export default function LoginForm() {
           <small>เครือข่ายผู้สนับสนุนและหน่วยงานความร่วมมือ</small>
           <div className="login-supporter-track">
             {SUPPORTER_LOGOS.map((logo) => (
-              <div className="login-supporter-logo" key={logo.src} title={logo.alt}>
+              <div className={`login-supporter-logo ${logo.fit}`} key={logo.src} title={logo.alt}>
                 <Image src={logo.src} width={150} height={72} alt={logo.alt} />
               </div>
             ))}
