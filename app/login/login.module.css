@@ -75,7 +75,7 @@
 .topSuperAi { --logo-pad: 4px; }
 
 .heroCopy {
-  width: min(52%, 620px);
+  width: min(49%, 570px);
   align-self: center;
   padding: 34px 0 108px;
   position: relative;
@@ -95,7 +95,7 @@
 
 .heroCopy h1 {
   margin: 0;
-  font-size: clamp(48px, 4.2vw, 74px);
+  font-size: clamp(43px, 3.7vw, 66px);
   line-height: 1.12;
   letter-spacing: -.035em;
   font-weight: 750;
@@ -106,10 +106,10 @@
 }
 
 .description {
-  max-width: 600px;
+  max-width: 560px;
   margin: 22px 0 0;
   color: #cbd7f3;
-  font-size: 16px;
+  font-size: 14px;
   line-height: 1.8;
 }
 
@@ -201,13 +201,12 @@
 }
 
 .logoSeal { --logo-pad: 14px; }
-.logoTsri { --logo-pad: 11px; }
+.logoTsri { --logo-pad: 15px; }
 .logoStandard { --logo-pad: 11px; }
-.logoBpko { --logo-pad: 7px; }
 .logoWide { --logo-pad: 9px; }
 .logoAiAt { --logo-pad: 7px; }
-.logoAnniversary { --logo-pad: 9px; }
-.logoTall { --logo-pad: 12px; }
+.logoAnniversary { --logo-pad: 13px; }
+.logoTall { --logo-pad: 18px; }
 .logoSuperAi { --logo-pad: 16px; }
 
 .formPanel {
@@ -323,7 +322,7 @@
 @media (max-width: 1100px) {
   .page { grid-template-columns: minmax(0, 1fr) minmax(390px, .66fr); }
   .brandPanel { padding: 30px; }
-  .heroCopy { width: 57%; }
+  .heroCopy { width: 55%; }
   .splineStage { width: min(49vw, 540px); height: min(57vh, 570px); right: -64px; top: 16%; }
   .supporterTrack { grid-template-columns: repeat(11, 74px); }
 }
@@ -336,8 +335,8 @@
   .topAiAt { width: 104px; }
   .splineStage { width: min(94vw, 580px); height: 390px; right: -9vw; top: 88px; }
   .heroCopy { width: min(88%, 480px); align-self: end; padding: 340px 0 24px; }
-  .heroCopy h1 { font-size: clamp(42px, 11.5vw, 56px); }
-  .description { margin-top: 16px; font-size: 13px; }
+  .heroCopy h1 { font-size: clamp(38px, 11vw, 52px); }
+  .description { margin-top: 14px; font-size: 12px; }
   .supporterTrack { grid-template-columns: repeat(11, 74px); }
   .formPanel { min-height: auto; padding: 46px 20px 70px; box-shadow: 0 -20px 60px rgba(1, 8, 30, .18); }
   .formCard { padding: 24px 20px; border-radius: 20px; }
@@ -349,7 +348,7 @@
   .topAiAt { width: 94px; }
   .splineStage { width: 98vw; height: 360px; right: -13vw; top: 78px; }
   .heroCopy { width: 100%; padding-top: 325px; }
-  .heroCopy h1 { font-size: 42px; }
+  .heroCopy h1 { font-size: 39px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
