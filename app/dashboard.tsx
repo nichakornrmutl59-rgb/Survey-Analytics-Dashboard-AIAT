@@ -99,6 +99,20 @@ const DETAIL_FIELDS: Array<[string, string]> = [
   ["portfolio", "ผลงาน / หลักฐาน"],
 ];
 
+const FOOTER_LOGOS = [
+  { src: "/sponsor-mhesi.png", alt: "กระทรวงการอุดมศึกษา วิทยาศาสตร์ วิจัยและนวัตกรรม", fit: "seal" },
+  { src: "/sponsor-tsri.png", alt: "สำนักงานคณะกรรมการส่งเสริมวิทยาศาสตร์ วิจัยและนวัตกรรม", fit: "tsri" },
+  { src: "/sponsor-rorworpo.png", alt: "สำนักงานเร่งรัดการวิจัยและนวัตกรรม", fit: "standard" },
+  { src: "/sponsor-bpko.png", alt: "หน่วยบริหารและจัดการทุนด้านการพัฒนาระดับพื้นที่", fit: "bpko" },
+  { src: "/sponsor-ailoveu.jpg", alt: "AI Love U", fit: "wide" },
+  { src: "/sponsor-aiat.jpg", alt: "สมาคมปัญญาประดิษฐ์ประเทศไทย", fit: "aiat" },
+  { src: "/sponsor-aiat10.png", alt: "AIAT ครบรอบ 10 ปี", fit: "aiat10" },
+  { src: "/sponsor-nectec.png", alt: "NECTEC", fit: "wide" },
+  { src: "/sponsor-rmutl.png", alt: "มหาวิทยาลัยเทคโนโลยีราชมงคลล้านนา", fit: "rmutl" },
+  { src: "/sponsor-siit.png", alt: "สถาบันเทคโนโลยีนานาชาติสิรินธร", fit: "wide" },
+  { src: "/sponsor-superai.png", alt: "Super AI Engineer", fit: "superai" },
+] as const;
+
 function countBy(items: Participant[], key: keyof Participant) {
   return items.reduce<Record<string, number>>((result, item) => {
     const value = item[key]?.trim();
@@ -580,13 +594,29 @@ export default function Dashboard() {
         )}
       </div>
 
-      <footer>
-        <div className="footer-brand">
-          <Image src="/aiat-horizontal.jpg" width={420} height={195} alt="สมาคมปัญญาประดิษฐ์ประเทศไทย" />
-          <span>ระบบติดตามผลโครงการ Super AI Engineer</span>
+      <footer className="dashboard-footer">
+        <div className="footer-heading">
+          <div className="footer-title">
+            <strong>ระบบติดตามผลโครงการ Super AI Engineer</strong>
+            <small>สมาคมปัญญาประดิษฐ์ประเทศไทย</small>
+          </div>
+          <p>ข้อมูลจาก Google Sheets • อัปเดตอัตโนมัติทุก 60 วินาที</p>
+          <button
+            className="back-to-top-button"
+            type="button"
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            aria-label="กลับไปด้านบนของหน้า"
+          >
+            <span aria-hidden="true">↑</span> กลับด้านบน
+          </button>
         </div>
-        <p>ข้อมูลจาก Google Sheets • อัปเดตอัตโนมัติทุก 60 วินาที</p>
-        <button type="button" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>กลับด้านบน ↑</button>
+        <div className="footer-logo-strip" aria-label="เครือข่ายผู้สนับสนุนและหน่วยงานความร่วมมือ">
+          {FOOTER_LOGOS.map((logo) => (
+            <div className={`footer-logo footer-logo-${logo.fit}`} key={logo.src} title={logo.alt}>
+              <Image src={logo.src} alt={logo.alt} fill sizes="100px" />
+            </div>
+          ))}
+        </div>
       </footer>
 
       {selected && (
