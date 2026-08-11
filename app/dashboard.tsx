@@ -1,3 +1,118 @@
+
+AIAT_10Aniversary-Logo-01.png
+Logo AIAT_jpg(1).jpg
+superai_logo.png
+ใส่โลโก้ อันนี้ และ เปลี่ยนฟรอนตัวหนังสือ ให้เป็นทางการ อ่านง่าย และ ผลงาน / หลักฐาน  ทำปุ่มให้คลิกไปดูได้ 
+
+b4e56f65-26cb-4c39-828b-bf9e73216b5b.png
+มันขึ้นแบบนี้ ต้องการแสดงผล เป็นเว็บ
+
+dbfeea2d-633b-4583-a5df-84f7d423b16a.png
+
+cbce12b9-3c66-4b79-93f7-34489d4765ff.png
+
+dddd3142-5f49-43e1-938e-1c4a17bfbdea.png
+
+1bd2b125-c565-44e4-ab8b-0f506ae80489.png
+
+384c5765-de51-4241-a530-b4a5e593ba41.png
+
+bd018e07-3dfa-4e1e-b0e9-27c57ce149e6.png
+
+80819c68-701d-46e0-af43-46663add44f1.png
+
+111066d0-874d-4b8e-b7c6-552d1ec19d29.png
+
+ต่อ
+
+ขั้นตอนต่อไป: Redeploy เว็บไซต์
+ไปที่เมนู Deployments ของโปรเจกต์
+
+หา Deployment ล่าสุดที่ระบุว่า Production
+
+กดจุดสามจุด ••• ด้านขวาของรายการ
+
+เลือก Redeploy
+
+ในหน้าต่างยืนยัน กด Redeploy อีกครั้ง
+
+รอจนสถานะเปลี่ยนเป็น Ready พร้อมเครื่องหมายสีเขียว
+
+อย่าเลือก Rollback และอย่าลบ Deployment เดิมครับ เมื่อขึ้น Ready แล้ว ขั้นตอนต่อไปคือทดสอบ Username และ Password ใหม่ในหน้า Incognito/ไม่ระบุตัวตน
+
+
+ช่วยทำคู่มือการเปลี่ยน ไว้ให้หน่อย เพื่อเกิดการลืม
+
+ประมวลผล 5m 55s
+จัดทำคู่มือภาษาไทยให้แล้วครับ ครอบคลุมตั้งแต่สร้าง Username/Password ใหม่ เปลี่ยนค่าบน Vercel, Redeploy, ทดสอบ และเช็กลิสต์ตรวจสอบปัญหา โดยไม่มีรหัสหรือ Secret จริงอยู่ในเอกสาร
+
+ดาวน์โหลดคู่มือเปลี่ยน Username และ Password
+
+แนะนำให้เก็บไฟล์นี้ไว้ในโฟลเดอร์เอกสารผู้ดูแลระบบ แต่ไม่ควรจดรหัสผ่านจริงลงในคู่มือครับ
+
+
+AIAT-dashboard-credential-change-guide-th.pdf
+PDF
+
+
+c2a05f19-c2f6-44e3-87b1-58c6f99bfa6a.png
+ปรับ โทนสี ให้สดใส โทน ai สีส้ม ฟ้า ชมพู น้ำเงิน
+
+ประมวลผล 4m 39s
+ปรับธีมใหม่ให้แล้วครับ ใช้สีหลัก:
+
+ส้มสด — กลุ่มทำงานและปุ่มสำคัญ
+
+น้ำเงิน — กลุ่มเรียนและเมนู
+
+ชมพู — กลุ่มเรียนพร้อมทำงาน
+
+ฟ้า — กลุ่มว่างงานและสถานะ Live
+
+น้ำเงินเข้ม — ตัวอักษรและพื้นหลังหลัก
+
+รวมถึงปรับพื้นหลังไล่สี การ์ด กราฟ ตาราง หน้ารายบุคคล ปุ่มผลงาน และหน้า Login แล้ว โดยระบบข้อมูลและการเข้าสู่ระบบไม่เปลี่ยนแปลง ผลการตรวจสอบ Build ผ่านเรียบร้อย
+
+ไฟล์ที่ต้องอัปโหลดมี 2 ไฟล์:
+
+globals.css
+
+dashboard.tsx
+
+วิธีนำขึ้น GitHub:
+
+ดาวน์โหลดไฟล์ทั้งสอง
+
+เปิด Repository Survey-Analytics-Dashboard-AIAT
+
+คลิกเข้าโฟลเดอร์ app
+
+กด Add file → Upload files
+
+ลากไฟล์ globals.css และ dashboard.tsx ลงไป
+
+GitHub จะแจ้งว่าจะแทนที่ไฟล์เดิม ให้ยืนยัน
+
+ใส่ข้อความ Commit ว่า Update AI colorful theme
+
+เลือก Commit directly to the main branch
+
+กด Commit changes
+
+Vercel จะ Deploy ให้อัตโนมัติ รอจนสถานะขึ้น Ready แล้วเปิดเว็บไซต์ใหม่ครับ
+
+
+globals.css
+โค้ด
+
+
+dashboard.tsx
+โค้ด
+
+
+dashboard.tsx
+
+
 "use client";
 
 import Image from "next/image";
@@ -32,10 +147,10 @@ type ApiResponse = {
 };
 
 const GROUPS = [
-  { name: "ทำงาน", color: "#176B67", soft: "#E7F3F1", short: "ทำงาน" },
-  { name: "เรียน", color: "#3A5D95", soft: "#EAF0FA", short: "เรียน" },
-  { name: "เรียนและทำงาน", color: "#D07A32", soft: "#FFF0E1", short: "เรียน + ทำงาน" },
-  { name: "ว่างงาน", color: "#9D4C5D", soft: "#F9E9ED", short: "ว่างงาน" },
+  { name: "ทำงาน", color: "#FF7A1A", soft: "#FFF0E2", short: "ทำงาน" },
+  { name: "เรียน", color: "#2F6BFF", soft: "#EAF0FF", short: "เรียน" },
+  { name: "เรียนและทำงาน", color: "#FF4FA3", soft: "#FFEAF5", short: "เรียน + ทำงาน" },
+  { name: "ว่างงาน", color: "#19BCEB", soft: "#E8FAFF", short: "ว่างงาน" },
 ] as const;
 
 const GROUP_COLOR: Record<string, string> = Object.fromEntries(
@@ -458,7 +573,7 @@ export default function Dashboard() {
                       label={workType.replace(" (Freelancer / Consultant)", "")}
                       value={workTypes[workType] ?? 0}
                       total={workers.length}
-                      color={["#176B67", "#D07A32", "#7B61A7", "#3A5D95", "#9D4C5D"][index]}
+                      color={["#FF7A1A", "#2F6BFF", "#FF4FA3", "#19BCEB", "#6D4AFF"][index]}
                       onClick={() => { setGroupFilter("ทำงาน"); setWorkFilter(workType); setPage(1); setView("people"); }}
                     />
                   ))}
@@ -484,7 +599,7 @@ export default function Dashboard() {
                 <div className="panel-heading"><div><p className="eyebrow">03 / TRACK</p><h2>การกระจายตาม Track</h2></div></div>
                 <div className="bars-list compact-bars">
                   {tracks.map(([track, count], index) => (
-                    <BreakdownBar key={track} label={track} value={count} total={total} color={["#176B67", "#D07A32", "#3A5D95"][index] ?? "#7B61A7"} />
+                    <BreakdownBar key={track} label={track} value={count} total={total} color={["#2F6BFF", "#FF7A1A", "#FF4FA3"][index] ?? "#19BCEB"} />
                   ))}
                 </div>
                 <div className="mini-note"><strong>AI Engineer</strong><span>ดูรายละเอียด “บ้าน” ของผู้เข้าร่วมได้ในหน้ารายบุคคล</span></div>
@@ -494,7 +609,7 @@ export default function Dashboard() {
                 <div className="panel-heading"><div><p className="eyebrow">04 / SECTOR</p><h2>ภาคส่วนการทำงาน</h2></div><span className="panel-note">จากผู้ที่ระบุภาคส่วน</span></div>
                 <div className="bars-list compact-bars">
                   {sectorEntries.map(([sector, count], index) => (
-                    <BreakdownBar key={sector} label={sector.replace("สถาบันการศึกษา / มหาวิทยาลัย", "สถาบันการศึกษา")} value={count} total={sectorEntries[0]?.[1] ?? 1} color={["#176B67", "#3A5D95", "#D07A32", "#7B61A7", "#9D4C5D", "#56636E"][index]} />
+                    <BreakdownBar key={sector} label={sector.replace("สถาบันการศึกษา / มหาวิทยาลัย", "สถาบันการศึกษา")} value={count} total={sectorEntries[0]?.[1] ?? 1} color={["#2F6BFF", "#19BCEB", "#FF7A1A", "#FF4FA3", "#6D4AFF", "#163A8A"][index]} />
                   ))}
                 </div>
               </article>
@@ -526,7 +641,626 @@ export default function Dashboard() {
               <div className="income-grid">
                 {incomeEntries.map(([income, count], index) => (
                   <article key={income}>
-                    <span style={{ background: ["#176B67", "#3A5D95", "#D07A32", "#9D4C5D"][index] ?? "#7B61A7" }} />
+                    <span style={{ background: ["#FF7A1A", "#2F6BFF", "#FF4FA3", "#19BCEB"][index] ?? "#6D4AFF" }} />
+                    <strong>{count}</strong><p>{income}</p>
+                  </article>
+                ))}
+              </div>
+            </section>
+          </>
+        ) : (
+          <section className="people-view">
+            <div className="people-heading">
+              <div><p className="eyebrow">PARTICIPANT DIRECTORY</p><h1>ข้อมูลรายบุคคล</h1><p>ค้นหา ตรวจสอบเส้นทาง และเปิดดูรายละเอียดของผู้เข้าร่วมแต่ละคน</p></div>
+              <div className="people-count"><strong>{filtered.length.toLocaleString("th-TH")}</strong><span>รายการที่พบ</span></div>
+            </div>
+
+            <div className="privacy-banner"><span>◉</span><p><strong>ข้อมูลส่วนบุคคล</strong> เบอร์โทร อีเมล และที่อยู่จะแสดงเมื่อเปิดรายละเอียดเท่านั้น โปรดใช้ตามวัตถุประสงค์ของโครงการ</p></div>
+
+            <div className="filter-panel">
+              <label className="search-field"><span>⌕</span><input value={query} onChange={(event) => { setQuery(event.target.value); setPage(1); }} placeholder="ค้นหารหัส ชื่อ ชื่อเล่น อีเมล หรือเบอร์โทร" /></label>
+              <label><span>กลุ่ม</span><select value={groupFilter} onChange={(event) => { setGroupFilter(event.target.value); if (event.target.value !== "ทำงาน") setWorkFilter("ทั้งหมด"); setPage(1); }}><option>ทั้งหมด</option>{GROUPS.map((group) => <option key={group.name}>{group.name}</option>)}</select></label>
+              <label><span>Track</span><select value={trackFilter} onChange={(event) => { setTrackFilter(event.target.value); setPage(1); }}><option>ทั้งหมด</option>{tracks.map(([track]) => <option key={track}>{track}</option>)}</select></label>
+              <label><span>Season</span><select value={seasonFilter} onChange={(event) => { setSeasonFilter(event.target.value); setPage(1); }}><option>ทั้งหมด</option>{seasons.map((season) => <option key={season}>{season}</option>)}</select></label>
+              <label><span>รูปแบบงาน</span><select value={workFilter} onChange={(event) => { setWorkFilter(event.target.value); setPage(1); }} disabled={groupFilter !== "ทำงาน" && groupFilter !== "ทั้งหมด"}><option>ทั้งหมด</option>{WORK_TYPES.map((workType) => <option key={workType}>{workType}</option>)}</select></label>
+              <button className="clear-button" type="button" onClick={clearFilters}>ล้างตัวกรอง</button>
+            </div>
+
+            <div className="table-shell">
+              <table>
+                <thead><tr><th>ผู้เข้าร่วม</th><th>รหัส</th><th>สถานะ</th><th>Track</th><th>Season</th><th>เส้นทางปัจจุบัน</th><th aria-label="รายละเอียด" /></tr></thead>
+                <tbody>
+                  {pageItems.map((person) => (
+                    <tr key={person.key} onClick={() => setSelected(person)}>
+                      <td><div className="person-cell"><span style={{ background: `${GROUP_COLOR[person.group]}18`, color: GROUP_COLOR[person.group] }}>{initials(person)}</span><div><strong>{person.title}{person.firstName} {person.lastName}</strong><small>{person.nickname ? `“${person.nickname}”` : "ไม่ระบุชื่อเล่น"}</small></div></div></td>
+                      <td><code>{person.code || "—"}</code></td>
+                      <td><span className="group-pill" style={{ background: `${GROUP_COLOR[person.group]}15`, color: GROUP_COLOR[person.group] }}><i style={{ background: GROUP_COLOR[person.group] }} />{person.group}</span></td>
+                      <td>{person.track || "—"}</td>
+                      <td>{person.season || "—"}</td>
+                      <td className="path-cell">{person.workType || person.position || person.educationLevel || person.desiredRole || "—"}</td>
+                      <td><button className="row-button" type="button" aria-label={`ดูรายละเอียด ${person.firstName}`} onClick={(event) => { event.stopPropagation(); setSelected(person); }}>→</button></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              {!loading && !pageItems.length && <div className="empty-state"><strong>ไม่พบข้อมูลที่ตรงกับตัวกรอง</strong><button type="button" onClick={clearFilters}>ล้างตัวกรองทั้งหมด</button></div>}
+              {loading && <div className="loading-state"><span /><span /><span /><p>กำลังอ่านข้อมูลล่าสุดจาก Google Sheets</p></div>}
+            </div>
+
+            <div className="pagination">
+              <span>หน้า {page} จาก {pageCount}</span>
+              <div><button type="button" onClick={() => setPage((current) => Math.max(1, current - 1))} disabled={page === 1}>← ก่อนหน้า</button><button type="button" onClick={() => setPage((current) => Math.min(pageCount, current + 1))} disabled={page === pageCount}>ถัดไป →</button></div>
+            </div>
+          </section>
+        )}
+      </div>
+
+      <footer>
+        <div className="footer-brand">
+          <Image src="/aiat-horizontal.jpg" width={420} height={195} alt="สมาคมปัญญาประดิษฐ์ประเทศไทย" />
+          <span>ระบบติดตามผลโครงการ Super AI Engineer</span>
+        </div>
+        <p>ข้อมูลจาก Google Sheets • อัปเดตอัตโนมัติทุก 60 วินาที</p>
+        <button type="button" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>กลับด้านบน ↑</button>
+      </footer>
+
+      {selected && (
+        <div className="drawer-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setSelected(null); }}>
+          <aside className="detail-drawer" role="dialog" aria-modal="true" aria-label={`รายละเอียด ${selected.firstName} ${selected.lastName}`}>
+            <button className="drawer-close" type="button" onClick={() => setSelected(null)} aria-label="ปิดรายละเอียด">×</button>
+            <div className="drawer-hero">
+              <span className="large-avatar" style={{ background: `${GROUP_COLOR[selected.group]}18`, color: GROUP_COLOR[selected.group] }}>{initials(selected)}</span>
+              <div><span className="group-pill" style={{ background: `${GROUP_COLOR[selected.group]}15`, color: GROUP_COLOR[selected.group] }}><i style={{ background: GROUP_COLOR[selected.group] }} />{selected.group}</span><h2>{selected.title}{selected.firstName} {selected.lastName}</h2><p>{selected.nickname ? `ชื่อเล่น “${selected.nickname}”` : "ไม่ระบุชื่อเล่น"} • {selected.gender || "ไม่ระบุเพศ"} • อายุ {selected.age || "—"} ปี</p></div>
+            </div>
+
+            <div className="identity-grid">
+              <div><span>รหัสผู้เข้าอบรม</span><strong>{selected.code || "—"}</strong></div>
+              <div><span>Season</span><strong>{selected.season || "—"}</strong></div>
+              <div><span>Track</span><strong>{selected.track || "—"}</strong></div>
+              <div><span>บ้าน AI Engineer</span><strong>{selected.house || "—"}</strong></div>
+            </div>
+
+            <section className="drawer-section contact-section"><h3>ข้อมูลติดต่อ <span>ข้อมูลส่วนบุคคล</span></h3><div className="contact-grid"><div><span>อีเมล</span><a href={selected.email ? `mailto:${selected.email}` : undefined}>{selected.email || "—"}</a></div><div><span>เบอร์โทร</span><a href={selected.phone ? `tel:${selected.phone}` : undefined}>{selected.phone || "—"}</a></div><div><span>ช่องทางอื่น</span>{extractLinks(selected.social).length ? <a className="contact-action" href={extractLinks(selected.social)[0]} target="_blank" rel="noopener noreferrer">เปิดช่องทางติดต่อ ↗</a> : <p>{selected.social || "—"}</p>}</div><div className="full-span"><span>ที่อยู่</span><p>{selected.address || "—"}</p></div></div></section>
+
+            <section className="drawer-section"><h3>เส้นทางหลังจบโครงการ</h3><div className="detail-list">{selected.workType && <div><span>รูปแบบการทำงาน</span><strong>{selected.workType}</strong></div>}{DETAIL_FIELDS.filter(([key]) => Boolean(selected[key])).map(([key, label]) => <div key={key}><span>{label}</span><DetailValue field={key} value={selected[key]} /></div>)}</div></section>
+          </aside>
+        </div>
+      )}
+    </main>
+  );
+}
+dashboard.tsx
+
+
+"use client";
+
+import Image from "next/image";
+import { useCallback, useEffect, useMemo, useState } from "react";
+
+type Participant = {
+  key: string;
+  group: string;
+  code: string;
+  season: string;
+  track: string;
+  house: string;
+  title: string;
+  firstName: string;
+  lastName: string;
+  nickname: string;
+  gender: string;
+  email: string;
+  age: string;
+  social: string;
+  phone: string;
+  address: string;
+  workType: string;
+  income: string;
+  [key: string]: string;
+};
+
+type ApiResponse = {
+  participants?: Participant[];
+  updatedAt?: string;
+  error?: string;
+};
+
+const GROUPS = [
+  { name: "ทำงาน", color: "#FF7A1A", soft: "#FFF0E2", short: "ทำงาน" },
+  { name: "เรียน", color: "#2F6BFF", soft: "#EAF0FF", short: "เรียน" },
+  { name: "เรียนและทำงาน", color: "#FF4FA3", soft: "#FFEAF5", short: "เรียน + ทำงาน" },
+  { name: "ว่างงาน", color: "#19BCEB", soft: "#E8FAFF", short: "ว่างงาน" },
+] as const;
+
+const GROUP_COLOR: Record<string, string> = Object.fromEntries(
+  GROUPS.map((group) => [group.name, group.color]),
+);
+
+const WORK_TYPES = [
+  "พนักงานประจำ",
+  "เจ้าของกิจการ / ผู้ประกอบการ / Startup Founder",
+  "ฟรีแลนซ์ / ที่ปรึกษา (Freelancer / Consultant)",
+  "อาจารย์ / ผู้สอน",
+  "นักวิจัย / วิชาการ",
+];
+
+const DETAIL_FIELDS: Array<[string, string]> = [
+  ["educationLevel", "ระดับการศึกษา"],
+  ["fieldOfStudy", "สาขา / หลักสูตร"],
+  ["aiFieldOfStudy", "สาขาที่เกี่ยวข้องกับ AI"],
+  ["institution", "สถาบันการศึกษา"],
+  ["institutionType", "ประเภทสถานศึกษา"],
+  ["studyYear", "ปีการศึกษา"],
+  ["graduation", "คาดว่าจะจบการศึกษา"],
+  ["organization", "บริษัท / หน่วยงาน"],
+  ["website", "เว็บไซต์บริษัท / หน่วยงาน"],
+  ["sector", "ภาคส่วน / อุตสาหกรรม"],
+  ["employmentType", "ลักษณะการจ้างงาน"],
+  ["position", "ตำแหน่ง"],
+  ["responsibilities", "หน้าที่ / ขอบเขตงาน"],
+  ["workDuration", "ระยะเวลาทำงาน"],
+  ["workHours", "ชั่วโมงทำงานต่อสัปดาห์"],
+  ["income", "รายได้เฉลี่ยต่อเดือน"],
+  ["aiUsage", "ความเกี่ยวข้อง / การใช้ AI"],
+  ["aiField", "ด้าน AI ที่เกี่ยวข้อง"],
+  ["aiConfidence", "ความมั่นใจด้าน AI"],
+  ["aiDevelopment", "ด้าน AI ที่ต้องการพัฒนา"],
+  ["tools", "เครื่องมือ / เทคโนโลยี"],
+  ["researchTopic", "หัวข้องานวิจัย"],
+  ["teachingLevel", "ระดับที่สอน"],
+  ["teachingPlatform", "แพลตฟอร์มการสอน"],
+  ["studentReach", "ผู้เรียนต่อปี"],
+  ["outcomes", "ผลลัพธ์ / ผลงาน"],
+  ["receivedFunding", "ได้รับทุนวิจัย"],
+  ["funder", "แหล่งทุน"],
+  ["fundingValue", "มูลค่าทุน"],
+  ["scholarship", "ได้รับทุนการศึกษา"],
+  ["scholarshipAfterProject", "ทุนเกิดหลังเข้าร่วมโครงการ"],
+  ["futureStudyPlan", "แผนศึกษาต่อ"],
+  ["unemploymentDuration", "ระยะเวลาว่างงาน"],
+  ["priorExperience", "ประสบการณ์ทำงานเดิม"],
+  ["priorRole", "งานที่เคยทำ"],
+  ["desiredRole", "งานที่สนใจ"],
+  ["desiredSector", "ภาคส่วนที่สนใจ"],
+  ["desiredSkills", "ทักษะที่ต้องการพัฒนา"],
+  ["startupInterest", "ความสนใจทำ Startup"],
+  ["startupField", "ด้านธุรกิจที่สนใจ"],
+  ["startupStage", "สถานะแนวคิดธุรกิจ"],
+  ["desiredSupport", "การสนับสนุนที่ต้องการ"],
+  ["employeeCount", "จำนวนพนักงาน"],
+  ["businessStatus", "สถานะธุรกิจ"],
+  ["clientGroup", "กลุ่มลูกค้า"],
+  ["portfolio", "ผลงาน / หลักฐาน"],
+];
+
+function countBy(items: Participant[], key: keyof Participant) {
+  return items.reduce<Record<string, number>>((result, item) => {
+    const value = item[key]?.trim();
+    if (value) result[value] = (result[value] ?? 0) + 1;
+    return result;
+  }, {});
+}
+
+function sortEntries(entries: Array<[string, number]>) {
+  return entries.sort((a, b) => b[1] - a[1]);
+}
+
+function percent(value: number, total: number) {
+  if (!total) return "0";
+  return ((value / total) * 100).toFixed(1);
+}
+
+function formatUpdatedAt(value: string) {
+  if (!value) return "กำลังเชื่อมข้อมูล";
+  return new Intl.DateTimeFormat("th-TH", {
+    dateStyle: "medium",
+    timeStyle: "short",
+    timeZone: "Asia/Bangkok",
+  }).format(new Date(value));
+}
+
+function initials(person: Participant) {
+  return `${person.firstName.charAt(0)}${person.lastName.charAt(0)}` || "—";
+}
+
+function extractLinks(value: string) {
+  const matches = value.match(/(?:https?:\/\/|www\.)[^\s,]+/gi) ?? [];
+  return Array.from(
+    new Set(
+      matches.map((link) => {
+        const cleanLink = link.replace(/[)\]}>.;]+$/, "");
+        return cleanLink.startsWith("www.") ? `https://${cleanLink}` : cleanLink;
+      }),
+    ),
+  );
+}
+
+function textWithoutLinks(value: string) {
+  return value
+    .replace(/(?:https?:\/\/|www\.)[^\s,]+/gi, "")
+    .replace(/\s{2,}/g, " ")
+    .replace(/^[\s,;:–—-]+|[\s,;:–—-]+$/g, "")
+    .trim();
+}
+
+function DetailValue({ field, value }: { field: string; value: string }) {
+  const links = extractLinks(value);
+  const description = textWithoutLinks(value);
+
+  if (!links.length) return <strong>{value}</strong>;
+
+  const actionLabel =
+    field === "portfolio" || field === "outcomes"
+      ? "เปิดผลงาน / หลักฐาน"
+      : field === "website"
+        ? "เปิดเว็บไซต์"
+        : "เปิดลิงก์";
+
+  return (
+    <div className="detail-value">
+      {description && <strong>{description}</strong>}
+      <div className="evidence-actions">
+        {links.map((link, index) => (
+          <a key={link} className="evidence-button" href={link} target="_blank" rel="noopener noreferrer">
+            {actionLabel}{links.length > 1 ? ` ${index + 1}` : ""}<span aria-hidden="true">↗</span>
+          </a>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function BreakdownBar({
+  label,
+  value,
+  total,
+  color,
+  onClick,
+}: {
+  label: string;
+  value: number;
+  total: number;
+  color: string;
+  onClick?: () => void;
+}) {
+  const content = (
+    <>
+      <div className="bar-label">
+        <span>{label}</span>
+        <strong>{value.toLocaleString("th-TH")}</strong>
+      </div>
+      <div className="bar-track">
+        <span style={{ width: `${Math.max((value / Math.max(total, 1)) * 100, 1.5)}%`, background: color }} />
+      </div>
+    </>
+  );
+
+  if (onClick) {
+    return (
+      <button className="bar-row bar-button" type="button" onClick={onClick}>
+        {content}
+      </button>
+    );
+  }
+  return <div className="bar-row">{content}</div>;
+}
+
+export default function Dashboard() {
+  const [participants, setParticipants] = useState<Participant[]>([]);
+  const [updatedAt, setUpdatedAt] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState("");
+  const [view, setView] = useState<"overview" | "people">("overview");
+  const [query, setQuery] = useState("");
+  const [groupFilter, setGroupFilter] = useState("ทั้งหมด");
+  const [trackFilter, setTrackFilter] = useState("ทั้งหมด");
+  const [seasonFilter, setSeasonFilter] = useState("ทั้งหมด");
+  const [workFilter, setWorkFilter] = useState("ทั้งหมด");
+  const [selected, setSelected] = useState<Participant | null>(null);
+  const [page, setPage] = useState(1);
+
+  const loadData = useCallback(async (quiet = false) => {
+    if (quiet) setRefreshing(true);
+    else setLoading(true);
+    try {
+      const response = await fetch(`/api/participants?fresh=${Date.now()}`, {
+        cache: "no-store",
+      });
+      const payload = (await response.json()) as ApiResponse;
+      if (response.status === 401) {
+        window.location.replace("/login");
+        return;
+      }
+      if (!response.ok || !payload.participants) {
+        throw new Error(payload.error || "ไม่สามารถเชื่อมต่อข้อมูลได้");
+      }
+      setParticipants(payload.participants);
+      setUpdatedAt(payload.updatedAt ?? new Date().toISOString());
+      setError("");
+    } catch (loadError) {
+      setError(loadError instanceof Error ? loadError.message : "ไม่สามารถเชื่อมต่อข้อมูลได้");
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    const initial = window.setTimeout(() => loadData(), 0);
+    const interval = window.setInterval(() => loadData(true), 60_000);
+    const onVisible = () => {
+      if (document.visibilityState === "visible") loadData(true);
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      window.clearTimeout(initial);
+      window.clearInterval(interval);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
+  }, [loadData]);
+
+  const totals = useMemo(() => countBy(participants, "group"), [participants]);
+  const tracks = useMemo(() => sortEntries(Object.entries(countBy(participants, "track"))), [participants]);
+  const seasons = useMemo(
+    () => Object.keys(countBy(participants, "season")).sort((a, b) => a.localeCompare(b, "th", { numeric: true })),
+    [participants],
+  );
+  const workers = useMemo(() => participants.filter((item) => item.group === "ทำงาน"), [participants]);
+  const workTypes = useMemo(() => countBy(workers, "workType"), [workers]);
+  const sectorEntries = useMemo(
+    () => sortEntries(Object.entries(countBy(participants.filter((item) => item.group === "ทำงาน" || item.group === "เรียนและทำงาน"), "sector"))).slice(0, 6),
+    [participants],
+  );
+  const incomeEntries = useMemo(() => {
+    const counts = countBy(participants.filter((item) => item.group === "ทำงาน" || item.group === "เรียนและทำงาน"), "income");
+    return ["น้อยกว่า 20,000 บาท", "20,001-35,000 บาท", "35,001-50,000 บาท", "มากกว่า 50,000 บาท"]
+      .map((income) => [income, counts[income] ?? 0] as [string, number]);
+  }, [participants]);
+  const aiRespondents = useMemo(
+    () => participants.filter((item) => Boolean(item.aiUsage)),
+    [participants],
+  );
+  const aiPositive = useMemo(
+    () => aiRespondents.filter((item) => !/(ไม่เกี่ยวข้อง|แทบไม่ใช้|ไม่ใช้)/.test(item.aiUsage)),
+    [aiRespondents],
+  );
+  const scholarshipAfter = useMemo(
+    () => participants.filter((item) => item.scholarshipAfterProject === "ใช่").length,
+    [participants],
+  );
+
+  const filtered = useMemo(() => {
+    const normalizedQuery = query.trim().toLocaleLowerCase("th");
+    return participants.filter((item) => {
+      const haystack = [item.code, item.title, item.firstName, item.lastName, item.nickname, item.email, item.phone]
+        .join(" ")
+        .toLocaleLowerCase("th");
+      return (
+        (!normalizedQuery || haystack.includes(normalizedQuery)) &&
+        (groupFilter === "ทั้งหมด" || item.group === groupFilter) &&
+        (trackFilter === "ทั้งหมด" || item.track === trackFilter) &&
+        (seasonFilter === "ทั้งหมด" || item.season === seasonFilter) &&
+        (workFilter === "ทั้งหมด" || item.workType === workFilter)
+      );
+    });
+  }, [participants, query, groupFilter, trackFilter, seasonFilter, workFilter]);
+
+  const pageSize = 12;
+  const pageCount = Math.max(1, Math.ceil(filtered.length / pageSize));
+  const pageItems = filtered.slice((page - 1) * pageSize, page * pageSize);
+
+  const selectGroup = (group: string) => {
+    setGroupFilter(group);
+    setPage(1);
+    setView("people");
+  };
+
+  const clearFilters = () => {
+    setQuery("");
+    setGroupFilter("ทั้งหมด");
+    setTrackFilter("ทั้งหมด");
+    setSeasonFilter("ทั้งหมด");
+    setWorkFilter("ทั้งหมด");
+    setPage(1);
+  };
+
+  const logout = async () => {
+    await fetch("/api/auth/logout", { method: "POST" });
+    window.location.replace("/login");
+  };
+
+  const total = participants.length;
+  const accountedFor = (totals["ทำงาน"] ?? 0) + (totals["เรียน"] ?? 0) + (totals["เรียนและทำงาน"] ?? 0);
+  const labourPool = (totals["ทำงาน"] ?? 0) + (totals["เรียนและทำงาน"] ?? 0);
+  const learningPool = (totals["เรียน"] ?? 0) + (totals["เรียนและทำงาน"] ?? 0);
+  const groupGradient = GROUPS.reduce(
+    (result, group, index) => {
+      const previous = GROUPS.slice(0, index).reduce((sum, item) => sum + (totals[item.name] ?? 0), 0);
+      const start = (previous / Math.max(total, 1)) * 360;
+      const end = ((previous + (totals[group.name] ?? 0)) / Math.max(total, 1)) * 360;
+      return `${result}${index ? ", " : ""}${group.color} ${start}deg ${end}deg`;
+    },
+    "",
+  );
+
+  return (
+    <main>
+      <header className="topbar">
+        <a className="brand" href="#top" aria-label="กลับด้านบน">
+          <span className="brand-logos" aria-hidden="true">
+            <Image className="brand-logo-aiat" src="/aiat-10-logo.png" width={283} height={240} alt="" priority />
+            <i />
+            <Image className="brand-logo-superai" src="/super-ai-logo.png" width={276} height={260} alt="" priority />
+          </span>
+          <span className="brand-text">
+            <strong>ระบบติดตามผลผู้เข้าร่วมโครงการ</strong>
+            <small>Super AI Engineer • AIAT</small>
+          </span>
+        </a>
+        <nav className="view-switch" aria-label="เลือกมุมมอง">
+          <button className={view === "overview" ? "active" : ""} type="button" onClick={() => setView("overview")}>ภาพรวม</button>
+          <button className={view === "people" ? "active" : ""} type="button" onClick={() => setView("people")}>รายบุคคล</button>
+        </nav>
+        <div className="sync-status">
+          <span className={error ? "status-dot error" : "status-dot"} />
+          <div>
+            <small>{error ? "การเชื่อมต่อขัดข้อง" : "เชื่อมต่อ Google Sheets"}</small>
+            <strong>{formatUpdatedAt(updatedAt)}</strong>
+          </div>
+          <button className="refresh-button" type="button" onClick={() => loadData(true)} disabled={refreshing} aria-label="อัปเดตข้อมูลทันที">
+            <span className={refreshing ? "spin" : ""}>↻</span>
+          </button>
+          <button className="logout-button" type="button" onClick={logout}>ออกจากระบบ</button>
+        </div>
+      </header>
+
+      <div className="page-shell" id="top">
+        {error && (
+          <div className="error-banner" role="alert">
+            <span>!</span>
+            <div><strong>ยังแสดงข้อมูลล่าสุดไม่ได้</strong><p>{error}</p></div>
+            <button type="button" onClick={() => loadData()}>ลองอีกครั้ง</button>
+          </div>
+        )}
+
+        {view === "overview" ? (
+          <>
+            <section className="hero-grid">
+              <div className="hero-copy">
+                <p className="eyebrow">ติดตามผลผู้เข้าร่วม • SEASON 1–5</p>
+                <h1>จากห้องเรียน<br />สู่ผลลัพธ์จริง</h1>
+                <p className="hero-description">
+                  ภาพรวมเส้นทางหลังจบโครงการ เพื่อมองเห็นกำลังคนที่เข้าสู่อุตสาหกรรม การศึกษาต่อ และโอกาสพัฒนาเชิงนโยบาย
+                </p>
+                <div className="hero-actions">
+                  <button className="primary-button" type="button" onClick={() => setView("people")}>สำรวจผู้เข้าร่วม <span>→</span></button>
+                  <span className="privacy-label">ข้อมูลส่วนบุคคลแสดงเฉพาะหน้ารายบุคคล</span>
+                </div>
+              </div>
+              <div className="hero-number-card">
+                <div className="live-label"><span /> LIVE DATA</div>
+                <strong>{loading ? "—" : total.toLocaleString("th-TH")}</strong>
+                <p>ผู้เข้าร่วมที่ติดตามผลแล้ว</p>
+                <div className="coverage-row">
+                  <div><span>มีเส้นทางต่อเนื่อง</span><strong>{loading ? "—" : `${percent(accountedFor, total)}%`}</strong></div>
+                  <div className="coverage-track"><span style={{ width: `${(accountedFor / Math.max(total, 1)) * 100}%` }} /></div>
+                  <small>ทำงาน เรียน หรือทำทั้งสองอย่าง</small>
+                </div>
+              </div>
+            </section>
+
+            <section className="stat-strip" aria-label="สรุปสถานะผู้เข้าร่วม">
+              {GROUPS.map((group, index) => (
+                <button key={group.name} className="stat-item" type="button" onClick={() => selectGroup(group.name)}>
+                  <span className="stat-index">0{index + 1}</span>
+                  <div><strong>{loading ? "—" : (totals[group.name] ?? 0).toLocaleString("th-TH")}</strong><span>{group.short}</span></div>
+                  <i style={{ background: group.color }} />
+                </button>
+              ))}
+            </section>
+
+            <section className="insight-grid">
+              <article className="panel status-panel">
+                <div className="panel-heading">
+                  <div><p className="eyebrow">01 / CURRENT PATH</p><h2>เส้นทางปัจจุบัน</h2></div>
+                  <span className="panel-note">คลิกแต่ละกลุ่มเพื่อดูรายชื่อ</span>
+                </div>
+                <div className="donut-layout">
+                  <div className="donut" style={{ background: `conic-gradient(${groupGradient || "#e5e7eb 0deg 360deg"})` }}>
+                    <div><strong>{total.toLocaleString("th-TH")}</strong><span>ทั้งหมด</span></div>
+                  </div>
+                  <div className="legend-list">
+                    {GROUPS.map((group) => (
+                      <button key={group.name} type="button" onClick={() => selectGroup(group.name)}>
+                        <i style={{ background: group.color }} /><span>{group.short}</span><strong>{percent(totals[group.name] ?? 0, total)}%</strong>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </article>
+
+              <article className="panel work-panel">
+                <div className="panel-heading">
+                  <div><p className="eyebrow">02 / WORKING GROUP</p><h2>รูปแบบการทำงาน</h2></div>
+                  <span className="big-context">{workers.length}</span>
+                </div>
+                <div className="bars-list">
+                  {WORK_TYPES.map((workType, index) => (
+                    <BreakdownBar
+                      key={workType}
+                      label={workType.replace(" (Freelancer / Consultant)", "")}
+                      value={workTypes[workType] ?? 0}
+                      total={workers.length}
+                      color={["#FF7A1A", "#2F6BFF", "#FF4FA3", "#19BCEB", "#6D4AFF"][index]}
+                      onClick={() => { setGroupFilter("ทำงาน"); setWorkFilter(workType); setPage(1); setView("people"); }}
+                    />
+                  ))}
+                </div>
+              </article>
+            </section>
+
+            <section className="policy-section">
+              <div className="section-heading">
+                <div><p className="eyebrow">POLICY LENS</p><h2>ตัวชี้วัดที่ตอบโจทย์ผู้ให้ทุน</h2></div>
+                <p>อ่านผลลัพธ์ในมิติ “กำลังคน → อุตสาหกรรม → การพัฒนาต่อ”</p>
+              </div>
+              <div className="policy-grid">
+                <article className="policy-card dark-card"><span>กำลังคนในตลาดงาน</span><strong>{labourPool.toLocaleString("th-TH")}</strong><p>คนที่ทำงาน หรือเรียนควบคู่กับการทำงาน</p><i>{percent(labourPool, total)}% ของผู้ตอบ</i></article>
+                <article className="policy-card"><span>กำลังพัฒนาทักษะต่อ</span><strong>{learningPool.toLocaleString("th-TH")}</strong><p>คนที่อยู่ในการศึกษา หรือเรียนควบคู่กับงาน</p><i>{percent(learningPool, total)}% ของผู้ตอบ</i></article>
+                <article className="policy-card"><span>งานเชื่อมโยง AI / ดิจิทัล</span><strong>{aiPositive.length.toLocaleString("th-TH")}</strong><p>ผู้ที่ระบุว่าใช้หรือทำงานเกี่ยวข้องกับ AI / ดิจิทัล</p><i>จากคำตอบที่จำแนกได้ {aiRespondents.length.toLocaleString("th-TH")} คน</i></article>
+                <article className="policy-card accent-card"><span>ทุนการศึกษาหลังโครงการ</span><strong>{scholarshipAfter.toLocaleString("th-TH")}</strong><p>ผู้เรียนที่ระบุว่าได้รับทุนหลังเข้าร่วมโครงการ</p><i>ใช้ติดตามผลกระทบเชิงโอกาส</i></article>
+              </div>
+            </section>
+
+            <section className="insight-grid bottom-grid">
+              <article className="panel">
+                <div className="panel-heading"><div><p className="eyebrow">03 / TRACK</p><h2>การกระจายตาม Track</h2></div></div>
+                <div className="bars-list compact-bars">
+                  {tracks.map(([track, count], index) => (
+                    <BreakdownBar key={track} label={track} value={count} total={total} color={["#2F6BFF", "#FF7A1A", "#FF4FA3"][index] ?? "#19BCEB"} />
+                  ))}
+                </div>
+                <div className="mini-note"><strong>AI Engineer</strong><span>ดูรายละเอียด “บ้าน” ของผู้เข้าร่วมได้ในหน้ารายบุคคล</span></div>
+              </article>
+
+              <article className="panel">
+                <div className="panel-heading"><div><p className="eyebrow">04 / SECTOR</p><h2>ภาคส่วนการทำงาน</h2></div><span className="panel-note">จากผู้ที่ระบุภาคส่วน</span></div>
+                <div className="bars-list compact-bars">
+                  {sectorEntries.map(([sector, count], index) => (
+                    <BreakdownBar key={sector} label={sector.replace("สถาบันการศึกษา / มหาวิทยาลัย", "สถาบันการศึกษา")} value={count} total={sectorEntries[0]?.[1] ?? 1} color={["#2F6BFF", "#19BCEB", "#FF7A1A", "#FF4FA3", "#6D4AFF", "#163A8A"][index]} />
+                  ))}
+                </div>
+              </article>
+            </section>
+
+            <section className="panel season-panel">
+              <div className="panel-heading"><div><p className="eyebrow">05 / COHORT VIEW</p><h2>เส้นทางของผู้เข้าร่วมในแต่ละ Season</h2></div><span className="panel-note">จำนวนผู้ตอบแบบติดตามผล</span></div>
+              <div className="season-chart">
+                {seasons.map((season) => {
+                  const seasonTotal = participants.filter((item) => item.season === season).length;
+                  return (
+                    <div className="season-row" key={season}>
+                      <strong>{season}</strong>
+                      <div className="season-stack">
+                        {GROUPS.map((group) => {
+                          const value = participants.filter((item) => item.season === season && item.group === group.name).length;
+                          return value ? <span key={group.name} title={`${group.short}: ${value}`} style={{ width: `${(value / seasonTotal) * 100}%`, background: group.color }} /> : null;
+                        })}
+                      </div>
+                      <span>{seasonTotal}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+
+            <section className="income-section">
+              <div className="section-heading"><div><p className="eyebrow">INCOME SIGNAL</p><h2>ช่วงรายได้ของผู้ที่ทำงาน</h2></div><p>รวมกลุ่มทำงานและเรียนควบคู่กับงาน เฉพาะผู้ที่ระบุรายได้</p></div>
+              <div className="income-grid">
+                {incomeEntries.map(([income, count], index) => (
+                  <article key={income}>
+                    <span style={{ background: ["#FF7A1A", "#2F6BFF", "#FF4FA3", "#19BCEB"][index] ?? "#6D4AFF" }} />
                     <strong>{count}</strong><p>{income}</p>
                   </article>
                 ))}
