@@ -23,7 +23,6 @@ const SUPPORTER_LOGOS = [
   { src: "/sponsor-nectec.png", alt: "NECTEC", fit: "logoWide" },
   { src: "/sponsor-rmutl.png", alt: "มหาวิทยาลัยเทคโนโลยีราชมงคลล้านนา", fit: "logoTall" },
   { src: "/sponsor-siit.png", alt: "สถาบันเทคโนโลยีนานาชาติสิรินธร", fit: "logoWide" },
-  { src: "/sponsor-superai.png", alt: "Super AI Engineer", fit: "logoSuperAi" },
 ] as const;
 
 export default function LoginForm() {
