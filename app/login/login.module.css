@@ -201,12 +201,13 @@
 }
 
 .logoSeal { --logo-pad: 14px; }
-.logoTsri { --logo-pad: 15px; }
+.logoTsri { --logo-pad: 11px; }
 .logoStandard { --logo-pad: 11px; }
+.logoBpko { --logo-pad: 7px; }
 .logoWide { --logo-pad: 9px; }
 .logoAiAt { --logo-pad: 7px; }
-.logoAnniversary { --logo-pad: 13px; }
-.logoTall { --logo-pad: 18px; }
+.logoAnniversary { --logo-pad: 9px; }
+.logoTall { --logo-pad: 12px; }
 .logoSuperAi { --logo-pad: 16px; }
 
 .formPanel {

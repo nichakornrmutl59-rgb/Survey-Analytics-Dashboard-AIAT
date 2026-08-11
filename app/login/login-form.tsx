@@ -16,7 +16,7 @@ const SUPPORTER_LOGOS = [
   { src: "/sponsor-mhesi.png", alt: "กระทรวงการอุดมศึกษา วิทยาศาสตร์ วิจัยและนวัตกรรม", fit: "logoSeal" },
   { src: "/sponsor-tsri.png", alt: "สำนักงานคณะกรรมการส่งเสริมวิทยาศาสตร์ วิจัยและนวัตกรรม", fit: "logoTsri" },
   { src: "/sponsor-rorworpo.png", alt: "สำนักงานเร่งรัดการวิจัยและนวัตกรรม", fit: "logoStandard" },
-  { src: "/sponsor-bpko.png", alt: "หน่วยบริหารและจัดการทุนด้านการพัฒนาระดับพื้นที่", fit: "logoStandard" },
+  { src: "/sponsor-bpko.png", alt: "หน่วยบริหารและจัดการทุนด้านการพัฒนาระดับพื้นที่", fit: "logoBpko" },
   { src: "/sponsor-ailoveu.jpg", alt: "AI Love U", fit: "logoWide" },
   { src: "/sponsor-aiat.jpg", alt: "สมาคมปัญญาประดิษฐ์ประเทศไทย", fit: "logoAiAt" },
   { src: "/sponsor-aiat10.png", alt: "AIAT ครบรอบ 10 ปี", fit: "logoAnniversary" },
