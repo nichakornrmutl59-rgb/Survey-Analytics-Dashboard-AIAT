@@ -29,7 +29,9 @@ export function Spotlight({
   useEffect(() => {
     const parent = containerRef.current?.parentElement;
     if (!parent) return;
-    parent.style.position = "relative";
+    if (window.getComputedStyle(parent).position === "static") {
+      parent.style.position = "relative";
+    }
     parent.style.overflow = "hidden";
     setParentElement(parent);
   }, []);
