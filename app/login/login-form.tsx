@@ -1,29 +1,29 @@
 "use client";
 
-import { Card } from "@/components/ui/card";
 import { SplineScene } from "@/components/ui/splite";
-import { Spotlight } from "@/components/ui/spotlight";
 import Image from "next/image";
 import { FormEvent, useState } from "react";
 
+import styles from "./login.module.css";
+
 const TOP_LOGOS = [
-  { src: "/sponsor-aiat.jpg", alt: "สมาคมปัญญาประดิษฐ์ประเทศไทย", width: 640, height: 384 },
-  { src: "/sponsor-aiat10.png", alt: "AIAT ครบรอบ 10 ปี", width: 1706, height: 1476 },
-  { src: "/sponsor-superai.png", alt: "Super AI Engineer", width: 1624, height: 1498 },
+  { src: "/sponsor-aiat.jpg", alt: "สมาคมปัญญาประดิษฐ์ประเทศไทย", fit: "topAiAt" },
+  { src: "/sponsor-aiat10.png", alt: "AIAT ครบรอบ 10 ปี", fit: "topAnniversary" },
+  { src: "/sponsor-superai.png", alt: "Super AI Engineer", fit: "topSuperAi" },
 ] as const;
 
 const SUPPORTER_LOGOS = [
-  { src: "/sponsor-mhesi.png", alt: "กระทรวงการอุดมศึกษา วิทยาศาสตร์ วิจัยและนวัตกรรม", fit: "fit-seal" },
-  { src: "/sponsor-tsri.png", alt: "สำนักงานคณะกรรมการส่งเสริมวิทยาศาสตร์ วิจัยและนวัตกรรม", fit: "fit-tsri" },
-  { src: "/sponsor-rorworpo.png", alt: "สำนักงานเร่งรัดการวิจัยและนวัตกรรม", fit: "fit-standard" },
-  { src: "/sponsor-bpko.png", alt: "หน่วยบริหารและจัดการทุนด้านการพัฒนาระดับพื้นที่", fit: "fit-bpko" },
-  { src: "/sponsor-ailoveu.jpg", alt: "AI Love U", fit: "fit-wide" },
-  { src: "/sponsor-aiat.jpg", alt: "สมาคมปัญญาประดิษฐ์ประเทศไทย", fit: "fit-aiat" },
-  { src: "/sponsor-aiat10.png", alt: "AIAT ครบรอบ 10 ปี", fit: "fit-aiat10" },
-  { src: "/sponsor-nectec.png", alt: "NECTEC", fit: "fit-nectec" },
-  { src: "/sponsor-rmutl.png", alt: "มหาวิทยาลัยเทคโนโลยีราชมงคลล้านนา", fit: "fit-rmutl" },
-  { src: "/sponsor-siit.png", alt: "สถาบันเทคโนโลยีนานาชาติสิรินธร", fit: "fit-wide" },
-  { src: "/sponsor-superai.png", alt: "Super AI Engineer", fit: "fit-superai" },
+  { src: "/sponsor-mhesi.png", alt: "กระทรวงการอุดมศึกษา วิทยาศาสตร์ วิจัยและนวัตกรรม", fit: "logoSeal" },
+  { src: "/sponsor-tsri.png", alt: "สำนักงานคณะกรรมการส่งเสริมวิทยาศาสตร์ วิจัยและนวัตกรรม", fit: "logoTsri" },
+  { src: "/sponsor-rorworpo.png", alt: "สำนักงานเร่งรัดการวิจัยและนวัตกรรม", fit: "logoStandard" },
+  { src: "/sponsor-bpko.png", alt: "หน่วยบริหารและจัดการทุนด้านการพัฒนาระดับพื้นที่", fit: "logoStandard" },
+  { src: "/sponsor-ailoveu.jpg", alt: "AI Love U", fit: "logoWide" },
+  { src: "/sponsor-aiat.jpg", alt: "สมาคมปัญญาประดิษฐ์ประเทศไทย", fit: "logoAiAt" },
+  { src: "/sponsor-aiat10.png", alt: "AIAT ครบรอบ 10 ปี", fit: "logoAnniversary" },
+  { src: "/sponsor-nectec.png", alt: "NECTEC", fit: "logoWide" },
+  { src: "/sponsor-rmutl.png", alt: "มหาวิทยาลัยเทคโนโลยีราชมงคลล้านนา", fit: "logoTall" },
+  { src: "/sponsor-siit.png", alt: "สถาบันเทคโนโลยีนานาชาติสิรินธร", fit: "logoWide" },
+  { src: "/sponsor-superai.png", alt: "Super AI Engineer", fit: "logoSuperAi" },
 ] as const;
 
 export default function LoginForm() {
@@ -54,62 +54,65 @@ export default function LoginForm() {
   }
 
   return (
-    <main className="login-page">
-      <section className="login-brand-panel">
-        <div className="login-top-logos" aria-label="หน่วยงานหลักของโครงการ">
+    <main className={styles.page}>
+      <section className={styles.brandPanel}>
+        <div className={styles.topLogos} aria-label="หน่วยงานหลักของโครงการ">
           {TOP_LOGOS.map((logo) => (
-            <div className="login-top-logo" key={logo.src}>
-              <Image src={logo.src} width={logo.width} height={logo.height} alt={logo.alt} priority />
+            <div className={`${styles.topLogo} ${styles[logo.fit]}`} key={logo.src}>
+              <Image className={styles.logoImage} src={logo.src} alt={logo.alt} fill sizes="150px" priority />
             </div>
           ))}
         </div>
 
-        <div className="login-hero-copy">
-          <p className="eyebrow">SECURE OUTCOME DASHBOARD</p>
+        <div className={styles.heroCopy}>
+          <p className={styles.eyebrow}>SECURE OUTCOME DASHBOARD</p>
           <h1>ระบบติดตามผล<br />ผู้เข้าร่วมโครงการ</h1>
-          <p>ข้อมูลรายบุคคลสำหรับผู้ได้รับอนุญาตจากสมาคมปัญญาประดิษฐ์ประเทศไทยเท่านั้น</p>
+          <p className={styles.description}>
+            ข้อมูลรายบุคคลสำหรับผู้ได้รับอนุญาตจากสมาคมปัญญาประดิษฐ์ประเทศไทยเท่านั้น
+          </p>
         </div>
 
-        <Card className="login-spline-stage" aria-label="โมเดล AI สามมิติแบบโต้ตอบ">
-          <Spotlight size={430} fill="rgba(114, 220, 255, .54)" />
-          <div className="login-spline-orbit" aria-hidden="true" />
+        <div className={styles.splineStage} aria-label="โมเดล AI สามมิติแบบโต้ตอบ">
+          <div className={styles.splineGlow} aria-hidden="true" />
           <SplineScene
             scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
-            className="login-spline-canvas"
+            className={styles.splineCanvas}
           />
-          <span className="login-spline-hint">เลื่อนเมาส์เพื่อโต้ตอบกับ AI 3D</span>
-        </Card>
+          <span className={styles.splineHint}>เลื่อนเมาส์เพื่อโต้ตอบกับ AI 3D</span>
+        </div>
 
-        <div className="login-supporters">
+        <div className={styles.supporters}>
           <small>เครือข่ายผู้สนับสนุนและหน่วยงานความร่วมมือ</small>
-          <div className="login-supporter-track">
+          <div className={styles.supporterTrack}>
             {SUPPORTER_LOGOS.map((logo) => (
-              <div className={`login-supporter-logo ${logo.fit}`} key={logo.src} title={logo.alt}>
-                <Image src={logo.src} width={150} height={72} alt={logo.alt} />
+              <div className={`${styles.supporterLogo} ${styles[logo.fit]}`} key={logo.src} title={logo.alt}>
+                <Image className={styles.logoImage} src={logo.src} alt={logo.alt} fill sizes="94px" />
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="login-form-panel">
-        <form onSubmit={submit}>
-          <p className="eyebrow">เข้าสู่ระบบ</p>
+      <section className={styles.formPanel}>
+        <form className={styles.formCard} onSubmit={submit}>
+          <p className={styles.formEyebrow}>เข้าสู่ระบบ</p>
           <h2>ยืนยันตัวตนเพื่อดูข้อมูล</h2>
-          <p className="login-intro">กรอกชื่อผู้ใช้และรหัสผ่านที่ผู้ดูแลระบบกำหนดให้</p>
+          <p className={styles.formIntro}>กรอกชื่อผู้ใช้และรหัสผ่านที่ผู้ดูแลระบบกำหนดให้</p>
 
-          <label>
+          <label className={styles.field}>
             <span>ชื่อผู้ใช้</span>
             <input value={username} onChange={(event) => setUsername(event.target.value)} autoComplete="username" required autoFocus />
           </label>
-          <label>
+          <label className={styles.field}>
             <span>รหัสผ่าน</span>
             <input type="password" value={password} onChange={(event) => setPassword(event.target.value)} autoComplete="current-password" required />
           </label>
 
-          {error && <div className="login-error" role="alert">{error}</div>}
-          <button type="submit" disabled={submitting}>{submitting ? "กำลังตรวจสอบ…" : "เข้าสู่ระบบ"}<span>→</span></button>
-          <small>เซสชันจะหมดอายุอัตโนมัติภายใน 8 ชั่วโมง</small>
+          {error && <div className={styles.error} role="alert">{error}</div>}
+          <button className={styles.submitButton} type="submit" disabled={submitting}>
+            {submitting ? "กำลังตรวจสอบ…" : "เข้าสู่ระบบ"}<span>→</span>
+          </button>
+          <small className={styles.sessionNote}>เซสชันจะหมดอายุอัตโนมัติภายใน 8 ชั่วโมง</small>
         </form>
       </section>
     </main>

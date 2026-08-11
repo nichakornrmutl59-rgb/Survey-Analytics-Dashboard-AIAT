@@ -1,0 +1,352 @@
+.page {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: minmax(0, 1.42fr) minmax(410px, .58fr);
+  overflow: hidden;
+  background: #071027;
+}
+
+.brandPanel {
+  min-width: 0;
+  min-height: 100vh;
+  padding: clamp(26px, 3.8vw, 58px);
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  color: #fff;
+  background:
+    radial-gradient(circle at 77% 45%, rgba(25, 188, 235, .17), transparent 27%),
+    radial-gradient(circle at 88% 86%, rgba(109, 74, 255, .30), transparent 34%),
+    radial-gradient(circle at 18% 12%, rgba(255, 122, 26, .10), transparent 20%),
+    linear-gradient(145deg, #071027 0%, #0b1533 56%, #161243 100%);
+}
+
+.brandPanel::before {
+  content: "";
+  width: 550px;
+  height: 550px;
+  position: absolute;
+  right: -190px;
+  bottom: -210px;
+  z-index: -1;
+  border: 1px solid rgba(255, 255, 255, .08);
+  border-radius: 50%;
+  box-shadow: 0 0 0 72px rgba(25, 188, 235, .035), 0 0 0 145px rgba(255, 79, 163, .025);
+}
+
+.topLogos {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  position: relative;
+  z-index: 5;
+}
+
+.topLogo,
+.supporterLogo {
+  --logo-pad: 10px;
+  position: relative;
+  overflow: hidden;
+  flex: 0 0 auto;
+  border: 1px solid rgba(255, 255, 255, .13);
+  background: rgba(255, 255, 255, .07);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .07), 0 8px 24px rgba(0, 0, 0, .12);
+}
+
+.topLogo {
+  width: clamp(74px, 6vw, 108px);
+  height: clamp(52px, 4.4vw, 70px);
+  border-radius: 13px;
+}
+
+.logoImage {
+  object-fit: contain !important;
+  padding: var(--logo-pad) !important;
+}
+
+.topAiAt { width: clamp(104px, 9vw, 150px); --logo-pad: 5px; }
+.topAnniversary { --logo-pad: 12px; }
+.topSuperAi { --logo-pad: 17px; }
+
+.heroCopy {
+  width: min(49%, 570px);
+  align-self: center;
+  padding: 34px 0 108px;
+  position: relative;
+  z-index: 4;
+}
+
+.eyebrow,
+.formEyebrow {
+  margin: 0 0 12px;
+  font-size: 10px;
+  line-height: 1.4;
+  letter-spacing: .16em;
+  font-weight: 850;
+}
+
+.eyebrow { color: #72dcff; }
+
+.heroCopy h1 {
+  margin: 0;
+  font-size: clamp(43px, 3.7vw, 66px);
+  line-height: 1.12;
+  letter-spacing: -.035em;
+  font-weight: 750;
+  background: linear-gradient(100deg, #fff 0%, #d9eeff 36%, #55cfff 66%, #ff77b9 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.description {
+  max-width: 560px;
+  margin: 22px 0 0;
+  color: #cbd7f3;
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+.splineStage {
+  width: min(43vw, 660px);
+  height: min(62vh, 650px);
+  position: absolute;
+  z-index: 2;
+  right: clamp(2px, 1.5vw, 28px);
+  top: 12%;
+  overflow: hidden;
+  border: 1px solid rgba(114, 220, 255, .13);
+  border-radius: 36% 64% 54% 46% / 42% 38% 62% 58%;
+  background: linear-gradient(145deg, rgba(4, 11, 33, .10), rgba(27, 18, 79, .28));
+  box-shadow: inset 0 0 60px rgba(47, 107, 255, .08), 0 30px 80px rgba(0, 0, 0, .20);
+}
+
+.splineGlow {
+  width: 74%;
+  aspect-ratio: 1;
+  position: absolute;
+  left: 14%;
+  top: 13%;
+  border: 1px solid rgba(114, 220, 255, .15);
+  border-radius: 50%;
+  box-shadow: 0 0 0 44px rgba(109, 74, 255, .035), 0 0 0 88px rgba(255, 79, 163, .02);
+  pointer-events: none;
+}
+
+.splineCanvas {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  z-index: 2;
+}
+
+.splineHint {
+  position: absolute;
+  z-index: 4;
+  left: 50%;
+  bottom: 15px;
+  transform: translateX(-50%);
+  padding: 7px 12px;
+  border: 1px solid rgba(255, 255, 255, .10);
+  border-radius: 999px;
+  background: rgba(5, 12, 34, .60);
+  color: #b9c9ed;
+  font-size: 9px;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.supporters {
+  min-width: 0;
+  position: relative;
+  z-index: 5;
+}
+
+.supporters > small {
+  display: block;
+  margin-bottom: 9px;
+  color: #8fa1c9;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .08em;
+}
+
+.supporterTrack {
+  display: grid;
+  grid-template-columns: repeat(11, minmax(74px, 94px));
+  justify-content: start;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 2px 2px 6px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(114, 220, 255, .34) transparent;
+}
+
+.supporterLogo {
+  width: 100%;
+  height: 58px;
+  border-radius: 11px;
+  --logo-pad: 10px;
+}
+
+.supporterLogo:hover {
+  border-color: rgba(114, 220, 255, .42);
+  background: rgba(255, 255, 255, .11);
+}
+
+.logoSeal { --logo-pad: 14px; }
+.logoTsri { --logo-pad: 15px; }
+.logoStandard { --logo-pad: 11px; }
+.logoWide { --logo-pad: 9px; }
+.logoAiAt { --logo-pad: 7px; }
+.logoAnniversary { --logo-pad: 13px; }
+.logoTall { --logo-pad: 18px; }
+.logoSuperAi { --logo-pad: 16px; }
+
+.formPanel {
+  min-height: 100vh;
+  padding: 52px clamp(30px, 4.5vw, 82px);
+  display: grid;
+  place-items: center;
+  position: relative;
+  z-index: 8;
+  background:
+    radial-gradient(circle at 95% 5%, rgba(25, 188, 235, .12), transparent 27%),
+    radial-gradient(circle at 8% 94%, rgba(255, 79, 163, .10), transparent 29%),
+    linear-gradient(180deg, #fff, #f7f9ff 70%, #fff7fb);
+  box-shadow: -24px 0 70px rgba(1, 8, 30, .20);
+}
+
+.formCard {
+  width: min(420px, 100%);
+  padding: clamp(24px, 3vw, 38px);
+  border: 1px solid rgba(47, 107, 255, .13);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, .82);
+  box-shadow: 0 24px 60px rgba(47, 107, 255, .10);
+  backdrop-filter: blur(16px);
+}
+
+.formEyebrow { color: #2f6bff; }
+
+.formCard h2 {
+  margin: 0;
+  color: #10214b;
+  font-size: clamp(28px, 3vw, 38px);
+  line-height: 1.3;
+  font-weight: 650;
+}
+
+.formIntro {
+  margin: 12px 0 34px;
+  color: #5e6b89;
+  font-size: 13px;
+  line-height: 1.75;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-top: 18px;
+}
+
+.field > span {
+  color: #3e4f78;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.field input {
+  width: 100%;
+  height: 50px;
+  padding: 0 14px;
+  border: 1px solid #dbe5ff;
+  border-radius: 11px;
+  outline: 0;
+  background: #f9fbff;
+  color: #10214b;
+  font-size: 14px;
+}
+
+.field input:focus {
+  border-color: #2f6bff;
+  box-shadow: 0 0 0 4px rgba(47, 107, 255, .10);
+}
+
+.error {
+  margin-top: 16px;
+  padding: 10px 12px;
+  border: 1px solid #ffc3dc;
+  border-radius: 9px;
+  background: #fff0f7;
+  color: #962556;
+  font-size: 11px;
+}
+
+.submitButton {
+  width: 100%;
+  height: 50px;
+  margin-top: 22px;
+  padding: 0 17px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 0;
+  border-radius: 11px;
+  background: linear-gradient(135deg, #ff7a1a, #ff4fa3);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 650;
+  cursor: pointer;
+  box-shadow: 0 10px 24px rgba(255, 79, 163, .20);
+}
+
+.submitButton:hover { background: linear-gradient(135deg, #2f6bff, #6d4aff); }
+.submitButton:disabled { opacity: .6; cursor: wait; }
+
+.sessionNote {
+  display: block;
+  margin-top: 13px;
+  color: #5e6b89;
+  font-size: 9px;
+  text-align: center;
+}
+
+@media (max-width: 1100px) {
+  .page { grid-template-columns: minmax(0, 1fr) minmax(390px, .66fr); }
+  .brandPanel { padding: 30px; }
+  .heroCopy { width: 55%; }
+  .splineStage { width: min(49vw, 540px); height: min(57vh, 570px); right: -64px; top: 16%; }
+  .supporterTrack { grid-template-columns: repeat(11, 74px); }
+}
+
+@media (max-width: 760px) {
+  .page { display: block; overflow: visible; }
+  .brandPanel { min-height: 790px; padding: 24px 20px 28px; gap: 18px; }
+  .topLogos { gap: 7px; }
+  .topLogo { width: 65px; height: 48px; border-radius: 10px; }
+  .topAiAt { width: 94px; }
+  .splineStage { width: min(94vw, 580px); height: 390px; right: -9vw; top: 88px; }
+  .heroCopy { width: min(88%, 480px); align-self: end; padding: 340px 0 24px; }
+  .heroCopy h1 { font-size: clamp(38px, 11vw, 52px); }
+  .description { margin-top: 14px; font-size: 12px; }
+  .supporterTrack { grid-template-columns: repeat(11, 74px); }
+  .formPanel { min-height: auto; padding: 46px 20px 70px; box-shadow: 0 -20px 60px rgba(1, 8, 30, .18); }
+  .formCard { padding: 24px 20px; border-radius: 20px; }
+}
+
+@media (max-width: 430px) {
+  .brandPanel { min-height: 750px; }
+  .topLogo { width: 58px; height: 44px; }
+  .topAiAt { width: 84px; }
+  .splineStage { width: 98vw; height: 360px; right: -13vw; top: 78px; }
+  .heroCopy { width: 100%; padding-top: 325px; }
+  .heroCopy h1 { font-size: 39px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .splineGlow { animation: none; }
+}
