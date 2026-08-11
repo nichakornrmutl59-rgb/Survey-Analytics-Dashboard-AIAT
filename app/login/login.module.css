@@ -75,7 +75,7 @@
 .topSuperAi { --logo-pad: 4px; }
 
 .heroCopy {
-  width: min(49%, 570px);
+  width: min(52%, 620px);
   align-self: center;
   padding: 34px 0 108px;
   position: relative;
@@ -95,7 +95,7 @@
 
 .heroCopy h1 {
   margin: 0;
-  font-size: clamp(43px, 3.7vw, 66px);
+  font-size: clamp(48px, 4.2vw, 74px);
   line-height: 1.12;
   letter-spacing: -.035em;
   font-weight: 750;
@@ -106,10 +106,10 @@
 }
 
 .description {
-  max-width: 560px;
+  max-width: 600px;
   margin: 22px 0 0;
   color: #cbd7f3;
-  font-size: 14px;
+  font-size: 16px;
   line-height: 1.8;
 }
 
@@ -201,17 +201,18 @@
 }
 
 .logoSeal { --logo-pad: 14px; }
-.logoTsri { --logo-pad: 15px; }
+.logoTsri { --logo-pad: 11px; }
 .logoStandard { --logo-pad: 11px; }
+.logoBpko { --logo-pad: 7px; }
 .logoWide { --logo-pad: 9px; }
 .logoAiAt { --logo-pad: 7px; }
-.logoAnniversary { --logo-pad: 13px; }
-.logoTall { --logo-pad: 18px; }
+.logoAnniversary { --logo-pad: 9px; }
+.logoTall { --logo-pad: 12px; }
 .logoSuperAi { --logo-pad: 16px; }
 
 .formPanel {
   min-height: 100vh;
-  padding: 52px clamp(30px, 4.5vw, 82px);
+  padding: 52px clamp(24px, 2.5vw, 48px);
   display: grid;
   place-items: center;
   position: relative;
@@ -224,8 +225,8 @@
 }
 
 .formCard {
-  width: min(420px, 100%);
-  padding: clamp(24px, 3vw, 38px);
+  width: min(520px, 100%);
+  padding: clamp(30px, 2.8vw, 44px);
   border: 1px solid rgba(47, 107, 255, .13);
   border-radius: 24px;
   background: rgba(255, 255, 255, .82);
@@ -238,15 +239,17 @@
 .formCard h2 {
   margin: 0;
   color: #10214b;
-  font-size: clamp(28px, 3vw, 38px);
-  line-height: 1.3;
+  font-size: clamp(34px, 2.5vw, 42px);
+  line-height: 1.2;
   font-weight: 650;
+  letter-spacing: -.025em;
+  white-space: nowrap;
 }
 
 .formIntro {
-  margin: 12px 0 34px;
+  margin: 15px 0 38px;
   color: #5e6b89;
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.75;
 }
 
@@ -259,13 +262,13 @@
 
 .field > span {
   color: #3e4f78;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
 }
 
 .field input {
   width: 100%;
-  height: 50px;
+  height: 56px;
   padding: 0 14px;
   border: 1px solid #dbe5ff;
   border-radius: 11px;
@@ -292,7 +295,7 @@
 
 .submitButton {
   width: 100%;
-  height: 50px;
+  height: 56px;
   margin-top: 22px;
   padding: 0 17px;
   display: flex;
@@ -302,7 +305,7 @@
   border-radius: 11px;
   background: linear-gradient(135deg, #ff7a1a, #ff4fa3);
   color: #fff;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 650;
   cursor: pointer;
   box-shadow: 0 10px 24px rgba(255, 79, 163, .20);
@@ -322,7 +325,7 @@
 @media (max-width: 1100px) {
   .page { grid-template-columns: minmax(0, 1fr) minmax(390px, .66fr); }
   .brandPanel { padding: 30px; }
-  .heroCopy { width: 55%; }
+  .heroCopy { width: 57%; }
   .splineStage { width: min(49vw, 540px); height: min(57vh, 570px); right: -64px; top: 16%; }
   .supporterTrack { grid-template-columns: repeat(11, 74px); }
 }
@@ -335,11 +338,12 @@
   .topAiAt { width: 104px; }
   .splineStage { width: min(94vw, 580px); height: 390px; right: -9vw; top: 88px; }
   .heroCopy { width: min(88%, 480px); align-self: end; padding: 340px 0 24px; }
-  .heroCopy h1 { font-size: clamp(38px, 11vw, 52px); }
-  .description { margin-top: 14px; font-size: 12px; }
+  .heroCopy h1 { font-size: clamp(42px, 11.5vw, 56px); }
+  .description { margin-top: 16px; font-size: 13px; }
   .supporterTrack { grid-template-columns: repeat(11, 74px); }
   .formPanel { min-height: auto; padding: 46px 20px 70px; box-shadow: 0 -20px 60px rgba(1, 8, 30, .18); }
-  .formCard { padding: 24px 20px; border-radius: 20px; }
+  .formCard { padding: 28px 22px; border-radius: 20px; }
+  .formCard h2 { font-size: clamp(27px, 7vw, 34px); }
 }
 
 @media (max-width: 430px) {
@@ -348,7 +352,7 @@
   .topAiAt { width: 94px; }
   .splineStage { width: 98vw; height: 360px; right: -13vw; top: 78px; }
   .heroCopy { width: 100%; padding-top: 325px; }
-  .heroCopy h1 { font-size: 39px; }
+  .heroCopy h1 { font-size: 42px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

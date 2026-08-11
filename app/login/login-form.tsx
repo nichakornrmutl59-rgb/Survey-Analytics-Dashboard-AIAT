@@ -16,7 +16,7 @@ const SUPPORTER_LOGOS = [
   { src: "/sponsor-mhesi.png", alt: "กระทรวงการอุดมศึกษา วิทยาศาสตร์ วิจัยและนวัตกรรม", fit: "logoSeal" },
   { src: "/sponsor-tsri.png", alt: "สำนักงานคณะกรรมการส่งเสริมวิทยาศาสตร์ วิจัยและนวัตกรรม", fit: "logoTsri" },
   { src: "/sponsor-rorworpo.png", alt: "สำนักงานเร่งรัดการวิจัยและนวัตกรรม", fit: "logoStandard" },
-  { src: "/sponsor-bpko.png", alt: "หน่วยบริหารและจัดการทุนด้านการพัฒนาระดับพื้นที่", fit: "logoStandard" },
+  { src: "/sponsor-bpko.png", alt: "หน่วยบริหารและจัดการทุนด้านการพัฒนาระดับพื้นที่", fit: "logoBpko" },
   { src: "/sponsor-ailoveu.jpg", alt: "AI Love U", fit: "logoWide" },
   { src: "/sponsor-aiat.jpg", alt: "สมาคมปัญญาประดิษฐ์ประเทศไทย", fit: "logoAiAt" },
   { src: "/sponsor-aiat10.png", alt: "AIAT ครบรอบ 10 ปี", fit: "logoAnniversary" },
@@ -64,7 +64,6 @@ export default function LoginForm() {
         </div>
 
         <div className={styles.heroCopy}>
-          <p className={styles.eyebrow}>SECURE OUTCOME DASHBOARD</p>
           <h1>ระบบติดตามผล<br />ผู้เข้าร่วมโครงการ</h1>
           <p className={styles.description}>
             ข้อมูลรายบุคคลสำหรับผู้ได้รับอนุญาตจากสมาคมปัญญาประดิษฐ์ประเทศไทยเท่านั้น
@@ -95,7 +94,19 @@ export default function LoginForm() {
       <section className={styles.formPanel}>
         <form className={styles.formCard} onSubmit={submit}>
           <p className={styles.formEyebrow}>เข้าสู่ระบบ</p>
-          <h2>ยืนยันตัวตนเพื่อดูข้อมูล</h2>
+          <h2
+            style={{
+              display: "flex",
+              flexWrap: "nowrap",
+              alignItems: "baseline",
+              whiteSpace: "nowrap",
+              fontSize: "clamp(30px, 2vw, 36px)",
+              letterSpacing: "-0.04em",
+            }}
+          >
+            <span style={{ whiteSpace: "nowrap", flexShrink: 0 }}>ยืนยันตัวตน</span>
+            <span style={{ whiteSpace: "nowrap", flexShrink: 0 }}>เพื่อดูข้อมูล</span>
+          </h2>
           <p className={styles.formIntro}>กรอกชื่อผู้ใช้และรหัสผ่านที่ผู้ดูแลระบบกำหนดให้</p>
 
           <label className={styles.field}>
