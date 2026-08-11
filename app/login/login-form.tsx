@@ -64,7 +64,6 @@ export default function LoginForm() {
         </div>
 
         <div className={styles.heroCopy}>
-          <p className={styles.eyebrow}>SECURE OUTCOME DASHBOARD</p>
           <h1>ระบบติดตามผล<br />ผู้เข้าร่วมโครงการ</h1>
           <p className={styles.description}>
             ข้อมูลรายบุคคลสำหรับผู้ได้รับอนุญาตจากสมาคมปัญญาประดิษฐ์ประเทศไทยเท่านั้น
