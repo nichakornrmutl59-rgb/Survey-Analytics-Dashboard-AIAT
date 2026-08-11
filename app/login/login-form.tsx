@@ -1,7 +1,10 @@
 "use client";
 
+import { Card } from "@/components/ui/card";
+import { SplineScene } from "@/components/ui/splite";
+import { Spotlight } from "@/components/ui/spotlight";
 import Image from "next/image";
-import { FormEvent, PointerEvent as ReactPointerEvent, useRef, useState } from "react";
+import { FormEvent, useState } from "react";
 
 const TOP_LOGOS = [
   { src: "/sponsor-aiat.jpg", alt: "สมาคมปัญญาประดิษฐ์ประเทศไทย", width: 640, height: 384 },
@@ -24,32 +27,10 @@ const SUPPORTER_LOGOS = [
 ] as const;
 
 export default function LoginForm() {
-  const loginPageRef = useRef<HTMLElement>(null);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
-
-  function moveMascot(event: ReactPointerEvent<HTMLElement>) {
-    const bounds = event.currentTarget.getBoundingClientRect();
-    const horizontal = Math.max(-1, Math.min(1, ((event.clientX - bounds.left) / bounds.width - 0.5) * 2));
-    const vertical = Math.max(-1, Math.min(1, ((event.clientY - bounds.top) / bounds.height - 0.5) * 2));
-    const target = loginPageRef.current;
-    if (!target) return;
-    target.style.setProperty("--mascot-x", `${horizontal * 18}px`);
-    target.style.setProperty("--mascot-y", `${vertical * 12}px`);
-    target.style.setProperty("--mascot-rotate-x", `${vertical * -4}deg`);
-    target.style.setProperty("--mascot-rotate-y", `${horizontal * 6}deg`);
-  }
-
-  function resetMascot() {
-    const target = loginPageRef.current;
-    if (!target) return;
-    target.style.setProperty("--mascot-x", "0px");
-    target.style.setProperty("--mascot-y", "0px");
-    target.style.setProperty("--mascot-rotate-x", "0deg");
-    target.style.setProperty("--mascot-rotate-y", "0deg");
-  }
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -73,7 +54,7 @@ export default function LoginForm() {
   }
 
   return (
-    <main ref={loginPageRef} className="login-page" onPointerMove={moveMascot} onPointerLeave={resetMascot}>
+    <main className="login-page">
       <section className="login-brand-panel">
         <div className="login-top-logos" aria-label="หน่วยงานหลักของโครงการ">
           {TOP_LOGOS.map((logo) => (
@@ -89,10 +70,15 @@ export default function LoginForm() {
           <p>ข้อมูลรายบุคคลสำหรับผู้ได้รับอนุญาตจากสมาคมปัญญาประดิษฐ์ประเทศไทยเท่านั้น</p>
         </div>
 
-        <div className="login-mascot-stage" aria-hidden="true">
-          <div className="login-mascot-glow" />
-          <Image className="login-mascot" src="/mascot-head.png" width={1190} height={1138} alt="" priority />
-        </div>
+        <Card className="login-spline-stage" aria-label="โมเดล AI สามมิติแบบโต้ตอบ">
+          <Spotlight size={430} fill="rgba(114, 220, 255, .54)" />
+          <div className="login-spline-orbit" aria-hidden="true" />
+          <SplineScene
+            scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
+            className="login-spline-canvas"
+          />
+          <span className="login-spline-hint">เลื่อนเมาส์เพื่อโต้ตอบกับ AI 3D</span>
+        </Card>
 
         <div className="login-supporters">
           <small>เครือข่ายผู้สนับสนุนและหน่วยงานความร่วมมือ</small>
