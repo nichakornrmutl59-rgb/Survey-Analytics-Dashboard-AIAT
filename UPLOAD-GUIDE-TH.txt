@@ -1,0 +1,30 @@
+ชุดอัปเดตหน้าเข้าสู่ระบบแบบ Spline 3D
+
+ไฟล์ที่ต้องนำไปวางใน GitHub โดยรักษาโฟลเดอร์เดิม:
+
+1. app/globals.css
+2. app/login/login-form.tsx
+3. components/ui/card.tsx
+4. components/ui/demo.tsx
+5. components/ui/splite.tsx
+6. components/ui/spotlight.tsx
+7. lib/utils.ts
+8. package.json
+9. package-lock.json
+
+ขั้นตอนแนะนำ:
+
+1. แตกไฟล์ ZIP ในเครื่อง
+2. เปิด GitHub Codespaces ของ Repository เดิม
+3. ลากโฟลเดอร์ app, components, lib และไฟล์ package.json,
+   package-lock.json เข้า Explorer ของ Codespaces
+4. กดยืนยัน Replace เมื่อระบบถาม
+5. เปิด Terminal แล้วรัน npm install
+6. รัน npm run build เพื่อตรวจสอบ
+7. Commit และ Push ไปที่ branch main
+8. รอ Vercel แสดงสถานะ Ready
+
+หมายเหตุ:
+- ฉาก 3D โหลดจาก Spline ผ่านอินเทอร์เน็ต
+- ระบบ Login และ Environment Variables เดิมไม่ถูกเปลี่ยน
+- ไม่ต้องแก้ username หรือ password สำหรับการอัปเดตหน้าตานี้
