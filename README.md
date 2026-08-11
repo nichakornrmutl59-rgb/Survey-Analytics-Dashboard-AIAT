@@ -1,88 +1,108 @@
-# แดชบอร์ดผลลัพธ์ผู้เข้าร่วมโครงการ Super AI Engineer
+# แดชบอร์ดผลลัพธ์ผู้เข้าร่วมโครงการ — Production Edition
 
-แดชบอร์ดภาษาไทยสำหรับติดตามเส้นทางของผู้เข้าร่วมโครงการ โดยดึงข้อมูลล่าสุดจาก Google Sheets และแสดงทั้งภาพรวมเชิงนโยบายกับรายละเอียดรายบุคคล
+แดชบอร์ดภาษาไทยพร้อมระบบเข้าสู่ระบบด้วยชื่อผู้ใช้และรหัสผ่าน เหมาะสำหรับข้อมูลรายบุคคลที่ไม่ควรแสดงแบบสาธารณะ ซอร์สโค้ดสามารถเก็บใน Public GitHub ได้ เพราะไม่มีรหัสผ่าน รหัสชีท หรือข้อมูลผู้เข้าร่วมอยู่ใน Repository
 
-## ความสามารถหลัก
+## ความสามารถ
 
-- สรุปสถานะ 4 กลุ่ม: ทำงาน, เรียน, เรียนและทำงาน, ว่างงาน
-- จำแนกรูปแบบการทำงาน Track, Season, ภาคส่วน และช่วงรายได้
-- ค้นหาและกรองข้อมูลรายบุคคล
-- แสดงข้อมูลติดต่อ ผลงาน และหลักฐานแบบกดเปิดลิงก์ได้
-- อ่านข้อมูลใหม่จาก Google Sheets อัตโนมัติทุก 60 วินาที
-- รองรับหน้าจอคอมพิวเตอร์ แท็บเล็ต และโทรศัพท์
+- หน้า Login พร้อม Session Cookie แบบ `HttpOnly`, `Secure` และ `SameSite=Strict`
+- รหัสผ่านจัดเก็บเป็น PBKDF2-SHA256 Hash ไม่เก็บข้อความรหัสผ่านจริง
+- เซสชันหมดอายุภายใน 8 ชั่วโมง
+- ป้องกัน API ข้อมูลผู้เข้าร่วมจากผู้ที่ยังไม่ได้เข้าสู่ระบบ
+- สรุปสถานะ Track, Season, ภาคส่วน รายได้ และความเกี่ยวข้องกับ AI
+- ค้นหา กรอง และเปิดข้อมูลรายบุคคล
+- เปิดลิงก์ผลงานและหลักฐานได้
+- อัปเดตข้อมูลจาก Google Sheets ทุก 60 วินาที
 
-## ข้อกำหนด
+## ตั้งค่าครั้งแรก
 
-- Node.js `>=22.13.0`
-- Google Sheet ที่เปิดให้เซิร์ฟเวอร์อ่านข้อมูลได้
-- ชื่อชีทตามที่กำหนดใน `app/api/participants/route.ts`
+ต้องใช้ Node.js `>=22.13.0`
 
-## เริ่มต้นใช้งาน
+```bash
+npm install
+cp .env.example .env.local
+```
 
-1. ติดตั้งแพ็กเกจ
+สร้าง Password Hash และ `AUTH_SECRET`:
 
-   ```bash
-   npm install
-   ```
+```bash
+npm run create-password -- "รหัสผ่านที่ต้องการ"
+```
 
-2. คัดลอก `.env.example` เป็น `.env.local`
+นำค่าที่ได้ไปใส่ใน `.env.local` พร้อมกำหนด:
 
-   ```bash
-   cp .env.example .env.local
-   ```
+```env
+GOOGLE_SHEET_ID=รหัส Google Sheet
+DASHBOARD_USERNAME=ชื่อผู้ใช้
+DASHBOARD_PASSWORD_HASH=ค่าที่สร้างจากคำสั่งด้านบน
+AUTH_SECRET=ค่าที่สร้างจากคำสั่งด้านบน
+```
 
-3. ใส่รหัส Google Sheet ใน `.env.local`
+ห้ามอัปโหลด `.env.local` ขึ้น GitHub
 
-   ```env
-   GOOGLE_SHEET_ID=YOUR_GOOGLE_SHEET_ID
-   ```
+## ทดสอบในเครื่อง
 
-   รหัสชีทคือข้อความระหว่าง `/d/` และ `/edit` ใน URL ของ Google Sheets
+```bash
+npm run dev
+```
 
-4. เปิดเซิร์ฟเวอร์สำหรับพัฒนา
+เปิด `http://localhost:3000`
 
-   ```bash
-   npm run dev
-   ```
+## ตรวจสอบก่อน Deploy
 
-5. ตรวจโค้ด
+```bash
+npm run lint
+npm run build
+npm run start
+```
 
-   ```bash
-   npm run lint
-   ```
+## Deploy ด้วย Vercel
 
-## อัปโหลดขึ้น GitHub
+1. อัปโหลดซอร์สขึ้น GitHub
+2. ใน Vercel เลือก **Add New → Project** และ Import Repository
+3. เพิ่ม Environment Variables ทั้ง 4 ค่า:
+   - `GOOGLE_SHEET_ID`
+   - `DASHBOARD_USERNAME`
+   - `DASHBOARD_PASSWORD_HASH`
+   - `AUTH_SECRET`
+4. กด Deploy
 
-หลังแตกไฟล์ ZIP ให้เปิดโฟลเดอร์นี้ใน Terminal แล้วใช้คำสั่ง:
+Vercel จะตรวจพบ Next.js และใช้ `npm run build` โดยอัตโนมัติ
+
+## Deploy ด้วย Docker
+
+สร้าง `.env.local` ให้ครบก่อน แล้วใช้:
+
+```bash
+docker compose up -d --build
+```
+
+เว็บไซต์จะทำงานที่พอร์ต `3000` ควรวางหลัง HTTPS reverse proxy เช่น Cloudflare หรือ Nginx ก่อนเปิดใช้งานจริง
+
+## อัปโหลดขึ้น Public GitHub
 
 ```bash
 git init
 git add .
-git commit -m "Initial project impact dashboard"
+git commit -m "Initial secure project impact dashboard"
 git branch -M main
 git remote add origin https://github.com/YOUR_ACCOUNT/YOUR_REPOSITORY.git
 git push -u origin main
 ```
 
-หรือสร้าง Repository บน GitHub แล้วใช้เมนู **Add file → Upload files** เพื่ออัปโหลดไฟล์ทั้งหมดในโฟลเดอร์ที่แตกออกมา
+## ความปลอดภัย
 
-## การนำเว็บไซต์ขึ้นใช้งาน
+- Repository ไม่มีข้อมูลรายบุคคลและไม่มีค่าลับจริง
+- อย่าใช้รหัสผ่าน `admin` ในระบบจริง เพราะเดาได้ง่ายมาก
+- เปลี่ยนรหัสผ่านโดยสร้าง Hash ใหม่ แล้วแก้ `DASHBOARD_PASSWORD_HASH` บนระบบ Hosting
+- Google Sheet ต้นทางไม่ควรเปิดสาธารณะ ควรเปลี่ยนเป็นการเข้าถึงแบบยืนยันตัวตนก่อนใช้ในวงกว้าง
+- ระบบนี้เป็นบัญชีผู้ดูแลร่วมหนึ่งบัญชี หากต้องการหลายผู้ใช้ ประวัติการเข้าสู่ระบบ หรือกำหนดสิทธิ์รายคน ควรใช้ Identity Provider เช่น Google Workspace หรือ Cloudflare Access
 
-GitHub ใช้เก็บซอร์สโค้ดเท่านั้น แดชบอร์ดนี้มี API ฝั่งเซิร์ฟเวอร์ จึงต้องนำไป Deploy บนบริการที่รองรับ Node.js หรือ Cloudflare Workers และตั้งค่า `GOOGLE_SHEET_ID` ใน Environment Variables ของบริการนั้นด้วย
+## คำสั่งสำคัญ
 
-## ความปลอดภัยของข้อมูล
-
-Repository นี้ไม่ได้บรรจุข้อมูลรายบุคคลหรือรหัส Google Sheet จริง อย่างไรก็ตาม แดชบอร์ดจะแสดงอีเมล เบอร์โทร และที่อยู่จากชีทเมื่อเปิดรายละเอียดรายบุคคล จึงควร:
-
-- จำกัดสิทธิ์เว็บไซต์ให้เฉพาะผู้มีหน้าที่ใช้งาน
-- ไม่ commit ไฟล์ `.env.local`
-- หลีกเลี่ยงการเปิด Google Sheet แบบสาธารณะ
-- ใช้บัญชีบริการหรือระบบยืนยันตัวตนก่อนใช้งานจริงในวงกว้าง
-
-## เทคโนโลยี
-
-- React / Next.js
-- Vinext / Vite
-- Cloudflare Worker runtime
-- Tailwind CSS
-- Noto Sans Thai
+| คำสั่ง | ความหมาย |
+|---|---|
+| `npm run dev` | เปิดระบบสำหรับพัฒนา |
+| `npm run lint` | ตรวจมาตรฐานโค้ด |
+| `npm run build` | สร้างเวอร์ชัน Production |
+| `npm run start` | เปิด Production Server |
+| `npm run create-password -- "..."` | สร้าง Password Hash และ Session Secret |
