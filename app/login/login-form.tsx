@@ -122,7 +122,7 @@ export default function LoginForm() {
           <button className={styles.submitButton} type="submit" disabled={submitting}>
             {submitting ? "กำลังตรวจสอบ…" : "เข้าสู่ระบบ"}<span>→</span>
           </button>
-          <small className={styles.sessionNote}>เซสชันจะหมดอายุอัตโนมัติภายใน 8 ชั่วโมง</small>
+          <small className={styles.sessionNote}>เซสชันจะหมดอายุอัตโนมัติภายใน 3 ชั่วโมง</small>
         </form>
       </section>
     </main>

@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
 export const SESSION_COOKIE_NAME = "aiat_dashboard_session";
-export const SESSION_MAX_AGE = 60 * 60 * 8;
+export const SESSION_MAX_AGE = 60 * 60 * 3;
 
 function secret() {
   return process.env.AUTH_SECRET?.trim() ?? "";
