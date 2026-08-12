@@ -879,6 +879,10 @@ export default function Dashboard() {
           <button className={view === "people" ? "active" : ""} type="button" onClick={() => setView("people")}>รายบุคคล</button>
         </nav>
         <div className="sync-status">
+          <span className="dataset-update-badge" aria-label="ข้อมูลชุดนี้อัปเดตวันที่ 17Jul 2026">
+            <span>ข้อมูลชุดนี้อัปเดต</span>
+            <strong>17Jul 2026</strong>
+          </span>
           <span className={error ? "status-dot error" : "status-dot"} />
           <div>
             <small>{error ? "การเชื่อมต่อขัดข้อง" : "เชื่อมต่อ Google Sheets"}</small>
