@@ -59,6 +59,12 @@ const GROUP_COLOR: Record<string, string> = Object.fromEntries(
   GROUPS.map((group) => [group.name, group.color]),
 );
 
+const TRACK_COLORS: Record<string, string> = {
+  "AI Engineer": "#2F6BFF",
+  "AI Innovator": "#FF7A1A",
+  "AI Researcher": "#FF4FA3",
+};
+
 const WORK_TYPES = [
   "พนักงานประจำ",
   "เจ้าของกิจการ / ผู้ประกอบการ / Startup Founder",
@@ -455,6 +461,8 @@ export default function Dashboard() {
   const [showStartups, setShowStartups] = useState(false);
   const [showIndustry, setShowIndustry] = useState(false);
   const [industrySectorFilter, setIndustrySectorFilter] = useState<string | null>(null);
+  const [showTrackHouses, setShowTrackHouses] = useState(false);
+  const [selectedHouse, setSelectedHouse] = useState<string | null>(null);
   const [selectedStudySeason, setSelectedStudySeason] = useState<string | null>(null);
   const [showMedals, setShowMedals] = useState(false);
   const [medalSeasonFilter, setMedalSeasonFilter] = useState("ทั้งหมด");
@@ -511,6 +519,22 @@ export default function Dashboard() {
 
   const totals = useMemo(() => countBy(participants, "group"), [participants]);
   const tracks = useMemo(() => sortEntries(Object.entries(countBy(participants, "track"))), [participants]);
+  const aiEngineerParticipants = useMemo(
+    () => participants.filter((item) => item.track?.trim() === "AI Engineer"),
+    [participants],
+  );
+  const aiEngineerHouseGroups = useMemo(() => {
+    const groups = new Map<string, Participant[]>();
+    aiEngineerParticipants.forEach((person) => {
+      const house = person.house?.trim() || "ไม่ระบุบ้าน";
+      groups.set(house, [...(groups.get(house) ?? []), person]);
+    });
+    return [...groups.entries()].sort((a, b) => b[1].length - a[1].length || a[0].localeCompare(b[0], "th", { numeric: true }));
+  }, [aiEngineerParticipants]);
+  const visibleAiEngineerHouseParticipants = useMemo(() => {
+    if (!selectedHouse) return aiEngineerParticipants;
+    return aiEngineerHouseGroups.find(([house]) => house === selectedHouse)?.[1] ?? [];
+  }, [aiEngineerParticipants, aiEngineerHouseGroups, selectedHouse]);
   const seasons = useMemo(
     () => Object.keys(countBy(participants, "season")).sort((a, b) => a.localeCompare(b, "th", { numeric: true })),
     [participants],
@@ -780,15 +804,27 @@ export default function Dashboard() {
     setIncomeListFilter(null);
   };
 
+  const openTrackHouseDirectory = () => {
+    setSelectedHouse(null);
+    setShowTrackHouses(true);
+  };
+
+  const closeTrackHouseDirectory = () => {
+    setShowTrackHouses(false);
+    setSelectedHouse(null);
+  };
+
   const detailReturnLabel = selectedIncome
     ? "กลับไปรายชื่อในช่วงรายได้"
     : selectedStudySeason
       ? `กลับไปแผนเรียนต่อ ${selectedStudySeason}`
       : showMedals
         ? "กลับไปรายชื่อผู้ได้รับเหรียญ"
-        : showStartups
-          ? "กลับไปทะเบียน Startup"
-          : "กลับไปยังรายการเดิม";
+        : showTrackHouses
+          ? "กลับไปรายชื่อบ้าน AI Engineer"
+          : showStartups
+            ? "กลับไปทะเบียน Startup"
+            : "กลับไปยังรายการเดิม";
 
   const logout = async () => {
     await fetch("/api/auth/logout", { method: "POST" });
@@ -796,6 +832,14 @@ export default function Dashboard() {
   };
 
   const total = participants.length;
+  const trackTotal = tracks.reduce((sum, [, count]) => sum + count, 0);
+  const trackGradient = tracks.reduce((result, [track, count], index) => {
+    const previous = tracks.slice(0, index).reduce((sum, [, value]) => sum + value, 0);
+    const start = (previous / Math.max(trackTotal, 1)) * 360;
+    const end = ((previous + count) / Math.max(trackTotal, 1)) * 360;
+    const color = TRACK_COLORS[track] ?? "#19BCEB";
+    return `${result}${index ? ", " : ""}${color} ${start}deg ${end}deg`;
+  }, "");
   const groupGradient = GROUPS.reduce(
     (result, group, index) => {
       const previous = GROUPS.slice(0, index).reduce((sum, item) => sum + (totals[item.name] ?? 0), 0);
@@ -895,14 +939,37 @@ export default function Dashboard() {
             </section>
 
             <section className="insight-grid bottom-grid demographic-insights">
-              <article className="panel">
-                <div className="panel-heading"><div><h2>การกระจายตาม Track</h2></div></div>
-                <div className="bars-list compact-bars">
-                  {tracks.map(([track, count], index) => (
-                    <BreakdownBar key={track} label={track} value={count} total={total} color={["#2F6BFF", "#FF7A1A", "#FF4FA3"][index] ?? "#19BCEB"} />
-                  ))}
+              <article className="panel track-distribution-panel">
+                <div className="panel-heading">
+                  <div><h2>การกระจายตาม Track</h2></div>
+                  <span className="big-context">{trackTotal.toLocaleString("th-TH")}</span>
                 </div>
-                <div className="mini-note"><strong>AI Engineer</strong><span>ดูรายละเอียด “บ้าน” ของผู้เข้าร่วมได้ในหน้ารายบุคคล</span></div>
+                <div className="track-donut-layout">
+                  <div className="donut track-donut" style={{ background: `conic-gradient(${trackGradient || "#e5e7eb 0deg 360deg"})` }}>
+                    <div><strong>{trackTotal.toLocaleString("th-TH")}</strong><span>ผู้เข้าร่วม</span></div>
+                  </div>
+                  <div className="track-legend-list">
+                    {tracks.map(([track, count]) => {
+                      const color = TRACK_COLORS[track] ?? "#19BCEB";
+                      const isAiEngineer = track === "AI Engineer";
+                      return (
+                        <div className={`track-legend-item ${isAiEngineer ? "track-legend-engineer" : ""}`} key={track}>
+                          <div className="track-legend-main">
+                            <i style={{ background: color }} />
+                            <span>{track}</span>
+                            <strong>{count.toLocaleString("th-TH")}</strong>
+                          </div>
+                          <small>{percent(count, trackTotal)}% ของผู้ที่ระบุ Track</small>
+                          {isAiEngineer && (
+                            <button type="button" onClick={openTrackHouseDirectory}>
+                              ดูรายละเอียด “บ้าน” →
+                            </button>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
               </article>
 
               <article className="panel">
@@ -1305,6 +1372,60 @@ export default function Dashboard() {
                 );
               })}
               {!visibleIncomeParticipants.length && <div className="empty-state"><strong>ไม่พบข้อมูลตามตัวกรองนี้</strong></div>}
+            </div>
+          </section>
+        </div>
+      )}
+
+      {showTrackHouses && (
+        <div className="drawer-backdrop track-house-directory-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) closeTrackHouseDirectory(); }}>
+          <section className="track-house-directory" role="dialog" aria-modal="true" aria-label="รายละเอียดบ้านของ AI Engineer">
+            <button className="drawer-close" type="button" onClick={closeTrackHouseDirectory} aria-label="ปิดรายละเอียดบ้าน AI Engineer">×</button>
+            <header className="track-house-directory-heading">
+              <span>AI ENGINEER • HOUSE DIRECTORY</span>
+              <h2>บ้านของ AI Engineer</h2>
+              <p>พบผู้เข้าร่วม AI Engineer <strong>{aiEngineerParticipants.length.toLocaleString("th-TH")}</strong> คน แบ่งเป็น <strong>{aiEngineerHouseGroups.length.toLocaleString("th-TH")}</strong> บ้าน/กลุ่ม กดชื่อบ้านเพื่อดูว่าเป็นใครบ้าง</p>
+            </header>
+
+            <div className="track-house-filter-grid" role="group" aria-label="เลือกบ้าน AI Engineer">
+              <button className={!selectedHouse ? "active" : ""} type="button" onClick={() => setSelectedHouse(null)}>
+                <span>ทั้งหมด</span>
+                <strong>{aiEngineerParticipants.length.toLocaleString("th-TH")} คน</strong>
+              </button>
+              {aiEngineerHouseGroups.map(([house, people]) => (
+                <button className={selectedHouse === house ? "active" : ""} type="button" key={house} onClick={() => setSelectedHouse(house)}>
+                  <span>{house}</span>
+                  <strong>{people.length.toLocaleString("th-TH")} คน</strong>
+                </button>
+              ))}
+            </div>
+
+            <div className="track-house-list-heading">
+              <div>
+                <span>{selectedHouse || "ทุกบ้าน"}</span>
+                <strong>{visibleAiEngineerHouseParticipants.length.toLocaleString("th-TH")} คน</strong>
+              </div>
+              {selectedHouse && <button type="button" onClick={() => setSelectedHouse(null)}>แสดงทุกบ้าน ×</button>}
+            </div>
+
+            <div className="track-house-person-list">
+              {visibleAiEngineerHouseParticipants.map((person, index) => (
+                <article className="track-house-person-card" key={`${person.key}-${person.code || "no-code"}-${person.email || "no-email"}-${index}`}>
+                  <span className="track-house-person-index">{String(index + 1).padStart(2, "0")}</span>
+                  <div className="track-house-person-main">
+                    <div><span>{person.house?.trim() || "ไม่ระบุบ้าน"}</span><span>{person.season || "ไม่ระบุ Season"}</span></div>
+                    <h3>{person.title}{person.firstName} {person.lastName}</h3>
+                    <p>{person.code || "ไม่ระบุรหัส"} • {person.nickname ? `ชื่อเล่น ${person.nickname}` : "ไม่ระบุชื่อเล่น"}</p>
+                  </div>
+                  <dl className="track-house-person-facts">
+                    <div><dt>สถานะปัจจุบัน</dt><dd>{person.group || "ไม่ระบุ"}</dd></div>
+                    <div><dt>บริษัท / สถาบัน</dt><dd>{person.organization || person.institution || "ไม่ระบุ"}</dd></div>
+                    <div><dt>ตำแหน่ง / การศึกษา</dt><dd>{person.position || person.fieldOfStudy || person.educationLevel || "ไม่ระบุ"}</dd></div>
+                  </dl>
+                  <button className="track-house-person-action" type="button" onMouseDown={(event) => event.stopPropagation()} onClick={(event) => { event.preventDefault(); event.stopPropagation(); setSelected({ ...person }); }}>ดูข้อมูลรายบุคคล →</button>
+                </article>
+              ))}
+              {visibleAiEngineerHouseParticipants.length === 0 && <div className="empty-state"><strong>ไม่พบรายชื่อในบ้านนี้</strong></div>}
             </div>
           </section>
         </div>
