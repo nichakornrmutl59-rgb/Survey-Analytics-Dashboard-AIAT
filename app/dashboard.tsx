@@ -648,6 +648,14 @@ export default function Dashboard() {
     setIncomeListFilter(null);
   };
 
+  const detailReturnLabel = selectedIncome
+    ? "กลับไปรายชื่อในช่วงรายได้"
+    : showMedals
+      ? "กลับไปรายชื่อผู้ได้รับเหรียญ"
+      : showStartups
+        ? "กลับไปทะเบียน Startup"
+        : "กลับไปยังรายการเดิม";
+
   const logout = async () => {
     await fetch("/api/auth/logout", { method: "POST" });
     window.location.replace("/login");
@@ -1059,9 +1067,10 @@ export default function Dashboard() {
       </footer>
 
       {selected && (
-        <div className="drawer-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setSelected(null); }}>
-          <aside className="detail-drawer" role="dialog" aria-modal="true" aria-label={`รายละเอียด ${selected.firstName} ${selected.lastName}`}>
+        <div className="drawer-backdrop participant-detail-backdrop" role="presentation">
+          <aside className="detail-drawer" role="dialog" aria-modal="true" aria-label={`รายละเอียด ${selected.firstName} ${selected.lastName}`} onMouseDown={(event) => event.stopPropagation()} onClick={(event) => event.stopPropagation()}>
             <button className="drawer-close" type="button" onClick={() => setSelected(null)} aria-label="ปิดรายละเอียด">×</button>
+            <button className="drawer-back-button" type="button" onClick={() => setSelected(null)}><span aria-hidden="true">←</span> {detailReturnLabel}</button>
             <div className="drawer-hero">
               <span className="large-avatar" style={{ background: `${GROUP_COLOR[selected.group]}18`, color: GROUP_COLOR[selected.group] }}>{initials(selected)}</span>
               <div><span className="group-pill" style={{ background: `${GROUP_COLOR[selected.group]}15`, color: GROUP_COLOR[selected.group] }}><i style={{ background: GROUP_COLOR[selected.group] }} />{selected.group}</span><h2>{selected.title}{selected.firstName} {selected.lastName}</h2><p>{selected.nickname ? `ชื่อเล่น “${selected.nickname}”` : "ไม่ระบุชื่อเล่น"} • {selected.gender || "ไม่ระบุเพศ"} • อายุ {selected.age || "—"} ปี</p></div>
@@ -1151,7 +1160,7 @@ export default function Dashboard() {
                     </dl>
                     <div className="income-person-actions">
                       {evidence.length > 0 && <a href={evidence[0]} target="_blank" rel="noopener noreferrer">ผลงาน / หลักฐาน ↗</a>}
-                      <button type="button" onClick={() => { closeIncomeDirectory(); setSelected(person); }}>ดูข้อมูลรายบุคคล →</button>
+                      <button type="button" onMouseDown={(event) => event.stopPropagation()} onClick={(event) => { event.preventDefault(); event.stopPropagation(); setSelected({ ...person }); }}>ดูข้อมูลรายบุคคล →</button>
                     </div>
                   </article>
                 );
@@ -1201,7 +1210,7 @@ export default function Dashboard() {
                       <p>{extraAward || "ไม่มีรางวัลพิเศษที่ระบุเพิ่มเติม"}</p>
                     </div>
                     <div className="medal-recipient-actions">
-                      {matchedParticipant ? <button type="button" onClick={() => { setShowMedals(false); setSelected(matchedParticipant); }}>ดูข้อมูลรายบุคคล →</button> : <span>ยังไม่พบในแบบติดตามผล</span>}
+                      {matchedParticipant ? <button type="button" onMouseDown={(event) => event.stopPropagation()} onClick={(event) => { event.preventDefault(); event.stopPropagation(); setSelected({ ...matchedParticipant }); }}>ดูข้อมูลรายบุคคล →</button> : <span>ยังไม่พบในแบบติดตามผล</span>}
                     </div>
                   </article>
                 );
@@ -1226,7 +1235,7 @@ export default function Dashboard() {
                     <dl className="startup-facts"><div><dt>รายได้เฉลี่ยต่อเดือน</dt><dd>{startup.income || "ไม่ระบุ"}</dd></div><div><dt>จำนวนพนักงาน</dt><dd>{startup.employeeCount || "ไม่ระบุ"}</dd></div></dl>
                     <div className="startup-list-actions">
                       {links.length > 0 ? <a href={links[0]} target="_blank" rel="noopener noreferrer" onClick={(event) => event.stopPropagation()}>เว็บไซต์ / ช่องทางติดต่อ ↗</a> : <span>ไม่ระบุเว็บไซต์</span>}
-                      <button type="button" onClick={() => { setShowStartups(false); setSelected(startup); }}>ดูข้อมูลผู้ก่อตั้ง →</button>
+                      <button type="button" onMouseDown={(event) => event.stopPropagation()} onClick={(event) => { event.preventDefault(); event.stopPropagation(); setSelected({ ...startup }); }}>ดูข้อมูลผู้ก่อตั้ง →</button>
                     </div>
                   </article>
                 );
