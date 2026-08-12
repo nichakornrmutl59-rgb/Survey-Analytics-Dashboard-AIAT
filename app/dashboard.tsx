@@ -772,10 +772,6 @@ export default function Dashboard() {
                 <article><span>มีแผนศึกษาต่อระดับสูงขึ้น</span><strong>{continuingStudents.length.toLocaleString("th-TH")}</strong><p>ผู้เรียนที่ระบุระดับการศึกษาที่ต้องการศึกษาต่อ</p></article>
               </div>
               <div className="outcome-grid">
-                <article className="panel income-stat-card">
-                  <div className="outcome-card-heading"><h3>สถิติช่วงรายได้ต่อเดือน</h3><span>{knownIncomeParticipants.length.toLocaleString("th-TH")} ผู้ตอบ</span></div>
-                  <div className="bars-list compact-bars">{incomeStats.map(([label, count], index) => <BreakdownBar key={label} label={label} value={count} total={knownIncomeParticipants.length} color={["#19BCEB", "#2F6BFF", "#6D4AFF", "#FF4FA3"][index]} />)}</div>
-                </article>
                 <article className="panel industry-preview-card">
                   <div className="outcome-card-heading"><h3>หน่วยงานที่มีผู้เข้าร่วมทำงานมากที่สุด</h3><button type="button" onClick={() => { setIndustryTab("organization"); setShowIndustry(true); }}>ดูทั้งหมด →</button></div>
                   <div className="rank-list">{organizationDirectory.slice(0, 6).map(([name, people], index) => <button key={name} type="button" onClick={() => { setIndustryTab("organization"); setShowIndustry(true); }}><b>{index + 1}</b><span>{name}<small>{people[0]?.sector || "ไม่ระบุ Sector"}</small></span><strong>{people.length}</strong></button>)}</div>
