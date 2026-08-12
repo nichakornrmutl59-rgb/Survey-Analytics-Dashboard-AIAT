@@ -398,7 +398,8 @@ export default function Dashboard() {
   const [showStartups, setShowStartups] = useState(false);
   const [showIndustry, setShowIndustry] = useState(false);
   const [showMedals, setShowMedals] = useState(false);
-  const [medalFilter, setMedalFilter] = useState("ทั้งหมด");
+  const [medalSeasonFilter, setMedalSeasonFilter] = useState("ทั้งหมด");
+  const [medalTypeFilter, setMedalTypeFilter] = useState("ทั้งหมด");
   const [selectedIncome, setSelectedIncome] = useState<string | null>(null);
   const [incomeSummaryView, setIncomeSummaryView] = useState<"organizations" | "sectors" | null>(null);
   const [incomeListFilter, setIncomeListFilter] = useState<{ type: "organization" | "sector"; value: string } | null>(null);
@@ -578,20 +579,39 @@ export default function Dashboard() {
     }, {}),
     [medalRecipients],
   );
+  const medalSeasons = ["Season 1", "Season 2", "Season 3", "Season 4", "Season 5"];
   const medalSeasonSummary = useMemo(
-    () => ["Season 1", "Season 2", "Season 3", "Season 4", "Season 5"].map((season) => ({
+    () => medalSeasons.map((season) => ({
       season,
       total: medalRecipients.filter((item) => item.season === season).length,
       counts: medalTypes.map((type) => ({ ...type, value: medalRecipients.filter((item) => item.season === season && item.medalType === type.name).length })),
     })),
     [medalRecipients],
   );
-  const visibleMedalRecipients = useMemo(
-    () => medalFilter === "ทั้งหมด"
+  const medalRecipientsInSeason = useMemo(
+    () => medalSeasonFilter === "ทั้งหมด"
       ? medalRecipients
-      : medalRecipients.filter((item) => item.medalType === medalFilter || item.season === medalFilter),
-    [medalRecipients, medalFilter],
+      : medalRecipients.filter((item) => item.season === medalSeasonFilter),
+    [medalRecipients, medalSeasonFilter],
   );
+  const filteredMedalCounts = useMemo(
+    () => medalRecipientsInSeason.reduce<Record<string, number>>((result, item) => {
+      result[item.medalType] = (result[item.medalType] ?? 0) + 1;
+      return result;
+    }, {}),
+    [medalRecipientsInSeason],
+  );
+  const visibleMedalRecipients = useMemo(
+    () => medalTypeFilter === "ทั้งหมด"
+      ? medalRecipientsInSeason
+      : medalRecipientsInSeason.filter((item) => item.medalType === medalTypeFilter),
+    [medalRecipientsInSeason, medalTypeFilter],
+  );
+  const openMedalDirectory = useCallback((season = "ทั้งหมด", medalType = "ทั้งหมด") => {
+    setMedalSeasonFilter(season);
+    setMedalTypeFilter(medalType);
+    setShowMedals(true);
+  }, []);
   const participantByMedal = useCallback((recipient: MedalRecipient) => {
     const normalizedCode = recipient.code.trim().toLocaleLowerCase("th");
     const normalizedName = `${recipient.firstName}${recipient.lastName}`.replace(/\s/g, "").toLocaleLowerCase("th");
@@ -942,13 +962,13 @@ export default function Dashboard() {
                   <h2 id="medal-heading">ผู้ที่ได้รับเหรียญ</h2>
                   <p>สรุปจากรายชื่อรางวัลราย Season และเปิดดูรายละเอียดเชิงคุณภาพของผู้ได้รับเหรียญแต่ละคนได้</p>
                 </div>
-                <button type="button" onClick={() => { setMedalFilter("ทั้งหมด"); setShowMedals(true); }}>
+                <button type="button" onClick={() => openMedalDirectory()}>
                   ดูรายชื่อผู้ได้รับเหรียญทั้งหมด <b aria-hidden="true">→</b>
                 </button>
               </div>
 
               <div className="medal-overview-grid">
-                <button className="medal-total-card" type="button" onClick={() => { setMedalFilter("ทั้งหมด"); setShowMedals(true); }}>
+                <button className="medal-total-card" type="button" onClick={() => openMedalDirectory()}>
                   <span>ผู้ได้รับเหรียญทั้งหมด</span>
                   <strong>{medalRecipients.length.toLocaleString("th-TH")}</strong>
                   <small>คน • คลิกเพื่อดูรายชื่อและสังกัด</small>
@@ -959,7 +979,7 @@ export default function Dashboard() {
                     className={`medal-type-card medal-type-${type.name === "เหรียญทอง" ? "gold" : type.name === "เหรียญเงิน" ? "silver" : "bronze"}`}
                     type="button"
                     key={type.name}
-                    onClick={() => { setMedalFilter(type.name); setShowMedals(true); }}
+                    onClick={() => openMedalDirectory("ทั้งหมด", type.name)}
                   >
                     <i style={{ background: type.color }} />
                     <span>{type.name}</span>
@@ -974,7 +994,7 @@ export default function Dashboard() {
                 <div className="medal-season-heading"><h3>จำนวนผู้ได้รับเหรียญในแต่ละ Season</h3><span>ทอง • เงิน • ทองแดง</span></div>
                 <div className="medal-season-list">
                   {medalSeasonSummary.map(({ season, total: seasonMedals, counts }) => (
-                    <button key={season} type="button" onClick={() => { setMedalFilter(season); setShowMedals(true); }}>
+                    <button key={season} type="button" onClick={() => openMedalDirectory(season)}>
                       <div><strong>{season}</strong><span>{seasonMedals.toLocaleString("th-TH")} คน</span></div>
                       <div className="medal-season-stack" aria-label={`${season} มีผู้ได้รับเหรียญ ${seasonMedals} คน`}>
                         {counts.map((entry) => entry.value > 0 ? <i key={entry.name} title={`${entry.name} ${entry.value} คน`} style={{ width: `${(entry.value / Math.max(seasonMedals, 1)) * 100}%`, background: entry.color }} /> : null)}
@@ -1182,17 +1202,28 @@ export default function Dashboard() {
             </header>
 
             <div className="medal-directory-summary">
-              <article><span>ผู้ได้รับเหรียญทั้งหมด</span><strong>{medalRecipients.length.toLocaleString("th-TH")}</strong><small>คน</small></article>
-              {medalTypes.map((type) => <article key={type.name}><i style={{ background: type.color }} /><span>{type.name}</span><strong>{(medalCounts[type.name] ?? 0).toLocaleString("th-TH")}</strong><small>คน</small></article>)}
+              <article><span>{medalTypeFilter === "ทั้งหมด" ? (medalSeasonFilter === "ทั้งหมด" ? "ผู้ได้รับเหรียญทั้งหมด" : `ผู้ได้รับเหรียญ • ${medalSeasonFilter}`) : `ผลลัพธ์ • ${medalTypeFilter}`}</span><strong>{visibleMedalRecipients.length.toLocaleString("th-TH")}</strong><small>คน • ตัวเลขเปลี่ยนตามตัวกรอง</small></article>
+              {medalTypes.map((type) => <article key={type.name} className={medalTypeFilter === type.name ? "is-selected" : ""}><i style={{ background: type.color }} /><span>{type.name}</span><strong>{(filteredMedalCounts[type.name] ?? 0).toLocaleString("th-TH")}</strong><small>คน • ใน Season ที่เลือก</small></article>)}
             </div>
 
-            <div className="medal-filter-row" role="group" aria-label="กรองรายชื่อผู้ได้รับเหรียญ">
-              <button className={medalFilter === "ทั้งหมด" ? "active" : ""} type="button" onClick={() => setMedalFilter("ทั้งหมด")}>ทั้งหมด</button>
-              {medalTypes.map((type) => <button className={medalFilter === type.name ? "active" : ""} type="button" key={type.name} onClick={() => setMedalFilter(type.name)}>{type.name}</button>)}
-              {["Season 1", "Season 2", "Season 3", "Season 4", "Season 5"].map((season) => <button className={medalFilter === season ? "active" : ""} type="button" key={season} onClick={() => setMedalFilter(season)}>{season}</button>)}
+            <div className="medal-filter-groups">
+              <div className="medal-filter-group" role="group" aria-label="กรองตาม Season">
+                <strong>Season</strong>
+                <div className="medal-filter-row">
+                  <button className={medalSeasonFilter === "ทั้งหมด" ? "active" : ""} type="button" onClick={() => setMedalSeasonFilter("ทั้งหมด")}>ทุก Season</button>
+                  {medalSeasons.map((season) => <button className={medalSeasonFilter === season ? "active" : ""} type="button" key={season} onClick={() => setMedalSeasonFilter(season)}>{season}</button>)}
+                </div>
+              </div>
+              <div className="medal-filter-group" role="group" aria-label="กรองตามประเภทเหรียญ">
+                <strong>ประเภทเหรียญ</strong>
+                <div className="medal-filter-row">
+                  <button className={medalTypeFilter === "ทั้งหมด" ? "active" : ""} type="button" onClick={() => setMedalTypeFilter("ทั้งหมด")}>ทุกประเภท</button>
+                  {medalTypes.map((type) => <button className={medalTypeFilter === type.name ? "active" : ""} type="button" key={type.name} onClick={() => setMedalTypeFilter(type.name)}><i style={{ background: type.color }} />{type.name}</button>)}
+                </div>
+              </div>
             </div>
 
-            <div className="medal-result-heading"><span>รายการที่แสดง</span><strong>{visibleMedalRecipients.length.toLocaleString("th-TH")} คน</strong></div>
+            <div className="medal-result-heading"><span>รายการที่แสดง • {medalSeasonFilter === "ทั้งหมด" ? "ทุก Season" : medalSeasonFilter} • {medalTypeFilter === "ทั้งหมด" ? "ทุกประเภทเหรียญ" : medalTypeFilter}</span><strong>{visibleMedalRecipients.length.toLocaleString("th-TH")} คน</strong></div>
             <div className="medal-recipient-list">
               {visibleMedalRecipients.map((recipient, index) => {
                 const matchedParticipant = participantByMedal(recipient);
