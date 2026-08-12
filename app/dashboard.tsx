@@ -348,6 +348,8 @@ export default function Dashboard() {
   const [showStartups, setShowStartups] = useState(false);
   const [showIndustry, setShowIndustry] = useState(false);
   const [selectedIncome, setSelectedIncome] = useState<string | null>(null);
+  const [incomeSummaryView, setIncomeSummaryView] = useState<"organizations" | "sectors" | null>(null);
+  const [incomeListFilter, setIncomeListFilter] = useState<{ type: "organization" | "sector"; value: string } | null>(null);
   const [industryTab, setIndustryTab] = useState<"sector" | "organization">("sector");
   const [page, setPage] = useState(1);
 
@@ -445,6 +447,23 @@ export default function Dashboard() {
     () => sortEntries(Object.entries(countBy(selectedIncomeParticipants, "sector"))).slice(0, 5),
     [selectedIncomeParticipants],
   );
+  const selectedIncomeOrganizations = useMemo(() => {
+    const groups = new Map<string, Participant[]>();
+    selectedIncomeParticipants.forEach((person) => {
+      const organization = person.organization?.trim();
+      if (organization) groups.set(organization, [...(groups.get(organization) ?? []), person]);
+    });
+    return [...groups.entries()].sort((a, b) => b[1].length - a[1].length || a[0].localeCompare(b[0], "th"));
+  }, [selectedIncomeParticipants]);
+  const selectedIncomeSectorGroups = useMemo(
+    () => SECTORS.map((sector) => [sector.name, selectedIncomeParticipants.filter((person) => person.sector === sector.name)] as [string, Participant[]])
+      .filter(([, people]) => people.length > 0),
+    [selectedIncomeParticipants],
+  );
+  const visibleIncomeParticipants = useMemo(() => {
+    if (!incomeListFilter) return selectedIncomeParticipants;
+    return selectedIncomeParticipants.filter((person) => person[incomeListFilter.type] === incomeListFilter.value);
+  }, [selectedIncomeParticipants, incomeListFilter]);
   const startupFounders = useMemo(
     () => participants.filter((item) => item.workType?.includes("เจ้าของกิจการ")),
     [participants],
@@ -529,6 +548,18 @@ export default function Dashboard() {
     setSeasonFilter("ทั้งหมด");
     setWorkFilter("ทั้งหมด");
     setPage(1);
+  };
+
+  const openIncomeDirectory = (income: string) => {
+    setSelectedIncome(income);
+    setIncomeSummaryView(null);
+    setIncomeListFilter(null);
+  };
+
+  const closeIncomeDirectory = () => {
+    setSelectedIncome(null);
+    setIncomeSummaryView(null);
+    setIncomeListFilter(null);
   };
 
   const logout = async () => {
@@ -716,7 +747,7 @@ export default function Dashboard() {
                       <button
                         className="income-card"
                         type="button"
-                        onClick={() => setSelectedIncome(income)}
+                        onClick={() => openIncomeDirectory(income)}
                         aria-label={`ดูข้อมูลเชิงคุณภาพของผู้มีรายได้ ${income}`}
                       >
                         <span className="income-card-dot" />
@@ -919,9 +950,9 @@ export default function Dashboard() {
       )}
 
       {selectedIncome && (
-        <div className="drawer-backdrop income-directory-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setSelectedIncome(null); }}>
+        <div className="drawer-backdrop income-directory-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) closeIncomeDirectory(); }}>
           <section className="income-directory" role="dialog" aria-modal="true" aria-label={`ข้อมูลเชิงคุณภาพช่วงรายได้ ${selectedIncome}`}>
-            <button className="drawer-close" type="button" onClick={() => setSelectedIncome(null)} aria-label="ปิดข้อมูลช่วงรายได้">×</button>
+            <button className="drawer-close" type="button" onClick={closeIncomeDirectory} aria-label="ปิดข้อมูลช่วงรายได้">×</button>
             <header className="income-directory-heading">
               <p>ข้อมูลเชิงคุณภาพตามช่วงรายได้</p>
               <h2>{selectedIncome}</h2>
@@ -930,12 +961,47 @@ export default function Dashboard() {
 
             <div className="income-directory-summary">
               <article><span>ผู้เข้าร่วม</span><strong>{selectedIncomeParticipants.length.toLocaleString("th-TH")}</strong><small>คนที่ระบุรายได้ช่วงนี้</small></article>
-              <article><span>บริษัท / หน่วยงาน</span><strong>{new Set(selectedIncomeParticipants.map((person) => person.organization).filter(Boolean)).size.toLocaleString("th-TH")}</strong><small>แห่งที่ระบุชื่อไว้</small></article>
-              <article><span>Sector ที่พบ</span><strong>{new Set(selectedIncomeParticipants.map((person) => person.sector).filter(Boolean)).size.toLocaleString("th-TH")}</strong><small>{selectedIncomeSectors.map(([sector, count]) => `${sector} ${count}`).join(" • ") || "ยังไม่ระบุ Sector"}</small></article>
+              <button className={`income-summary-button ${incomeSummaryView === "organizations" ? "active" : ""}`} type="button" onClick={() => { setIncomeSummaryView(incomeSummaryView === "organizations" ? null : "organizations"); setIncomeListFilter(null); }} aria-expanded={incomeSummaryView === "organizations"} aria-controls="income-summary-browser"><span>บริษัท / หน่วยงาน</span><strong>{selectedIncomeOrganizations.length.toLocaleString("th-TH")}</strong><small>แห่งที่ระบุชื่อไว้</small><b>กดดูรายชื่อทั้งหมด →</b></button>
+              <button className={`income-summary-button income-sector-summary ${incomeSummaryView === "sectors" ? "active" : ""}`} type="button" onClick={() => { setIncomeSummaryView(incomeSummaryView === "sectors" ? null : "sectors"); setIncomeListFilter(null); }} aria-expanded={incomeSummaryView === "sectors"} aria-controls="income-summary-browser"><span>Sector ที่พบ</span><strong>{selectedIncomeSectorGroups.length.toLocaleString("th-TH")}</strong><small>{selectedIncomeSectors.map(([sector, count]) => `${sector} ${count}`).join(" • ") || "ยังไม่ระบุ Sector"}</small><b>กดดูบริษัทในแต่ละ Sector →</b></button>
+            </div>
+
+            {incomeSummaryView && (
+              <section className="income-summary-browser" id="income-summary-browser" aria-label={incomeSummaryView === "organizations" ? "รายชื่อบริษัทและหน่วยงาน" : "รายชื่อ Sector และบริษัทภายใน"}>
+                <header>
+                  <div><span>{incomeSummaryView === "organizations" ? "COMPANY & ORGANIZATION" : "SECTOR DIRECTORY"}</span><h3>{incomeSummaryView === "organizations" ? "บริษัท / หน่วยงานที่ระบุชื่อไว้" : "Sector และบริษัท / หน่วยงานภายใน"}</h3></div>
+                  <button type="button" onClick={() => { setIncomeSummaryView(null); setIncomeListFilter(null); }}>ซ่อนรายการ ↑</button>
+                </header>
+                {incomeSummaryView === "organizations" ? (
+                  <div className="income-organization-browser">
+                    {selectedIncomeOrganizations.map(([organization, people]) => (
+                      <button className={incomeListFilter?.type === "organization" && incomeListFilter.value === organization ? "selected" : ""} key={organization} type="button" onClick={() => setIncomeListFilter({ type: "organization", value: organization })}>
+                        <span>{organization}<small>{people[0]?.sector || "ยังไม่ระบุ Sector"}</small></span><strong>{people.length.toLocaleString("th-TH")} คน</strong>
+                      </button>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="income-sector-browser">
+                    {selectedIncomeSectorGroups.map(([sector, people]) => {
+                      const organizations = [...new Set(people.map((person) => person.organization).filter(Boolean))];
+                      return (
+                        <button className={incomeListFilter?.type === "sector" && incomeListFilter.value === sector ? "selected" : ""} key={sector} type="button" onClick={() => setIncomeListFilter({ type: "sector", value: sector })}>
+                          <span className="income-sector-browser-heading"><i style={{ background: SECTORS.find((item) => item.name === sector)?.color }} /><b>{sector}</b><strong>{people.length.toLocaleString("th-TH")} คน</strong></span>
+                          <small>{organizations.join(" • ") || "ยังไม่ระบุชื่อบริษัท / หน่วยงาน"}</small>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </section>
+            )}
+
+            <div className="income-list-heading">
+              <div><span>รายชื่อผู้เข้าร่วม</span><strong>{visibleIncomeParticipants.length.toLocaleString("th-TH")} คน</strong></div>
+              {incomeListFilter && <button type="button" onClick={() => setIncomeListFilter(null)}>แสดงทั้งหมด {selectedIncomeParticipants.length.toLocaleString("th-TH")} คน ×</button>}
             </div>
 
             <div className="income-person-list">
-              {selectedIncomeParticipants.map((person, index) => {
+              {visibleIncomeParticipants.map((person, index) => {
                 const evidence = extractLinks(person.portfolio || person.outcomes || "");
                 return (
                   <article className="income-person-card" key={person.key}>
@@ -953,12 +1019,12 @@ export default function Dashboard() {
                     </dl>
                     <div className="income-person-actions">
                       {evidence.length > 0 && <a href={evidence[0]} target="_blank" rel="noopener noreferrer">ผลงาน / หลักฐาน ↗</a>}
-                      <button type="button" onClick={() => { setSelectedIncome(null); setSelected(person); }}>ดูข้อมูลรายบุคคล →</button>
+                      <button type="button" onClick={() => { closeIncomeDirectory(); setSelected(person); }}>ดูข้อมูลรายบุคคล →</button>
                     </div>
                   </article>
                 );
               })}
-              {!selectedIncomeParticipants.length && <div className="empty-state"><strong>ไม่พบข้อมูลในช่วงรายได้นี้</strong></div>}
+              {!visibleIncomeParticipants.length && <div className="empty-state"><strong>ไม่พบข้อมูลตามตัวกรองนี้</strong></div>}
             </div>
           </section>
         </div>
