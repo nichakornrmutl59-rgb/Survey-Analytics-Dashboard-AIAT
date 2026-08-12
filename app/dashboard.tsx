@@ -964,7 +964,7 @@ export default function Dashboard() {
               </div>
               <div className="demographic-grid">
                 <article className="panel demographic-card gender-card">
-                  <div className="demographic-card-heading"><span>เพศ</span><strong>{total.toLocaleString("th-TH")}</strong></div>
+                  <div className="demographic-card-heading"><span>เพศ</span><div className="demographic-total"><small>รวม</small><strong>{total.toLocaleString("th-TH")}</strong></div></div>
                   <div className="gender-donut-wrap">
                     <div className="donut gender-donut" style={{ background: `conic-gradient(${genderGradient || "#e5e7eb 0deg 360deg"})` }}>
                       <div><strong>{genderTotal.toLocaleString("th-TH")}</strong><span>ผู้เข้าร่วม</span></div>
@@ -985,7 +985,7 @@ export default function Dashboard() {
                 </article>
 
                 <article className="panel demographic-card age-card">
-                  <div className="demographic-card-heading"><span>ช่วงอายุ</span><strong>{total.toLocaleString("th-TH")}</strong></div>
+                  <div className="demographic-card-heading"><span>ช่วงอายุ</span><div className="demographic-total"><small>รวม</small><strong>{total.toLocaleString("th-TH")}</strong></div></div>
                   <div className="demographic-bars compact-demographic-bars">
                     {ageEntries.map(([label, count], index) => (
                       <BreakdownBar key={label} label={label} value={count} total={total} color={["#19BCEB", "#2F6BFF", "#6D4AFF", "#FF4FA3", "#FF7A1A", "#E9A11B", "#A7B2CF"][index] ?? "#19BCEB"} />
@@ -997,7 +997,7 @@ export default function Dashboard() {
                 </article>
 
                 <article className="panel demographic-card education-card">
-                  <div className="demographic-card-heading"><span>ระดับการศึกษา</span><strong>{total.toLocaleString("th-TH")}</strong></div>
+                  <div className="demographic-card-heading"><span>ระดับการศึกษา</span><div className="demographic-total"><small>รวม</small><strong>{total.toLocaleString("th-TH")}</strong></div></div>
                   <p className="demographic-note">กลุ่มทำงานและว่างงานไม่มีคำถามระดับการศึกษา จึงรวมเป็น “ไม่ระบุ”</p>
                   <div className="demographic-bars compact-demographic-bars">
                     {educationEntries.map(([label, count], index) => (

@@ -1302,3 +1302,170 @@ td code { font-family: ui-monospace, monospace; font-size: 10px; background: #ed
   .gender-card .gender-inline-legend { grid-template-columns: 1fr; }
   .gender-card .gender-inline-legend > div { grid-template-columns: auto 1fr auto; border-radius: 12px; }
 }
+
+/* v14: balanced demographic cards */
+.demographic-grid {
+  grid-template-columns: .92fr 1fr 1.18fr;
+  gap: 20px;
+  align-items: stretch;
+}
+.demographic-card,
+.gender-card,
+.age-card,
+.education-card {
+  align-self: stretch;
+  min-height: 560px;
+  height: 100%;
+  padding: 30px 32px;
+  border-radius: 28px;
+  display: flex;
+  flex-direction: column;
+  border-color: rgba(47,107,255,.13);
+  box-shadow: 0 18px 44px rgba(47,107,255,.075), 0 3px 12px rgba(255,79,163,.03);
+}
+.demographic-card::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 30px;
+  width: 54px;
+  height: 3px;
+  border-radius: 0 0 99px 99px;
+  pointer-events: none;
+}
+.gender-card::after { background: #2f6bff; }
+.age-card::after { background: #6d4aff; }
+.education-card::after { background: #ff4fa3; }
+.demographic-card-heading,
+.gender-card .demographic-card-heading {
+  min-height: 0;
+  padding-bottom: 17px;
+  align-items: center;
+  border-bottom: 1px solid rgba(47,107,255,.09);
+}
+.demographic-card-heading > span,
+.gender-card .demographic-card-heading > span {
+  font-size: clamp(25px, 1.8vw, 30px);
+  line-height: 1.2;
+}
+.demographic-total {
+  flex: 0 0 auto;
+  min-height: 34px;
+  padding: 6px 10px;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  border: 1px solid rgba(47,107,255,.11);
+  border-radius: 999px;
+  background: rgba(255,255,255,.7);
+}
+.demographic-total small {
+  color: #8292b8;
+  font-size: 8px;
+  font-weight: 700;
+}
+.demographic-total strong {
+  color: #9fb0da;
+  font-family: "Noto Sans Thai", sans-serif;
+  font-size: 18px;
+  line-height: 1;
+  font-weight: 700;
+}
+.gender-card .gender-donut-wrap {
+  flex: 1;
+  margin-top: 6px;
+  justify-content: center;
+  gap: 17px;
+}
+.gender-card .gender-donut {
+  width: clamp(164px, 12vw, 182px);
+  box-shadow: inset 0 0 0 1px rgba(47,107,255,.05), 0 14px 30px rgba(47,107,255,.08);
+}
+.gender-card .gender-donut::after { inset: 30%; }
+.gender-card .gender-donut strong { font-size: clamp(30px, 2.15vw, 36px); }
+.gender-card .gender-inline-legend {
+  width: 100%;
+  max-width: 100%;
+  gap: 7px;
+}
+.gender-card .gender-inline-legend > div {
+  min-height: 36px;
+  padding: 8px 9px;
+  border-radius: 13px;
+  background: rgba(255,255,255,.72);
+  box-shadow: none;
+}
+.gender-card .demographic-directory-button,
+.age-card .demographic-directory-button {
+  max-width: 100%;
+  margin-top: 18px;
+  padding: 12px 14px;
+  border-radius: 13px;
+  background: rgba(255,255,255,.76);
+}
+.age-card .demographic-bars {
+  flex: 1;
+  margin-top: 17px;
+  justify-content: center;
+  gap: 16px;
+}
+.age-card .demographic-bars .bar-label span,
+.education-card .demographic-bars .bar-label span {
+  font-size: 11px;
+}
+.age-card .demographic-bars .bar-label strong,
+.education-card .demographic-bars .bar-label strong {
+  font-size: 14px;
+}
+.age-card .demographic-bars .bar-track,
+.education-card .demographic-bars .bar-track {
+  height: 6px;
+}
+.education-card .demographic-note {
+  min-height: 0;
+  margin: 13px 0 7px;
+  padding: 9px 11px;
+  border: 1px solid rgba(255,79,163,.08);
+  border-radius: 11px;
+  background: rgba(255,255,255,.54);
+  font-size: 9px;
+  line-height: 1.55;
+}
+.education-card .demographic-bars {
+  flex: 1;
+  margin-top: 4px;
+  justify-content: space-between;
+  gap: 9px;
+}
+.education-card .demographic-bars > div {
+  min-height: 0;
+}
+
+@media (max-width: 1100px) {
+  .demographic-grid { grid-template-columns: 1fr 1fr; }
+  .demographic-card,
+  .gender-card,
+  .age-card { min-height: 520px; }
+  .education-card { grid-column: 1 / -1; min-height: 0; }
+  .education-card .demographic-bars { gap: 12px; }
+}
+
+@media (max-width: 760px) {
+  .demographic-grid { gap: 14px; }
+  .demographic-card,
+  .gender-card,
+  .age-card,
+  .education-card {
+    min-height: 0;
+    padding: 24px 20px;
+    border-radius: 22px;
+  }
+  .demographic-card-heading,
+  .gender-card .demographic-card-heading { padding-bottom: 14px; }
+  .demographic-total { min-height: 30px; padding: 5px 9px; }
+  .demographic-total strong { font-size: 16px; }
+  .gender-card .gender-donut-wrap { padding: 12px 0 2px; }
+  .gender-card .gender-donut { width: min(164px, 48vw); }
+  .age-card .demographic-bars { margin-top: 18px; }
+  .education-card .demographic-bars { margin-top: 10px; }
+}
