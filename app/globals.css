@@ -276,6 +276,8 @@ a { color: inherit; }
 .industry-directory-backdrop { z-index: 105; padding: 22px; }
 .industry-directory { width: min(1180px, 100%); max-height: calc(100vh - 44px); margin: auto; padding: clamp(26px, 4vw, 52px); position: relative; overflow-y: auto; border: 1px solid rgba(47,107,255,.16); border-radius: 30px; background: linear-gradient(145deg, #fff, #f4f8ff 75%, #f0fbff); box-shadow: 0 34px 100px rgba(1,8,30,.28); }
 .industry-directory-heading h2 { margin: 5px 0 18px; font-family: "Noto Sans Thai", sans-serif; font-size: clamp(30px, 4vw, 48px); line-height: 1.25; }
+.industry-directory-heading p { margin: -8px 0 0; color: var(--muted); font-size: 11px; }
+.industry-directory-heading p strong { color: #234fc2; font-size: 15px; }
 .industry-tabs { display: inline-flex; padding: 4px; border: 1px solid #dbe5ff; border-radius: 999px; background: #f4f7ff; }
 .industry-tabs button { padding: 9px 16px; border: 0; border-radius: 999px; background: transparent; color: var(--muted); font-size: 10px; cursor: pointer; }
 .industry-tabs button.active { background: linear-gradient(135deg, #2f6bff, #6d4aff); color: white; box-shadow: 0 7px 18px rgba(47,107,255,.18); }
@@ -292,6 +294,15 @@ a { color: inherit; }
 .organization-list { margin-top: 26px; display: flex; flex-direction: column; }
 .organization-list button { grid-template-columns: 38px 1fr 40px; padding: 14px 4px; }
 .organization-list button > b { color: #aebde2; font-size: 11px; }
+.organization-list-static { margin-top: 26px; display: flex; flex-direction: column; }
+.organization-row { min-height: 58px; padding: 14px 4px; display: grid; grid-template-columns: 38px minmax(0, 1fr) 54px; gap: 14px; align-items: center; border-bottom: 1px solid #e8edff; }
+.organization-row > b { color: #aebde2; font-size: 11px; }
+.organization-row > span { color: var(--ink); font-size: 12px; font-weight: 650; }
+.organization-row > strong { color: #234fc2; font-size: 15px; text-align: right; }
+.rank-list-static > div { padding: 12px 0; display: grid; grid-template-columns: 28px 1fr 30px; gap: 10px; align-items: center; border-bottom: 1px solid #e6edff; }
+.rank-list-static > div > b { color: #aebde2; font-size: 11px; }
+.rank-list-static > div > span { font-size: 12px; font-weight: 650; }
+.rank-list-static > div > strong { color: #234fc2; font-size: 15px; text-align: right; }
 .industry-empty { margin: 10px 0 0; padding: 15px 0 4px; color: var(--muted); font-size: 10px; }
 
 .bottom-grid { margin-top: 72px; }
