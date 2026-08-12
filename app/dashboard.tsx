@@ -394,18 +394,6 @@ export default function Dashboard() {
     return ["น้อยกว่า 20,000 บาท", "20,001-35,000 บาท", "35,001-50,000 บาท", "มากกว่า 50,000 บาท"]
       .map((income) => [income, counts[income] ?? 0] as [string, number]);
   }, [participants]);
-  const aiRespondents = useMemo(
-    () => participants.filter((item) => Boolean(item.aiUsage)),
-    [participants],
-  );
-  const aiPositive = useMemo(
-    () => aiRespondents.filter((item) => !/(ไม่เกี่ยวข้อง|แทบไม่ใช้|ไม่ใช้)/.test(item.aiUsage)),
-    [aiRespondents],
-  );
-  const scholarshipAfter = useMemo(
-    () => participants.filter((item) => item.scholarshipAfterProject === "ใช่").length,
-    [participants],
-  );
   const startupFounders = useMemo(
     () => participants.filter((item) => item.workType?.includes("เจ้าของกิจการ")),
     [participants],
@@ -499,8 +487,6 @@ export default function Dashboard() {
 
   const total = participants.length;
   const accountedFor = (totals["ทำงาน"] ?? 0) + (totals["เรียน"] ?? 0) + (totals["เรียนและทำงาน"] ?? 0);
-  const labourPool = (totals["ทำงาน"] ?? 0) + (totals["เรียนและทำงาน"] ?? 0);
-  const learningPool = (totals["เรียน"] ?? 0) + (totals["เรียนและทำงาน"] ?? 0);
   const groupGradient = GROUPS.reduce(
     (result, group, index) => {
       const previous = GROUPS.slice(0, index).reduce((sum, item) => sum + (totals[item.name] ?? 0), 0);
@@ -676,19 +662,6 @@ export default function Dashboard() {
                   ))}
                 </div>
               </article>
-            </section>
-
-            <section className="policy-section">
-              <div className="section-heading">
-                <div><p className="eyebrow">POLICY LENS</p><h2>ตัวชี้วัดที่ตอบโจทย์ผู้ให้ทุน</h2></div>
-                <p>อ่านผลลัพธ์ในมิติ “กำลังคน → อุตสาหกรรม → การพัฒนาต่อ”</p>
-              </div>
-              <div className="policy-grid">
-                <article className="policy-card dark-card"><span>กำลังคนในตลาดงาน</span><strong>{labourPool.toLocaleString("th-TH")}</strong><p>คนที่ทำงาน หรือเรียนควบคู่กับการทำงาน</p><i>{percent(labourPool, total)}% ของผู้ตอบ</i></article>
-                <article className="policy-card"><span>กำลังพัฒนาทักษะต่อ</span><strong>{learningPool.toLocaleString("th-TH")}</strong><p>คนที่อยู่ในการศึกษา หรือเรียนควบคู่กับงาน</p><i>{percent(learningPool, total)}% ของผู้ตอบ</i></article>
-                <article className="policy-card"><span>งานเชื่อมโยง AI / ดิจิทัล</span><strong>{aiPositive.length.toLocaleString("th-TH")}</strong><p>ผู้ที่ระบุว่าใช้หรือทำงานเกี่ยวข้องกับ AI / ดิจิทัล</p><i>จากคำตอบที่จำแนกได้ {aiRespondents.length.toLocaleString("th-TH")} คน</i></article>
-                <article className="policy-card accent-card"><span>ทุนการศึกษาหลังโครงการ</span><strong>{scholarshipAfter.toLocaleString("th-TH")}</strong><p>ผู้เรียนที่ระบุว่าได้รับทุนหลังเข้าร่วมโครงการ</p><i>ใช้ติดตามผลกระทบเชิงโอกาส</i></article>
-              </div>
             </section>
 
             <section className="startup-section" aria-labelledby="startup-heading">
