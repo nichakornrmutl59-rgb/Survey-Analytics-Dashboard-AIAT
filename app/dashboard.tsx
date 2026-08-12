@@ -126,19 +126,6 @@ function sortEntries(entries: Array<[string, number]>) {
   return entries.sort((a, b) => b[1] - a[1]);
 }
 
-function countSelections(items: Participant[], key: keyof Participant) {
-  return items.reduce<Record<string, number>>((result, item) => {
-    const values = item[key]
-      ?.split(",")
-      .map((value) => value.trim())
-      .filter(Boolean) ?? [];
-    values.forEach((value) => {
-      result[value] = (result[value] ?? 0) + 1;
-    });
-    return result;
-  }, {});
-}
-
 function percent(value: number, total: number) {
   if (!total) return "0";
   return ((value / total) * 100).toFixed(1);
@@ -311,6 +298,7 @@ export default function Dashboard() {
   const [seasonFilter, setSeasonFilter] = useState("ทั้งหมด");
   const [workFilter, setWorkFilter] = useState("ทั้งหมด");
   const [selected, setSelected] = useState<Participant | null>(null);
+  const [showStartups, setShowStartups] = useState(false);
   const [page, setPage] = useState(1);
 
   const loadData = useCallback(async (quiet = false) => {
@@ -403,34 +391,6 @@ export default function Dashboard() {
   const startupFounders = useMemo(
     () => participants.filter((item) => item.workType.includes("เจ้าของกิจการ")),
     [participants],
-  );
-  const startupCandidates = useMemo(
-    () => participants.filter((item) => Boolean(item.startupInterest)),
-    [participants],
-  );
-  const startupInterested = useMemo(
-    () => startupCandidates.filter((item) => !/ไม่สนใจ/.test(item.startupInterest)),
-    [startupCandidates],
-  );
-  const startupInterestEntries = useMemo(
-    () => sortEntries(Object.entries(countBy(startupCandidates, "startupInterest"))),
-    [startupCandidates],
-  );
-  const startupSectorEntries = useMemo(
-    () => sortEntries(Object.entries(countBy(startupFounders, "sector"))).slice(0, 6),
-    [startupFounders],
-  );
-  const startupStageEntries = useMemo(
-    () => sortEntries(Object.entries(countBy(startupCandidates, "startupStage"))),
-    [startupCandidates],
-  );
-  const startupFieldEntries = useMemo(
-    () => sortEntries(Object.entries(countSelections(startupCandidates, "startupField"))).slice(0, 6),
-    [startupCandidates],
-  );
-  const startupSupportEntries = useMemo(
-    () => sortEntries(Object.entries(countSelections(startupCandidates, "desiredSupport"))).slice(0, 6),
-    [startupCandidates],
   );
 
   const filtered = useMemo(() => {
@@ -669,46 +629,13 @@ export default function Dashboard() {
 
             <section className="startup-section" aria-labelledby="startup-heading">
               <div className="section-heading startup-heading">
-                <div><p className="eyebrow">STARTUP ECOSYSTEM</p><h2 id="startup-heading">ภาพรวม Startup และผู้ประกอบการ</h2></div>
-                <p>สรุปทั้งผู้ที่ประกอบธุรกิจอยู่แล้ว และผู้ว่างงานที่ตอบคำถามความสนใจเริ่มต้นธุรกิจ</p>
+                <div><p className="eyebrow">STARTUP DIRECTORY</p><h2 id="startup-heading">Startup ที่เกิดขึ้นจากผู้เข้าร่วมโครงการ</h2></div>
+                <p>ข้อมูลเชิงคุณภาพจากผู้ที่ระบุสถานะเป็นเจ้าของกิจการ ผู้ประกอบการ หรือ Startup Founder</p>
               </div>
-              <div className="startup-kpi-grid">
-                <article className="startup-kpi startup-kpi-orange"><span>ผู้ประกอบการ / Startup Founder</span><strong>{startupFounders.length.toLocaleString("th-TH")}</strong><p>คนที่ระบุว่ากำลังดำเนินกิจการ</p></article>
-                <article className="startup-kpi startup-kpi-pink"><span>สนใจเริ่มต้นธุรกิจ</span><strong>{startupInterested.length.toLocaleString("th-TH")}</strong><p>รวมสนใจอย่างมาก สนใจบางส่วน และยังไม่แน่ใจ</p></article>
-                <article className="startup-kpi startup-kpi-blue"><span>มีแนวคิด / กำลังทำต้นแบบ</span><strong>{startupCandidates.filter((item) => /มีแนวคิดธุรกิจแล้ว|Prototype|MVP/.test(item.startupStage)).length.toLocaleString("th-TH")}</strong><p>ผู้ตอบที่เริ่มวางแผนหรือพัฒนาต้นแบบแล้ว</p></article>
-              </div>
-              <div className="startup-grid">
-                <article className="panel startup-card">
-                  <div className="startup-card-heading"><h3>ความสนใจทำ Startup</h3><span>{startupCandidates.length.toLocaleString("th-TH")} ผู้ตอบ</span></div>
-                  <div className="bars-list compact-bars">
-                    {startupInterestEntries.map(([label, count], index) => <BreakdownBar key={label} label={label} value={count} total={startupCandidates.length} color={["#FF7A1A", "#FF4FA3", "#6D4AFF", "#A7B2CF"][index] ?? "#19BCEB"} />)}
-                  </div>
-                </article>
-                <article className="panel startup-card">
-                  <div className="startup-card-heading"><h3>สถานะของแนวคิดธุรกิจ</h3><span>{startupStageEntries.reduce((sum, [, count]) => sum + count, 0).toLocaleString("th-TH")} ผู้ตอบ</span></div>
-                  <div className="bars-list compact-bars">
-                    {startupStageEntries.map(([label, count], index) => <BreakdownBar key={label} label={label} value={count} total={startupCandidates.length} color={["#2F6BFF", "#19BCEB", "#FF4FA3", "#FF7A1A"][index] ?? "#6D4AFF"} />)}
-                  </div>
-                </article>
-                <article className="panel startup-card">
-                  <div className="startup-card-heading"><h3>ประเภทธุรกิจของผู้ประกอบการ</h3><span>{startupFounders.length.toLocaleString("th-TH")} คน</span></div>
-                  <div className="bars-list compact-bars">
-                    {startupSectorEntries.map(([label, count], index) => <BreakdownBar key={label} label={label} value={count} total={startupFounders.length} color={["#FF7A1A", "#2F6BFF", "#FF4FA3", "#19BCEB", "#6D4AFF", "#E9A11B"][index]} />)}
-                  </div>
-                </article>
-                <article className="panel startup-card">
-                  <div className="startup-card-heading"><h3>ด้านธุรกิจที่สนใจ</h3><span>เลือกได้หลายข้อ</span></div>
-                  <div className="bars-list compact-bars">
-                    {startupFieldEntries.map(([label, count], index) => <BreakdownBar key={label} label={label.replace(/ \(.+\)/, "")} value={count} total={startupCandidates.length} color={["#2F6BFF", "#6D4AFF", "#19BCEB", "#FF4FA3", "#FF7A1A", "#E9A11B"][index]} />)}
-                  </div>
-                </article>
-                <article className="panel startup-card startup-support-card">
-                  <div className="startup-card-heading"><h3>การสนับสนุนที่ต้องการจากโครงการ</h3><span>ความต้องการสำคัญ</span></div>
-                  <div className="bars-list compact-bars">
-                    {startupSupportEntries.map(([label, count], index) => <BreakdownBar key={label} label={label.replace(/ \(.+\)/, "")} value={count} total={startupCandidates.length} color={["#FF4FA3", "#FF7A1A", "#2F6BFF", "#19BCEB", "#6D4AFF", "#E9A11B"][index]} />)}
-                  </div>
-                </article>
-              </div>
+              <button className="startup-summary-card" type="button" onClick={() => setShowStartups(true)}>
+                <span className="startup-summary-copy"><small>จำนวนกิจการ / บริษัท / โครงการ Startup</small><strong>{startupFounders.length.toLocaleString("th-TH")}</strong><p>คลิกเพื่อดูว่ามีอะไรบ้าง พร้อมข้อมูลเว็บไซต์ ประเภทธุรกิจ รายได้ จำนวนพนักงาน และสถานะปัจจุบัน</p></span>
+                <span className="startup-summary-action">เปิดทะเบียน Startup <b>→</b></span>
+              </button>
             </section>
 
             <section className="insight-grid bottom-grid">
@@ -857,6 +784,31 @@ export default function Dashboard() {
 
             <section className="drawer-section"><h3>เส้นทางหลังจบโครงการ</h3><div className="detail-list">{selected.workType && <div><span>รูปแบบการทำงาน</span><strong>{selected.workType}</strong></div>}{DETAIL_FIELDS.filter(([key]) => Boolean(selected[key])).map(([key, label]) => <div key={key}><span>{label}</span><DetailValue field={key} value={selected[key]} /></div>)}</div></section>
           </aside>
+        </div>
+      )}
+
+      {showStartups && (
+        <div className="drawer-backdrop startup-directory-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setShowStartups(false); }}>
+          <section className="startup-directory" role="dialog" aria-modal="true" aria-label="ทะเบียน Startup ของผู้เข้าร่วมโครงการ">
+            <button className="drawer-close" type="button" onClick={() => setShowStartups(false)} aria-label="ปิดทะเบียน Startup">×</button>
+            <header className="startup-directory-heading"><p className="eyebrow">STARTUP DIRECTORY</p><h2>กิจการ / บริษัท / โครงการ Startup</h2><p>พบทั้งหมด <strong>{startupFounders.length.toLocaleString("th-TH")}</strong> รายการ • คลิกแต่ละรายการเพื่อดูรายละเอียดเพิ่มเติมของผู้ก่อตั้ง</p></header>
+            <div className="startup-list">
+              {startupFounders.map((startup, index) => {
+                const links = extractLinks(startup.portfolio);
+                return (
+                  <article className="startup-list-card" key={startup.key}>
+                    <div className="startup-list-index">{String(index + 1).padStart(2, "0")}</div>
+                    <div className="startup-list-main"><span className="startup-status-pill">{startup.businessStatus || "ไม่ระบุสถานะ"}</span><h3>{startup.organization || "ไม่ระบุชื่อกิจการ"}</h3><p>{startup.sector || "ไม่ระบุประเภทธุรกิจ"}</p><small>ผู้ก่อตั้ง: {startup.title}{startup.firstName} {startup.lastName}</small></div>
+                    <dl className="startup-facts"><div><dt>รายได้เฉลี่ยต่อเดือน</dt><dd>{startup.income || "ไม่ระบุ"}</dd></div><div><dt>จำนวนพนักงาน</dt><dd>{startup.employeeCount || "ไม่ระบุ"}</dd></div></dl>
+                    <div className="startup-list-actions">
+                      {links.length > 0 ? <a href={links[0]} target="_blank" rel="noopener noreferrer" onClick={(event) => event.stopPropagation()}>เว็บไซต์ / ช่องทางติดต่อ ↗</a> : <span>ไม่ระบุเว็บไซต์</span>}
+                      <button type="button" onClick={() => { setShowStartups(false); setSelected(startup); }}>ดูข้อมูลผู้ก่อตั้ง →</button>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          </section>
         </div>
       )}
     </main>
