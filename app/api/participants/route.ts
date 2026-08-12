@@ -96,12 +96,48 @@ function valueFromHeaders(
   return "";
 }
 
+function isGenericOrganizationLabel(value?: string) {
+  const normalized = clean(value)
+    .toLocaleLowerCase("th")
+    .replace(/[–—]/g, "-")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  if (!normalized) return false;
+
+  return /^(?:ภาคเอกชน|เอกชน|ภาครัฐ(?:\s*\/\s*รัฐวิสาหกิจ)?|หน่วยงานภาครัฐ|ราชการ|รัฐวิสาหกิจ|สถาบันการศึกษา(?:\s*\/\s*(?:มหาวิทยาลัย|วิจัย))?|การศึกษา(?:\s*\/\s*วิจัย)?|startup\s*\/?\s*sme|องค์กรไม่แสวงกำไร|อาชีพอิสระ|private(?:\s+sector)?|public(?:\s+sector)?|government|education(?:\s*\/\s*research)?|ngo|non[- ]?profit)$/i.test(normalized);
+}
+
 function inferOrganization(headers: string[], row: string[]) {
+  const candidates: Array<{ value: string; score: number; index: number }> = [];
+
+  for (let index = 0; index < headers.length; index += 1) {
+    const header = clean(headers[index]);
+    const value = clean(row[index]);
+    if (!header || !value || isGenericOrganizationLabel(value)) continue;
+    if (!/บริษัท|หน่วยงาน|องค์กร|สถานที่ทำงาน|สังกัด|กิจการ|company|organization|employer|workplace/i.test(header)) continue;
+    if (/ประเภท|ภาคส่วน|sector|อุตสาหกรรม|เว็บไซต์|website|url|ตำแหน่ง|position|จำนวน|พนักงาน|employee|สถานะ|รายได้|income|salary|ลูกค้า|client|ความสนใจ|interest|สนับสนุน|support|ลักษณะ|รูปแบบ|ขนาด/i.test(header)) continue;
+
+    let score = 0;
+    if (/ชื่อ\s*(?:บริษัท|หน่วยงาน|องค์กร|กิจการ)|(?:บริษัท|หน่วยงาน|องค์กร|กิจการ).*ชื่อ/i.test(header)) score += 12;
+    if (/สถานที่ทำงาน|workplace|employer/i.test(header)) score += 8;
+    if (/สังกัด/i.test(header)) score += 6;
+    if (/company|organization/i.test(header)) score += 4;
+    if (/ชื่อ/i.test(header)) score += 3;
+    if (/กรุณาระบุ|โปรดระบุ|ระบุ/i.test(header)) score += 1;
+
+    candidates.push({ value, score, index });
+  }
+
+  candidates.sort((a, b) => b.score - a.score || a.index - b.index);
+  return candidates[0]?.value ?? "";
+}
+
+function inferOrganizationSector(headers: string[], row: string[]) {
   return valueFromHeaders(
     headers,
     row,
-    /บริษัท|หน่วยงาน|องค์กร|สถานที่ทำงาน|สังกัด|กิจการ|company|organization|employer|workplace/i,
-    /ประเภท|ภาคส่วน|sector|อุตสาหกรรม|เว็บไซต์|website|url|ตำแหน่ง|position|จำนวน|พนักงาน|employee|สถานะ|รายได้|income|salary|ลูกค้า|client|ความสนใจ|interest|สนับสนุน|support/i,
+    /ประเภท.*(?:บริษัท|หน่วยงาน|องค์กร)|(?:บริษัท|หน่วยงาน|องค์กร).*ประเภท|ภาคส่วน.*(?:หน่วยงาน|องค์กร)|(?:หน่วยงาน|องค์กร).*ภาคส่วน|ลักษณะ.*(?:หน่วยงาน|องค์กร)|organization\s*(?:type|sector)|employer\s*type/i,
   );
 }
 
@@ -250,9 +286,16 @@ function normalize(group: Group, row: string[], rowIndex: number, headers: strin
 
   if (group === "ทำงาน" || group === "เรียนและทำงาน") {
     const organizationFromHeader = inferOrganization(headers, row);
+    const organizationSectorFromHeader = inferOrganizationSector(headers, row);
     const sectorFromHeader = inferSector(headers, row);
 
-    if (organizationFromHeader) fields.organization = organizationFromHeader;
+    if (organizationFromHeader) {
+      fields.organization = organizationFromHeader;
+    } else if (isGenericOrganizationLabel(fields.organization)) {
+      fields.organization = "";
+    }
+
+    if (organizationSectorFromHeader) fields.organizationSector = organizationSectorFromHeader;
     if (sectorFromHeader) fields.sector = sectorFromHeader;
   }
 

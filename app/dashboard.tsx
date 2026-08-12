@@ -223,6 +223,17 @@ function normalizeOrganizationSector(value?: string) {
   return "อื่น ๆ";
 }
 
+function isGenericOrganizationLabel(value?: string) {
+  const normalized = value
+    ?.trim()
+    .toLocaleLowerCase("th")
+    .replace(/[–—]/g, "-")
+    .replace(/\s+/g, " ") ?? "";
+
+  if (!normalized) return false;
+  return /^(?:ภาคเอกชน|เอกชน|ภาครัฐ(?:\s*\/\s*รัฐวิสาหกิจ)?|หน่วยงานภาครัฐ|ราชการ|รัฐวิสาหกิจ|สถาบันการศึกษา(?:\s*\/\s*(?:มหาวิทยาลัย|วิจัย))?|การศึกษา(?:\s*\/\s*วิจัย)?|startup\s*\/?\s*sme|องค์กรไม่แสวงกำไร|อาชีพอิสระ|private(?:\s+sector)?|public(?:\s+sector)?|government|education(?:\s*\/\s*research)?|ngo|non[- ]?profit)$/i.test(normalized);
+}
+
 function educationRank(value?: string) {
   const normalized = value?.trim() ?? "";
   if (/ปริญญาเอก/.test(normalized)) return 7;
@@ -538,7 +549,9 @@ export default function Dashboard() {
     const groups = new Map<string, Participant[]>();
     employedParticipants.forEach((item) => {
       const organization = item.organization?.trim() ?? "";
-      if (organization) groups.set(organization, [...(groups.get(organization) ?? []), item]);
+      if (organization && !isGenericOrganizationLabel(organization)) {
+        groups.set(organization, [...(groups.get(organization) ?? []), item]);
+      }
     });
     return [...groups.entries()].sort((a, b) => b[1].length - a[1].length);
   }, [employedParticipants]);
@@ -553,12 +566,17 @@ export default function Dashboard() {
     const groups = new Map<string, Participant[]>();
     selectedIndustryParticipants.forEach((item) => {
       const organization = item.organization?.trim() ?? "";
-      if (organization) groups.set(organization, [...(groups.get(organization) ?? []), item]);
+      if (organization && !isGenericOrganizationLabel(organization)) {
+        groups.set(organization, [...(groups.get(organization) ?? []), item]);
+      }
     });
     return [...groups.entries()].sort((a, b) => b[1].length - a[1].length || a[0].localeCompare(b[0], "th"));
   }, [industrySectorFilter, organizationDirectory, selectedIndustryParticipants]);
   const selectedIndustryUnspecifiedParticipants = useMemo(
-    () => selectedIndustryParticipants.filter((item) => !item.organization?.trim()),
+    () => selectedIndustryParticipants.filter((item) => {
+      const organization = item.organization?.trim();
+      return !organization || isGenericOrganizationLabel(organization);
+    }),
     [selectedIndustryParticipants],
   );
   const openIndustryDirectory = (sector: string | null = null) => {
