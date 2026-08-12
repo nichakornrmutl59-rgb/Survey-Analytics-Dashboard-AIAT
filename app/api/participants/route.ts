@@ -227,7 +227,10 @@ function workFields(group: Group, row: string[], workType: string): Record<strin
   if (workType.includes("ฟรีแลนซ์")) {
     return {
       organizationSector: clean(row[17]),
-      sector: clean(row[33]),
+      // The freelancer form stores the work scope in this column. Do not treat
+      // that free-text answer as an explicitly supplied industry; the dashboard
+      // can infer a Sector from the work context when the real Sector is absent.
+      sector: "",
       responsibilities: clean(row[33]),
       clientGroup: clean(row[35]),
       aiUsage: clean(row[36]),

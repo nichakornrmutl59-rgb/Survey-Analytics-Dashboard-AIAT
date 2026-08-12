@@ -90,6 +90,7 @@ const DETAIL_FIELDS: Array<[string, string]> = [
   ["website", "เว็บไซต์บริษัท / หน่วยงาน"],
   ["organizationSector", "ภาคส่วนหน่วยงาน"],
   ["sector", "ภาคส่วน / อุตสาหกรรม"],
+  ["sectorSource", "ที่มาของการจัดกลุ่ม Sector"],
   ["employmentType", "ลักษณะการจ้างงาน"],
   ["position", "ตำแหน่ง"],
   ["responsibilities", "หน้าที่ / ขอบเขตงาน"],
@@ -199,16 +200,45 @@ function normalizeSector(value?: string) {
   const normalized = value?.trim().toLocaleLowerCase("th") ?? "";
   if (!normalized) return "";
 
-  if (/public service|public sector|government|ราชการ|ภาครัฐ|รัฐวิสาหกิจ|กระทรวง|กรม|เทศบาล|อบต/.test(normalized)) return "Public Services";
-  if (/healthcare|health care|healthcares|health|medical|medicine|hospital|clinic|pharma|สุขภาพ|การแพทย์|โรงพยาบาล|สาธารณสุข|เภสัช/.test(normalized)) return "Healthcare";
-  if (/education technology|education|edtech|learning|school|university|academy|training|การศึกษา|มหาวิทยาลัย|โรงเรียน|สถาบันการศึกษา|เทคโนโลยีการศึกษา/.test(normalized)) return "Education Technology";
-  if (/toursim|tourism|travel|hospitality|hotel|airline|aviation|ท่องเที่ยว|โรงแรม|การบิน|สายการบิน|บริการที่พัก/.test(normalized)) return "Tourism";
-  if (/manufactoring|manufacturing|manufacturer|factory|industrial|automotive|electronics|production|การผลิต|โรงงาน|อุตสาหกรรม|ยานยนต์|อิเล็กทรอนิกส์/.test(normalized)) return "Manufacturing";
-  if (/finance|financial|fintech|bank|banking|insurance|investment|accounting|การเงิน|ธนาคาร|ประกัน|การลงทุน|บัญชี/.test(normalized)) return "Finance";
-  if (/safety|security|cyber|defen[cs]e|police|military|ความปลอดภัย|ความมั่นคง|ไซเบอร์|ตำรวจ|ทหาร|ป้องกัน/.test(normalized)) return "Safety & Security";
-  if (/agriculure|agriculture|agricultural|agri|farm|farming|crop|livestock|เกษตร|ฟาร์ม|ปศุสัตว์|เพาะปลูก/.test(normalized)) return "Agriculture";
+  if (/public service|public administration|public sector|e-government|government|ราชการ|ภาครัฐ|รัฐวิสาหกิจ|กระทรวง|กรม|เทศบาล|อบต|บริการประชาชน|บริการสาธารณะ|นโยบายสาธารณะ/.test(normalized)) return "Public Services";
+  if (/healthcare|health care|healthcares|medical|medicine|hospital|clinic|clinical|pharma|patient|radiology|สุขภาพ|การแพทย์|โรงพยาบาล|คลินิก|สาธารณสุข|เภสัช|ผู้ป่วย|เวช|รังสี|โรค/.test(normalized)) return "Healthcare";
+  if (/education technology|educational technology|education|edtech|e-learning|learning management system|lms\b|school|university|academy|curriculum|student|learner|teacher|lecturer|instructor|การศึกษา|มหาวิทยาลัย|โรงเรียน|สถาบันการศึกษา|เทคโนโลยีการศึกษา|หลักสูตร|ผู้เรียน|นักเรียน|นักศึกษา|การสอน|สอน|อาจารย์|ครู|อบรม/.test(normalized)) return "Education Technology";
+  if (/toursim|tourism|travel|hospitality|hotel|airline|aviation|reservation|ท่องเที่ยว|นักท่องเที่ยว|โรงแรม|การบิน|สายการบิน|บริการที่พัก|ที่พัก|จองห้อง/.test(normalized)) return "Tourism";
+  if (/manufactoring|manufacturing|manufacturer|factory|industrial|automotive|electronics|production|assembly|machine|machinery|quality control|\bqc\b|การผลิต|โรงงาน|อุตสาหกรรม|ยานยนต์|อิเล็กทรอนิกส์|เครื่องจักร|สายการผลิต|ควบคุมคุณภาพ/.test(normalized)) return "Manufacturing";
+  if (/finance|financial|fintech|bank|banking|insurance|investment|accounting|credit|lending|loan|payment|การเงิน|ธนาคาร|ประกัน|การลงทุน|บัญชี|สินเชื่อ|เครดิต|ชำระเงิน/.test(normalized)) return "Finance";
+  if (/safety|security|cyber|defen[cs]e|police|military|threat|intrusion|soc\b|ความปลอดภัย|ความมั่นคง|ไซเบอร์|ตำรวจ|ทหาร|ป้องกัน|ภัยคุกคาม|การบุกรุก/.test(normalized)) return "Safety & Security";
+  if (/agriculure|agriculture|agricultural|agri|farm|farming|crop|livestock|irrigation|เกษตร|ฟาร์ม|ปศุสัตว์|เพาะปลูก|พืช|ชลประทาน|การเกษตร/.test(normalized)) return "Agriculture";
 
   return "";
+}
+
+function inferSectorFromWorkContext(participant: Participant) {
+  // Sector is an industry classification, not the same thing as organization type.
+  // When the source has no explicit Sector, use the participant's actual work
+  // context. Responsibilities are deliberately checked first because they best
+  // describe what the participant works on.
+  const candidates: Array<[string, string | undefined]> = [
+    ["หน้าที่ / ขอบเขตงาน", participant.responsibilities],
+    ["หัวข้องานวิจัย", participant.researchTopic],
+    ["กลุ่มลูกค้า", participant.clientGroup],
+    ["ตำแหน่ง", participant.position],
+    ["บริษัท / หน่วยงาน", isGenericOrganizationLabel(participant.organization) ? "" : participant.organization],
+    ["ด้าน AI ที่เกี่ยวข้อง", participant.aiField],
+    ["สาขา / หลักสูตร", participant.fieldOfStudy],
+  ];
+
+  for (const [source, value] of candidates) {
+    const sector = normalizeSector(value);
+    if (sector) return { sector, source };
+  }
+
+  // Teaching work is sufficiently specific to place in Education Technology even
+  // when the free-text responsibility field is empty.
+  if (/อาจารย์|ผู้สอน|teacher|lecturer|instructor/i.test(participant.workType ?? "")) {
+    return { sector: "Education Technology", source: "รูปแบบการทำงาน" };
+  }
+
+  return { sector: "", source: "" };
 }
 
 function normalizeOrganizationSector(value?: string) {
@@ -264,9 +294,20 @@ function sanitizeParticipant(value: unknown, index: number): Participant | null 
 
   participant.key = participant.key || `participant-${index + 1}`;
   participant.sectorOriginal = participant.sector;
-  participant.sector = isGenericOrganizationLabel(participant.sectorOriginal)
+
+  const explicitSector = isGenericOrganizationLabel(participant.sectorOriginal)
     ? ""
     : normalizeSector(participant.sectorOriginal);
+
+  if (explicitSector) {
+    participant.sector = explicitSector;
+    participant.sectorSource = "ระบุในข้อมูลต้นทาง";
+  } else {
+    const inferred = inferSectorFromWorkContext(participant);
+    participant.sector = inferred.sector;
+    participant.sectorSource = inferred.sector ? `จัดกลุ่มจาก${inferred.source}` : "";
+  }
+
   return participant;
 }
 
@@ -547,6 +588,10 @@ export default function Dashboard() {
     });
     return [...groups.entries()];
   }, [employedParticipants]);
+  const unclassifiedIndustryParticipants = useMemo(
+    () => employedParticipants.filter((item) => !item.sector?.trim()),
+    [employedParticipants],
+  );
   const organizationDirectory = useMemo(() => {
     const groups = new Map<string, Participant[]>();
     employedParticipants.forEach((item) => {
@@ -978,8 +1023,9 @@ export default function Dashboard() {
                 </article>
                 <article className="panel sector-preview-card">
                   <div className="outcome-card-heading"><h3>Sector / อุตสาหกรรม</h3><button type="button" onClick={() => openIndustryDirectory()}>ดูรายชื่อทั้งหมด →</button></div>
-                  <p className="sector-click-hint">คลิกแต่ละ Sector เพื่อดูบริษัทและหน่วยงานในกลุ่ม</p>
+                  <p className="sector-click-hint">คลิกแต่ละ Sector เพื่อดูบริษัทและหน่วยงานในกลุ่ม • หากไม่ได้ระบุ Sector ระบบจะจัดกลุ่มจากหน้าที่ / ขอบเขตงานก่อน</p>
                   <div className="bars-list compact-bars">{sectorDirectory.map(([sector, people], index) => <BreakdownBar key={sector} label={sector} value={people.length} total={employedParticipants.length} color={SECTORS[index].color} onClick={() => openIndustryDirectory(sector)} />)}</div>
+                  {unclassifiedIndustryParticipants.length > 0 && <p className="sector-click-hint">ยังจัดกลุ่ม Sector ไม่ได้ {unclassifiedIndustryParticipants.length.toLocaleString("th-TH")} คน เนื่องจากข้อมูลหน้าที่ / ขอบเขตงานยังไม่ชี้ไปที่อุตสาหกรรมใดชัดเจน</p>}
                 </article>
                 <article className="panel education-season-card">
                   <div className="outcome-card-heading"><h3>แผนเรียนต่อ แยกตาม Season</h3><span>ระดับที่ต้องการศึกษาต่อ</span></div>
