@@ -359,6 +359,10 @@ export default function Dashboard() {
     };
   }, [loadData]);
 
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [view]);
+
   const totals = useMemo(() => countBy(participants, "group"), [participants]);
   const tracks = useMemo(() => sortEntries(Object.entries(countBy(participants, "track"))), [participants]);
   const seasons = useMemo(
@@ -570,6 +574,47 @@ export default function Dashboard() {
                 </div>
                 <span>เลือกการ์ดเพื่อดูรายชื่อและรายละเอียด</span>
               </div>
+
+              <div className="insight-grid status-insight-grid">
+                <article className="panel status-panel">
+                  <div className="panel-heading">
+                    <div><h2>เส้นทางปัจจุบัน</h2></div>
+                    <span className="panel-note">คลิกแต่ละกลุ่มเพื่อดูรายชื่อ</span>
+                  </div>
+                  <div className="donut-layout">
+                    <div className="donut" style={{ background: `conic-gradient(${groupGradient || "#e5e7eb 0deg 360deg"})` }}>
+                      <div><strong>{total.toLocaleString("th-TH")}</strong><span>ทั้งหมด</span></div>
+                    </div>
+                    <div className="legend-list">
+                      {GROUPS.map((group) => (
+                        <button key={group.name} type="button" onClick={() => selectGroup(group.name)}>
+                          <i style={{ background: group.color }} /><span>{group.short}</span><strong>{percent(totals[group.name] ?? 0, total)}%</strong>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </article>
+
+                <article className="panel work-panel">
+                  <div className="panel-heading">
+                    <div><h2>รูปแบบการทำงาน</h2></div>
+                    <span className="big-context">{workers.length}</span>
+                  </div>
+                  <div className="bars-list">
+                    {WORK_TYPES.map((workType, index) => (
+                      <BreakdownBar
+                        key={workType}
+                        label={workType.replace(" (Freelancer / Consultant)", "")}
+                        value={workTypes[workType] ?? 0}
+                        total={workers.length}
+                        color={["#FF7A1A", "#2F6BFF", "#FF4FA3", "#19BCEB", "#6D4AFF"][index]}
+                        onClick={() => { setGroupFilter("ทำงาน"); setWorkFilter(workType); setPage(1); setView("people"); }}
+                      />
+                    ))}
+                  </div>
+                </article>
+              </div>
+
               <div className="stat-strip">
                 {GROUPS.map((group) => (
                   <GradientCard
@@ -622,46 +667,6 @@ export default function Dashboard() {
                   </div>
                 </article>
               </div>
-            </section>
-
-            <section className="insight-grid">
-              <article className="panel status-panel">
-                <div className="panel-heading">
-                  <div><p className="eyebrow">01 / CURRENT PATH</p><h2>เส้นทางปัจจุบัน</h2></div>
-                  <span className="panel-note">คลิกแต่ละกลุ่มเพื่อดูรายชื่อ</span>
-                </div>
-                <div className="donut-layout">
-                  <div className="donut" style={{ background: `conic-gradient(${groupGradient || "#e5e7eb 0deg 360deg"})` }}>
-                    <div><strong>{total.toLocaleString("th-TH")}</strong><span>ทั้งหมด</span></div>
-                  </div>
-                  <div className="legend-list">
-                    {GROUPS.map((group) => (
-                      <button key={group.name} type="button" onClick={() => selectGroup(group.name)}>
-                        <i style={{ background: group.color }} /><span>{group.short}</span><strong>{percent(totals[group.name] ?? 0, total)}%</strong>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </article>
-
-              <article className="panel work-panel">
-                <div className="panel-heading">
-                  <div><p className="eyebrow">02 / WORKING GROUP</p><h2>รูปแบบการทำงาน</h2></div>
-                  <span className="big-context">{workers.length}</span>
-                </div>
-                <div className="bars-list">
-                  {WORK_TYPES.map((workType, index) => (
-                    <BreakdownBar
-                      key={workType}
-                      label={workType.replace(" (Freelancer / Consultant)", "")}
-                      value={workTypes[workType] ?? 0}
-                      total={workers.length}
-                      color={["#FF7A1A", "#2F6BFF", "#FF4FA3", "#19BCEB", "#6D4AFF"][index]}
-                      onClick={() => { setGroupFilter("ทำงาน"); setWorkFilter(workType); setPage(1); setView("people"); }}
-                    />
-                  ))}
-                </div>
-              </article>
             </section>
 
             <section className="startup-section" aria-labelledby="startup-heading">
@@ -762,6 +767,13 @@ export default function Dashboard() {
           </>
         ) : (
           <section className="people-view">
+            <button
+              className="back-overview-button"
+              type="button"
+              onClick={() => setView("overview")}
+            >
+              <span aria-hidden="true">←</span> กลับสู่ภาพรวม
+            </button>
             <div className="people-heading">
               <div><p className="eyebrow">PARTICIPANT DIRECTORY</p><h1>ข้อมูลรายบุคคล</h1><p>ค้นหา ตรวจสอบเส้นทาง และเปิดดูรายละเอียดของผู้เข้าร่วมแต่ละคน</p></div>
               <div className="people-count"><strong>{filtered.length.toLocaleString("th-TH")}</strong><span>รายการที่พบ</span></div>

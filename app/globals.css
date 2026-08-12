@@ -118,7 +118,7 @@ a { color: inherit; }
 .status-summary-heading { margin-bottom: 22px; display: flex; align-items: flex-end; justify-content: space-between; gap: 28px; }
 .status-summary-heading h2 { margin: 0; font-family: "Noto Sans Thai", sans-serif; font-size: clamp(30px, 3.2vw, 44px); line-height: 1.25; font-weight: 700; letter-spacing: -.02em; color: var(--ink); }
 .status-summary-heading > span { padding-bottom: 4px; color: var(--blue); font-size: 11px; font-weight: 650; }
-.stat-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.stat-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 18px; }
 
 .demographic-section { margin-top: 92px; }
 .demographic-heading { margin-bottom: 26px; }
@@ -142,6 +142,7 @@ a { color: inherit; }
 .demographic-bars .bar-track { height: 7px; background: rgba(210,220,247,.72); }
 
 .insight-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 72px; }
+.status-insight-grid { margin-top: 0; margin-bottom: 0; }
 .panel { background: rgba(255,255,255,.90); border: 1px solid rgba(47,107,255,.16); border-radius: 24px; padding: clamp(24px, 3vw, 42px); box-shadow: 0 18px 46px rgba(47,107,255,.08), 0 4px 18px rgba(255,79,163,.04); backdrop-filter: blur(12px); }
 .panel-heading { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; }
 .panel-heading h2, .section-heading h2 { margin: 0; font-family: "Noto Sans Thai", sans-serif; font-size: clamp(25px, 2.6vw, 36px); line-height: 1.3; font-weight: 600; letter-spacing: -.015em; }
@@ -291,6 +292,9 @@ a { color: inherit; }
 .income-grid p { max-width: 180px; margin: 20px 0 0; color: var(--muted); font-size: 12px; line-height: 1.65; }
 
 .people-view { padding-top: 68px; min-height: 850px; }
+.back-overview-button { position: sticky; top: 88px; z-index: 24; width: fit-content; min-height: 42px; margin: 0 0 24px; border: 1px solid rgba(47,107,255,.22); border-radius: 999px; padding: 0 18px; display: inline-flex; align-items: center; gap: 9px; background: rgba(255,255,255,.94); box-shadow: 0 12px 28px rgba(47,107,255,.13); color: var(--blue); font-family: inherit; font-size: 12px; font-weight: 750; cursor: pointer; backdrop-filter: blur(12px); transition: transform .2s ease, box-shadow .2s ease, background .2s ease; }
+.back-overview-button:hover { transform: translateY(-2px); background: #fff; box-shadow: 0 16px 34px rgba(47,107,255,.18); }
+.back-overview-button span { font-size: 17px; line-height: 1; }
 .people-heading { display: flex; justify-content: space-between; align-items: flex-end; gap: 30px; }
 .people-heading h1 { margin: 0; font-family: "Noto Sans Thai", sans-serif; font-size: clamp(46px, 5vw, 72px); line-height: 1.1; font-weight: 700; letter-spacing: -.025em; }
 .people-heading > div:first-child > p:last-child { margin: 16px 0 0; color: var(--muted); font-size: 13px; }
@@ -678,6 +682,7 @@ td code { font-family: ui-monospace, monospace; font-size: 10px; background: #ed
   .demographic-card, .education-card { grid-column: auto; min-height: 0; }
   .demographic-card-heading > span { font-size: 26px; }
   .insight-grid { grid-template-columns: 1fr; margin-top: 48px; }
+  .status-insight-grid { margin-top: 0; }
   .donut-layout { grid-template-columns: 1fr; }
   .donut { max-width: 280px; justify-self: center; }
   .policy-section { margin-top: 74px; }
@@ -705,6 +710,7 @@ td code { font-family: ui-monospace, monospace; font-size: 10px; background: #ed
   .income-grid article:nth-child(-n+2) { border-bottom: 1px solid var(--line); }
   .season-row { grid-template-columns: 70px 1fr 30px; gap: 9px; }
   .people-view { padding-top: 46px; }
+  .back-overview-button { top: 76px; margin-bottom: 18px; }
   .people-heading { align-items: flex-start; flex-direction: column; }
   .filter-panel { grid-template-columns: 1fr 1fr; }
   .search-field { grid-column: 1 / -1; }
