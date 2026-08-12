@@ -1,6 +1,7 @@
 "use client";
 
 import { GradientCard } from "@/components/ui/gradient-card";
+import { Card as GlowCard, CardCanvas } from "@/components/ui/animated-glow-card";
 import { HeroSection } from "@/components/ui/hero-section-2";
 import Image from "next/image";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -670,25 +671,32 @@ export default function Dashboard() {
             <section className="income-section income-overview-section" aria-labelledby="income-overview-heading">
               <div className="section-heading income-heading">
                 <div><h2 id="income-overview-heading">ช่วงรายได้ของผู้ที่ทำงาน</h2></div>
-                <p>รวมกลุ่มทำงานและเรียนควบคู่กับงาน เฉพาะผู้ที่ระบุรายได้ • คลิกแต่ละช่วงเพื่อดูข้อมูลเชิงคุณภาพ</p>
               </div>
-              <div className="income-grid income-card-grid">
-                {incomeEntries.map(([income, count], index) => (
-                  <button
-                    className={`income-card income-card-${index + 1}`}
-                    key={income}
-                    type="button"
-                    onClick={() => setSelectedIncome(income)}
-                    aria-label={`ดูข้อมูลเชิงคุณภาพของผู้มีรายได้ ${income}`}
-                  >
-                    <span className="income-card-dot" style={{ background: ["#FF7A1A", "#2F6BFF", "#FF4FA3", "#19BCEB"][index] }} />
-                    <small>ช่วงรายได้ต่อเดือน</small>
-                    <strong>{count.toLocaleString("th-TH")}</strong>
-                    <p>{income}</p>
-                    <b>ดูข้อมูลเชิงคุณภาพ <i aria-hidden="true">→</i></b>
-                  </button>
-                ))}
-              </div>
+              <CardCanvas className="income-glow-canvas">
+                <div className="income-grid income-card-grid">
+                  {incomeEntries.map(([income, count], index) => (
+                    <GlowCard
+                      className={`income-glow-card income-glow-card-${index + 1}`}
+                      glowColor={["#FF7A1A", "#2F6BFF", "#FF4FA3", "#19BCEB"][index]}
+                      softColor={["#FFF1E3", "#EAF1FF", "#FFEAF5", "#E7FAFF"][index]}
+                      key={income}
+                    >
+                      <button
+                        className="income-card"
+                        type="button"
+                        onClick={() => setSelectedIncome(income)}
+                        aria-label={`ดูข้อมูลเชิงคุณภาพของผู้มีรายได้ ${income}`}
+                      >
+                        <span className="income-card-dot" />
+                        <small>ช่วงรายได้ต่อเดือน</small>
+                        <strong>{count.toLocaleString("th-TH")}</strong>
+                        <p>{income}</p>
+                        <b>ดูข้อมูลเชิงคุณภาพ <i aria-hidden="true">→</i></b>
+                      </button>
+                    </GlowCard>
+                  ))}
+                </div>
+              </CardCanvas>
             </section>
 
             <section className="startup-section" aria-labelledby="startup-heading">

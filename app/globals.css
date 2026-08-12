@@ -308,21 +308,34 @@ a { color: inherit; }
 .season-stack span { height: 100%; border-right: 2px solid var(--panel); }
 .season-stack span:last-child { border-right: 0; }
 
-.income-section { margin-top: 92px; }
-.income-overview-section { margin-top: 92px; }
-.income-heading { margin-bottom: 24px; }
+.income-section { margin-top: 58px; }
+.income-overview-section { margin-top: 58px; }
+.income-heading { margin-bottom: 20px; }
+.income-heading h2 { font-size: clamp(32px, 3.5vw, 46px); }
+.card-canvas { position: relative; isolation: isolate; }
+.glow-filter { position: absolute; width: 0; height: 0; }
+.card-backdrop { position: absolute; inset: 8% 4% -12%; z-index: -2; border-radius: 36px; background: radial-gradient(circle at 15% 50%, rgba(255,122,26,.08), transparent 28%), radial-gradient(circle at 48% 55%, rgba(47,107,255,.08), transparent 28%), radial-gradient(circle at 78% 52%, rgba(255,79,163,.07), transparent 26%), radial-gradient(circle at 96% 50%, rgba(25,188,235,.08), transparent 25%); filter: blur(28px); }
+.glow-card { --glow-color: #2f6bff; --glow-soft: #eef3ff; position: relative; min-width: 0; height: 100%; padding: 1px; overflow: hidden; border-radius: 24px; background: linear-gradient(145deg, color-mix(in srgb, var(--glow-color) 58%, white), color-mix(in srgb, var(--glow-color) 14%, white)); box-shadow: 0 16px 34px color-mix(in srgb, var(--glow-color) 10%, transparent); transition: transform .24s ease, box-shadow .24s ease; isolation: isolate; }
+.glow-card::before { content: ""; position: absolute; inset: -85%; z-index: -1; background: conic-gradient(from 0deg, transparent 0 70%, color-mix(in srgb, var(--glow-color) 88%, white) 80%, transparent 91%); opacity: .62; animation: glow-card-spin 8s linear infinite; }
+.glow-card:hover { transform: translateY(-5px); box-shadow: 0 23px 48px color-mix(in srgb, var(--glow-color) 18%, transparent); }
+.glow-card .card-content { position: relative; z-index: 1; height: 100%; overflow: hidden; border-radius: 23px; background: linear-gradient(145deg, rgba(255,255,255,.98), color-mix(in srgb, var(--glow-soft) 88%, white)); }
+.border-element { position: absolute; z-index: 3; pointer-events: none; border-radius: 999px; background: var(--glow-color); box-shadow: 0 0 9px 2px color-mix(in srgb, var(--glow-color) 55%, transparent); opacity: .85; }
+.border-left, .border-right { width: 2px; height: 34px; animation: glow-card-vertical 4.8s ease-in-out infinite alternate; }
+.border-left { left: 0; top: 18%; }
+.border-right { right: 0; bottom: 18%; animation-delay: -2.4s; }
+.border-top, .border-bottom { width: 34px; height: 2px; animation: glow-card-horizontal 5.4s ease-in-out infinite alternate; }
+.border-top { left: 18%; top: 0; }
+.border-bottom { right: 18%; bottom: 0; animation-delay: -2.7s; }
+@keyframes glow-card-spin { to { transform: rotate(360deg); } }
+@keyframes glow-card-vertical { from { transform: translateY(-8px); } to { transform: translateY(118px); } }
+@keyframes glow-card-horizontal { from { transform: translateX(-8px); } to { transform: translateX(130px); } }
 .income-grid { display: grid; grid-template-columns: repeat(4, 1fr); }
-.income-card-grid { gap: 15px; }
-.income-card { min-height: 230px; padding: 26px 25px 23px; display: flex; flex-direction: column; align-items: flex-start; overflow: hidden; border: 1px solid rgba(47,107,255,.16); border-radius: 22px; color: var(--ink); text-align: left; cursor: pointer; position: relative; box-shadow: 0 14px 34px rgba(47,107,255,.07); transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease; }
-.income-card { font-family: inherit; }
+.income-card-grid { gap: 17px; }
+.income-card { width: 100%; min-height: 226px; padding: 26px 25px 23px; display: flex; flex-direction: column; align-items: flex-start; overflow: hidden; border: 0; border-radius: 23px; background: transparent; color: var(--ink); font-family: inherit; text-align: left; cursor: pointer; position: relative; transition: background .22s ease; }
 .income-card::after { content: ""; position: absolute; width: 150px; height: 150px; right: -60px; bottom: -70px; border-radius: 50%; background: radial-gradient(circle, rgba(255,255,255,.55), transparent 67%); pointer-events: none; }
-.income-card-1 { background: linear-gradient(145deg, #fff9f2, #fff0dc); }
-.income-card-2 { background: linear-gradient(145deg, #f8fbff, #e9f0ff); }
-.income-card-3 { background: linear-gradient(145deg, #fff8fc, #ffe8f3); }
-.income-card-4 { background: linear-gradient(145deg, #f7feff, #e3faff); }
-.income-card:hover { transform: translateY(-5px); border-color: rgba(47,107,255,.34); box-shadow: 0 22px 44px rgba(47,107,255,.13), 0 8px 20px rgba(255,79,163,.06); }
+.income-card:hover { background: rgba(255,255,255,.18); }
 .income-card:focus-visible { outline: 3px solid rgba(47,107,255,.28); outline-offset: 3px; }
-.income-card-dot { position: absolute; width: 9px; height: 9px; border-radius: 50%; right: 24px; top: 24px; box-shadow: 0 0 0 6px rgba(255,255,255,.48); }
+.income-card-dot { position: absolute; width: 9px; height: 9px; border-radius: 50%; right: 24px; top: 24px; background: var(--glow-color); box-shadow: 0 0 0 6px rgba(255,255,255,.62), 0 0 16px var(--glow-color); }
 .income-card small { color: var(--muted); font-size: 9px; letter-spacing: .06em; }
 .income-card strong { margin-top: 13px; font-family: "Noto Sans Thai", sans-serif; font-size: 50px; line-height: 1; font-weight: 700; }
 .income-card p { min-height: 42px; max-width: 210px; margin: 15px 0 20px; color: #41557f; font-size: 13px; line-height: 1.65; }
