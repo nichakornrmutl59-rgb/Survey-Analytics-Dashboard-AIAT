@@ -120,6 +120,27 @@ a { color: inherit; }
 .status-summary-heading > span { padding-bottom: 4px; color: var(--blue); font-size: 11px; font-weight: 650; }
 .stat-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
 
+.demographic-section { margin-top: 92px; }
+.demographic-heading { margin-bottom: 26px; }
+.demographic-grid { display: grid; grid-template-columns: .82fr 1fr 1.32fr; gap: 18px; align-items: stretch; }
+.demographic-card { min-width: 0; min-height: 430px; position: relative; overflow: hidden; }
+.demographic-card::before { content: ""; position: absolute; width: 170px; height: 170px; right: -65px; top: -76px; border-radius: 50%; pointer-events: none; }
+.gender-card { background: linear-gradient(145deg, rgba(255,255,255,.96), rgba(234,240,255,.90)); }
+.gender-card::before { background: radial-gradient(circle, rgba(47,107,255,.18), transparent 70%); }
+.age-card { background: linear-gradient(145deg, rgba(255,255,255,.96), rgba(239,235,255,.90)); }
+.age-card::before { background: radial-gradient(circle, rgba(109,74,255,.17), transparent 70%); }
+.education-card { background: linear-gradient(145deg, rgba(255,255,255,.96), rgba(255,238,247,.90)); }
+.education-card::before { background: radial-gradient(circle, rgba(255,79,163,.15), transparent 70%); }
+.demographic-card-heading { min-height: 52px; display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; position: relative; z-index: 1; }
+.demographic-card-heading > span { font-family: "Noto Sans Thai", sans-serif; font-size: clamp(24px, 2vw, 31px); line-height: 1.25; font-weight: 700; letter-spacing: -.015em; }
+.demographic-card-heading > strong { color: #aebde2; font-family: "Noto Sans Thai", sans-serif; font-size: 28px; line-height: 1; font-weight: 650; }
+.demographic-note { min-height: 38px; margin: 3px 0 -3px; color: var(--muted); font-size: 10px; line-height: 1.6; position: relative; z-index: 1; }
+.demographic-bars { margin-top: 24px; display: flex; flex-direction: column; gap: 22px; position: relative; z-index: 1; }
+.compact-demographic-bars { gap: 14px; }
+.demographic-bars .bar-label span { color: #34466f; font-size: 12px; }
+.demographic-bars .bar-label strong { font-size: 15px; }
+.demographic-bars .bar-track { height: 7px; background: rgba(210,220,247,.72); }
+
 .insight-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 72px; }
 .panel { background: rgba(255,255,255,.90); border: 1px solid rgba(47,107,255,.16); border-radius: 24px; padding: clamp(24px, 3vw, 42px); box-shadow: 0 18px 46px rgba(47,107,255,.08), 0 4px 18px rgba(255,79,163,.04); backdrop-filter: blur(12px); }
 .panel-heading { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; }
@@ -528,6 +549,8 @@ td code { font-family: ui-monospace, monospace; font-size: 10px; background: #ed
   .view-switch { grid-row: 2; grid-column: 1 / -1; justify-self: center; margin-bottom: 10px; }
   .sync-status { grid-column: 2; grid-row: 1; }
   .hero-grid { grid-template-columns: 1fr .8fr; gap: 36px; padding-left: 0; padding-right: 0; }
+  .demographic-grid { grid-template-columns: 1fr 1fr; }
+  .education-card { grid-column: 1 / -1; min-height: 390px; }
   .policy-grid { grid-template-columns: 1fr 1fr; }
   .policy-card:nth-child(2) { border-right: 0; }
   .policy-card:nth-child(-n+2) { border-bottom: 1px solid var(--line); }
@@ -561,6 +584,10 @@ td code { font-family: ui-monospace, monospace; font-size: 10px; background: #ed
   .status-summary-heading h2 { font-size: 31px; }
   .status-summary-heading > span { font-size: 10px; }
   .stat-strip { grid-template-columns: 1fr 1fr; gap: 12px; }
+  .demographic-section { margin-top: 68px; }
+  .demographic-grid { grid-template-columns: 1fr; }
+  .demographic-card, .education-card { grid-column: auto; min-height: 0; }
+  .demographic-card-heading > span { font-size: 26px; }
   .insight-grid { grid-template-columns: 1fr; margin-top: 48px; }
   .donut-layout { grid-template-columns: 1fr; }
   .donut { max-width: 280px; justify-self: center; }

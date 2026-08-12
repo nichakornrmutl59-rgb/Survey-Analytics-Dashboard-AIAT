@@ -131,6 +131,46 @@ function percent(value: number, total: number) {
   return ((value / total) * 100).toFixed(1);
 }
 
+function normalizeGender(value: string) {
+  const normalized = value.trim().toLocaleLowerCase("th");
+  if (!normalized) return "ไม่ระบุ";
+  if (normalized === "ชาย" || normalized === "ผู้ชาย" || normalized === "male") return "ชาย";
+  if (normalized === "หญิง" || normalized === "ผู้หญิง" || normalized === "female") return "หญิง";
+  return "อื่น ๆ / ไม่ประสงค์ระบุ";
+}
+
+function ageRange(value: string) {
+  const age = Number.parseInt(value.replace(/[^0-9]/g, ""), 10);
+  if (!Number.isFinite(age)) return "ไม่ระบุ";
+  if (age < 18) return "ต่ำกว่า 18 ปี";
+  if (age <= 22) return "18–22 ปี";
+  if (age <= 29) return "23–29 ปี";
+  if (age <= 39) return "30–39 ปี";
+  if (age <= 49) return "40–49 ปี";
+  return "50 ปีขึ้นไป";
+}
+
+function normalizeEducation(value: string) {
+  const normalized = value.trim();
+  if (!normalized) return "ไม่ระบุ";
+  if (/ประถม/.test(normalized)) return "ประถมศึกษา";
+  if (/มัธยมศึกษาตอนต้น|ม\.ต้น/.test(normalized)) return "มัธยมศึกษาตอนต้น";
+  if (/มัธยมศึกษาตอนปลาย|ม\.ปลาย/.test(normalized)) return "มัธยมศึกษาตอนปลาย";
+  if (/ปวช|อนุปริญญา|ปวส/.test(normalized)) return "ปวช. / ปวส. / อนุปริญญา";
+  if (/ปริญญาตรี/.test(normalized)) return "ปริญญาตรี";
+  if (/ปริญญาโท/.test(normalized)) return "ปริญญาโท";
+  if (/ปริญญาเอก/.test(normalized)) return "ปริญญาเอก";
+  return "อื่น ๆ";
+}
+
+function countDerived(items: Participant[], getValue: (item: Participant) => string) {
+  return items.reduce<Record<string, number>>((result, item) => {
+    const value = getValue(item);
+    result[value] = (result[value] ?? 0) + 1;
+    return result;
+  }, {});
+}
+
 function formatUpdatedAt(value: string) {
   if (!value) return "กำลังเชื่อมข้อมูล";
   return new Intl.DateTimeFormat("th-TH", {
@@ -289,6 +329,24 @@ export default function Dashboard() {
   );
   const workers = useMemo(() => participants.filter((item) => item.group === "ทำงาน"), [participants]);
   const workTypes = useMemo(() => countBy(workers, "workType"), [workers]);
+  const genderEntries = useMemo(() => {
+    const counts = countDerived(participants, (item) => normalizeGender(item.gender));
+    return ["ชาย", "หญิง", "อื่น ๆ / ไม่ประสงค์ระบุ", "ไม่ระบุ"]
+      .map((label) => [label, counts[label] ?? 0] as [string, number])
+      .filter(([, count]) => count > 0);
+  }, [participants]);
+  const ageEntries = useMemo(() => {
+    const counts = countDerived(participants, (item) => ageRange(item.age));
+    return ["ต่ำกว่า 18 ปี", "18–22 ปี", "23–29 ปี", "30–39 ปี", "40–49 ปี", "50 ปีขึ้นไป", "ไม่ระบุ"]
+      .map((label) => [label, counts[label] ?? 0] as [string, number])
+      .filter(([, count]) => count > 0);
+  }, [participants]);
+  const educationEntries = useMemo(() => {
+    const counts = countDerived(participants, (item) => normalizeEducation(item.educationLevel));
+    return ["ประถมศึกษา", "มัธยมศึกษาตอนต้น", "มัธยมศึกษาตอนปลาย", "ปวช. / ปวส. / อนุปริญญา", "ปริญญาตรี", "ปริญญาโท", "ปริญญาเอก", "อื่น ๆ", "ไม่ระบุ"]
+      .map((label) => [label, counts[label] ?? 0] as [string, number])
+      .filter(([, count]) => count > 0);
+  }, [participants]);
   const sectorEntries = useMemo(
     () => sortEntries(Object.entries(countBy(participants.filter((item) => item.group === "ทำงาน" || item.group === "เรียนและทำงาน"), "sector"))).slice(0, 6),
     [participants],
@@ -453,6 +511,42 @@ export default function Dashboard() {
                     aria-label={`ดูรายชื่อกลุ่ม${group.short}`}
                   />
                 ))}
+              </div>
+            </section>
+
+            <section className="demographic-section" aria-labelledby="demographic-heading">
+              <div className="section-heading demographic-heading">
+                <div><p className="eyebrow">PARTICIPANT PROFILE</p><h2 id="demographic-heading">ข้อมูลพื้นฐานผู้เข้าร่วมโครงการ</h2></div>
+                <p>สรุปจากข้อมูลเพศ อายุ และระดับการศึกษาที่ผู้เข้าร่วมระบุไว้</p>
+              </div>
+              <div className="demographic-grid">
+                <article className="panel demographic-card gender-card">
+                  <div className="demographic-card-heading"><span>เพศ</span><strong>{total.toLocaleString("th-TH")}</strong></div>
+                  <div className="demographic-bars">
+                    {genderEntries.map(([label, count], index) => (
+                      <BreakdownBar key={label} label={label} value={count} total={total} color={["#2F6BFF", "#FF4FA3", "#6D4AFF", "#A7B2CF"][index] ?? "#19BCEB"} />
+                    ))}
+                  </div>
+                </article>
+
+                <article className="panel demographic-card age-card">
+                  <div className="demographic-card-heading"><span>ช่วงอายุ</span><strong>{total.toLocaleString("th-TH")}</strong></div>
+                  <div className="demographic-bars compact-demographic-bars">
+                    {ageEntries.map(([label, count], index) => (
+                      <BreakdownBar key={label} label={label} value={count} total={total} color={["#19BCEB", "#2F6BFF", "#6D4AFF", "#FF4FA3", "#FF7A1A", "#E9A11B", "#A7B2CF"][index] ?? "#19BCEB"} />
+                    ))}
+                  </div>
+                </article>
+
+                <article className="panel demographic-card education-card">
+                  <div className="demographic-card-heading"><span>ระดับการศึกษา</span><strong>{total.toLocaleString("th-TH")}</strong></div>
+                  <p className="demographic-note">กลุ่มทำงานและว่างงานไม่มีคำถามระดับการศึกษา จึงรวมเป็น “ไม่ระบุ”</p>
+                  <div className="demographic-bars compact-demographic-bars">
+                    {educationEntries.map(([label, count], index) => (
+                      <BreakdownBar key={label} label={label} value={count} total={total} color={["#19BCEB", "#2F6BFF", "#4F58E8", "#6D4AFF", "#FF4FA3", "#FF7A1A", "#E9A11B", "#8D70DA", "#A7B2CF"][index] ?? "#19BCEB"} />
+                    ))}
+                  </div>
+                </article>
               </div>
             </section>
 
