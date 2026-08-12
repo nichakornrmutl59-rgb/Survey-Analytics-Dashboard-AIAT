@@ -1,6 +1,7 @@
 "use client";
 
 import { GradientCard } from "@/components/ui/gradient-card";
+import { HeroSection } from "@/components/ui/hero-section-2";
 import Image from "next/image";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
@@ -543,27 +544,53 @@ export default function Dashboard() {
 
         {view === "overview" ? (
           <>
-            <section className="hero-grid">
-              <div className="hero-copy">
-                <p className="eyebrow">ติดตามผลผู้เข้าร่วม • SEASON 1–5</p>
-                <h1>จากห้องเรียน<br />สู่ผลลัพธ์จริง</h1>
-                <p className="hero-description">
-                  ภาพรวมเส้นทางหลังจบโครงการ เพื่อมองเห็นกำลังคนที่เข้าสู่อุตสาหกรรม การศึกษาต่อ และโอกาสพัฒนาเชิงนโยบาย
-                </p>
-                <div className="hero-actions">
-                  <button className="primary-button" type="button" onClick={() => setView("people")}>สำรวจผู้เข้าร่วม <span>→</span></button>
-                  <span className="privacy-label">ข้อมูลส่วนบุคคลแสดงเฉพาะหน้ารายบุคคล</span>
-                </div>
+            <HeroSection
+              kicker="ติดตามผลผู้เข้าร่วม • SEASON 1–5"
+              title={<>จากห้องเรียน<br /><span>สู่ผลลัพธ์จริง</span></>}
+              subtitle="ภาพรวมเส้นทางหลังจบโครงการ เพื่อมองเห็นกำลังคนที่เข้าสู่อุตสาหกรรม การศึกษาต่อ และโอกาสพัฒนาเชิงนโยบาย"
+              callToAction={{ text: "สำรวจผู้เข้าร่วม", onClick: () => setView("people") }}
+              privacyText="ข้อมูลส่วนบุคคลแสดงเฉพาะหน้ารายบุคคล"
+              backgroundImage="/sponsor-superai.png"
+              liveValue={loading ? "—" : total.toLocaleString("th-TH")}
+              liveLabel="ผู้เข้าร่วมที่ติดตามผลแล้ว"
+              coverageLabel="มีเส้นทางต่อเนื่อง"
+              coverageValue={loading ? "—" : `${percent(accountedFor, total)}%`}
+              coveragePercent={(accountedFor / Math.max(total, 1)) * 100}
+              coverageNote="ทำงาน เรียน หรือทำทั้งสองอย่าง"
+            />
+
+            <section className="demographic-section demographic-first" aria-labelledby="demographic-heading">
+              <div className="demographic-title">
+                <h2 id="demographic-heading">ข้อมูลพื้นฐานผู้เข้าร่วมโครงการ</h2>
               </div>
-              <div className="hero-number-card">
-                <div className="live-label"><span /> LIVE DATA</div>
-                <strong>{loading ? "—" : total.toLocaleString("th-TH")}</strong>
-                <p>ผู้เข้าร่วมที่ติดตามผลแล้ว</p>
-                <div className="coverage-row">
-                  <div><span>มีเส้นทางต่อเนื่อง</span><strong>{loading ? "—" : `${percent(accountedFor, total)}%`}</strong></div>
-                  <div className="coverage-track"><span style={{ width: `${(accountedFor / Math.max(total, 1)) * 100}%` }} /></div>
-                  <small>ทำงาน เรียน หรือทำทั้งสองอย่าง</small>
-                </div>
+              <div className="demographic-grid">
+                <article className="panel demographic-card gender-card">
+                  <div className="demographic-card-heading"><span>เพศ</span><strong>{total.toLocaleString("th-TH")}</strong></div>
+                  <div className="demographic-bars">
+                    {genderEntries.map(([label, count], index) => (
+                      <BreakdownBar key={label} label={label} value={count} total={total} color={["#2F6BFF", "#FF4FA3", "#6D4AFF", "#A7B2CF"][index] ?? "#19BCEB"} />
+                    ))}
+                  </div>
+                </article>
+
+                <article className="panel demographic-card age-card">
+                  <div className="demographic-card-heading"><span>ช่วงอายุ</span><strong>{total.toLocaleString("th-TH")}</strong></div>
+                  <div className="demographic-bars compact-demographic-bars">
+                    {ageEntries.map(([label, count], index) => (
+                      <BreakdownBar key={label} label={label} value={count} total={total} color={["#19BCEB", "#2F6BFF", "#6D4AFF", "#FF4FA3", "#FF7A1A", "#E9A11B", "#A7B2CF"][index] ?? "#19BCEB"} />
+                    ))}
+                  </div>
+                </article>
+
+                <article className="panel demographic-card education-card">
+                  <div className="demographic-card-heading"><span>ระดับการศึกษา</span><strong>{total.toLocaleString("th-TH")}</strong></div>
+                  <p className="demographic-note">กลุ่มทำงานและว่างงานไม่มีคำถามระดับการศึกษา จึงรวมเป็น “ไม่ระบุ”</p>
+                  <div className="demographic-bars compact-demographic-bars">
+                    {educationEntries.map(([label, count], index) => (
+                      <BreakdownBar key={label} label={label} value={count} total={total} color={["#19BCEB", "#2F6BFF", "#4F58E8", "#6D4AFF", "#FF4FA3", "#FF7A1A", "#E9A11B", "#8D70DA", "#A7B2CF"][index] ?? "#19BCEB"} />
+                    ))}
+                  </div>
+                </article>
               </div>
             </section>
 
@@ -630,42 +657,6 @@ export default function Dashboard() {
                     aria-label={`ดูรายชื่อกลุ่ม${group.short}`}
                   />
                 ))}
-              </div>
-            </section>
-
-            <section className="demographic-section" aria-labelledby="demographic-heading">
-              <div className="section-heading demographic-heading">
-                <div><p className="eyebrow">PARTICIPANT PROFILE</p><h2 id="demographic-heading">ข้อมูลพื้นฐานผู้เข้าร่วมโครงการ</h2></div>
-                <p>สรุปจากข้อมูลเพศ อายุ และระดับการศึกษาที่ผู้เข้าร่วมระบุไว้</p>
-              </div>
-              <div className="demographic-grid">
-                <article className="panel demographic-card gender-card">
-                  <div className="demographic-card-heading"><span>เพศ</span><strong>{total.toLocaleString("th-TH")}</strong></div>
-                  <div className="demographic-bars">
-                    {genderEntries.map(([label, count], index) => (
-                      <BreakdownBar key={label} label={label} value={count} total={total} color={["#2F6BFF", "#FF4FA3", "#6D4AFF", "#A7B2CF"][index] ?? "#19BCEB"} />
-                    ))}
-                  </div>
-                </article>
-
-                <article className="panel demographic-card age-card">
-                  <div className="demographic-card-heading"><span>ช่วงอายุ</span><strong>{total.toLocaleString("th-TH")}</strong></div>
-                  <div className="demographic-bars compact-demographic-bars">
-                    {ageEntries.map(([label, count], index) => (
-                      <BreakdownBar key={label} label={label} value={count} total={total} color={["#19BCEB", "#2F6BFF", "#6D4AFF", "#FF4FA3", "#FF7A1A", "#E9A11B", "#A7B2CF"][index] ?? "#19BCEB"} />
-                    ))}
-                  </div>
-                </article>
-
-                <article className="panel demographic-card education-card">
-                  <div className="demographic-card-heading"><span>ระดับการศึกษา</span><strong>{total.toLocaleString("th-TH")}</strong></div>
-                  <p className="demographic-note">กลุ่มทำงานและว่างงานไม่มีคำถามระดับการศึกษา จึงรวมเป็น “ไม่ระบุ”</p>
-                  <div className="demographic-bars compact-demographic-bars">
-                    {educationEntries.map(([label, count], index) => (
-                      <BreakdownBar key={label} label={label} value={count} total={total} color={["#19BCEB", "#2F6BFF", "#4F58E8", "#6D4AFF", "#FF4FA3", "#FF7A1A", "#E9A11B", "#8D70DA", "#A7B2CF"][index] ?? "#19BCEB"} />
-                    ))}
-                  </div>
-                </article>
               </div>
             </section>
 
