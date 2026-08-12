@@ -557,6 +557,10 @@ export default function Dashboard() {
     });
     return [...groups.entries()].sort((a, b) => b[1].length - a[1].length || a[0].localeCompare(b[0], "th"));
   }, [industrySectorFilter, organizationDirectory, selectedIndustryParticipants]);
+  const selectedIndustryUnspecifiedParticipants = useMemo(
+    () => selectedIndustryParticipants.filter((item) => !item.organization?.trim()),
+    [selectedIndustryParticipants],
+  );
   const openIndustryDirectory = (sector: string | null = null) => {
     setIndustrySectorFilter(sector);
     setShowIndustry(true);
@@ -1313,7 +1317,20 @@ export default function Dashboard() {
             {selectedIndustryOrganizations.length > 0 ? (
               <div className="organization-list organization-list-static">{selectedIndustryOrganizations.map(([organization, people], index) => <div className="organization-row" key={organization}><b>{String(index + 1).padStart(2, "0")}</b><span>{organization}</span><strong>{people.length.toLocaleString("th-TH")} คน</strong></div>)}</div>
             ) : (
-              <div className="industry-directory-empty"><strong>ยังไม่มีรายชื่อบริษัทหรือหน่วยงาน</strong><p>พบผู้เข้าร่วมใน Sector นี้ {selectedIndustryParticipants.length.toLocaleString("th-TH")} คน แต่ยังไม่มีผู้ระบุชื่อบริษัทหรือหน่วยงาน</p></div>
+              <div className="industry-directory-empty"><strong>ยังไม่มีรายชื่อบริษัทหรือหน่วยงาน</strong><p>พบผู้เข้าร่วมใน Sector นี้ {selectedIndustryParticipants.length.toLocaleString("th-TH")} คน แต่ข้อมูลต้นทางยังไม่มีชื่อบริษัทหรือหน่วยงานที่อ่านได้</p></div>
+            )}
+            {selectedIndustryUnspecifiedParticipants.length > 0 && (
+              <section className="industry-unspecified" aria-label="ผู้เข้าร่วมที่ยังไม่ระบุบริษัทหรือหน่วยงาน">
+                <div className="industry-unspecified-heading"><strong>ยังไม่ระบุบริษัท / หน่วยงาน</strong><span>{selectedIndustryUnspecifiedParticipants.length.toLocaleString("th-TH")} คน</span></div>
+                <div className="industry-unspecified-list">
+                  {selectedIndustryUnspecifiedParticipants.map((person) => (
+                    <button key={person.key} type="button" onClick={() => setSelected(person)}>
+                      <span><b>{person.title}{person.firstName} {person.lastName}</b><small>{person.position || person.workType || person.clientGroup || "กดเพื่อดูรายละเอียดผู้เข้าร่วม"}</small></span>
+                      <strong>ดูข้อมูล →</strong>
+                    </button>
+                  ))}
+                </div>
+              </section>
             )}
           </section>
         </div>

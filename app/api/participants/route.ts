@@ -81,7 +81,40 @@ function salaryFor(group: Group, row: string[], workType: string) {
   return clean(row[24]);
 }
 
-function workFields(group: Group, row: string[], workType: string) {
+function valueFromHeaders(
+  headers: string[],
+  row: string[],
+  include: RegExp,
+  exclude?: RegExp,
+) {
+  for (let index = 0; index < headers.length; index += 1) {
+    const header = clean(headers[index]);
+    if (!header || !include.test(header) || (exclude && exclude.test(header))) continue;
+    const value = clean(row[index]);
+    if (value) return value;
+  }
+  return "";
+}
+
+function inferOrganization(headers: string[], row: string[]) {
+  return valueFromHeaders(
+    headers,
+    row,
+    /บริษัท|หน่วยงาน|องค์กร|สถานที่ทำงาน|สังกัด|กิจการ|company|organization|employer|workplace/i,
+    /ประเภท|ภาคส่วน|sector|อุตสาหกรรม|เว็บไซต์|website|url|ตำแหน่ง|position|จำนวน|พนักงาน|employee|สถานะ|รายได้|income|salary|ลูกค้า|client|ความสนใจ|interest|สนับสนุน|support/i,
+  );
+}
+
+function inferSector(headers: string[], row: string[]) {
+  return valueFromHeaders(
+    headers,
+    row,
+    /(?:^|\b)sector(?:\b|$)|อุตสาหกรรม|ประเภทธุรกิจ|ประเภทของธุรกิจ|ธุรกิจ.*ด้าน|ด้าน.*ธุรกิจ/i,
+    /ภาคส่วนหน่วยงาน|ประเภทหน่วยงาน|หน่วยงาน.*ประเภท|องค์กร.*ประเภท|สังกัด/i,
+  );
+}
+
+function workFields(group: Group, row: string[], workType: string): Record<string, string> {
   if (group === "เรียน") {
     return {
       educationLevel: clean(row[16]),
@@ -211,8 +244,17 @@ function workFields(group: Group, row: string[], workType: string) {
   };
 }
 
-function normalize(group: Group, row: string[], rowIndex: number) {
+function normalize(group: Group, row: string[], rowIndex: number, headers: string[]) {
   const workType = group === "ทำงาน" ? clean(row[16]) : "";
+  const fields = workFields(group, row, workType);
+
+  if (group === "ทำงาน" || group === "เรียนและทำงาน") {
+    const organizationFromHeader = inferOrganization(headers, row);
+    const sectorFromHeader = inferSector(headers, row);
+
+    if (organizationFromHeader) fields.organization = organizationFromHeader;
+    if (sectorFromHeader) fields.sector = sectorFromHeader;
+  }
 
   return {
     key: `${group}-${clean(row[1]) || rowIndex}`,
@@ -233,7 +275,7 @@ function normalize(group: Group, row: string[], rowIndex: number) {
     address: clean(row[14]),
     workType,
     income: salaryFor(group, row, workType),
-    ...workFields(group, row, workType),
+    ...fields,
   };
 }
 
@@ -253,10 +295,13 @@ async function loadSheet(sheet: (typeof SHEETS)[number]) {
     throw new Error(`ชีท ${sheet.name} ไม่ได้เปิดสิทธิ์ให้อ่านด้วยลิงก์`);
   }
 
-  return parseCsv(csv)
+  const rows = parseCsv(csv);
+  const headers = rows[0] ?? [];
+
+  return rows
     .slice(1)
     .filter((row) => row.some((cell) => clean(cell)))
-    .map((row, index) => normalize(sheet.group, row, index + 1));
+    .map((row, index) => normalize(sheet.group, row, index + 1, headers));
 }
 
 function medalType(value?: string) {
