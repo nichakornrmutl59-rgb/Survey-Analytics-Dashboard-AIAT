@@ -212,7 +212,7 @@ a { color: inherit; }
 .dark-card i { color: #7fe3ff; }
 .accent-card { background: linear-gradient(145deg, #fff0e4, #ffeaf5); }
 
-.startup-section { margin-top: 104px; }
+.startup-section { margin-top: 58px; }
 .startup-heading h2 { background: linear-gradient(100deg, #153a9a, #6d4aff 58%, #ff4fa3); background-clip: text; -webkit-background-clip: text; color: transparent; }
 .startup-summary-card { width: 100%; min-height: 245px; padding: clamp(28px, 4vw, 54px); border: 1px solid rgba(255,122,26,.25); border-radius: 28px; display: flex; align-items: flex-end; justify-content: space-between; gap: 30px; background: radial-gradient(circle at 82% 22%, rgba(25,188,235,.20), transparent 24%), radial-gradient(circle at 66% 100%, rgba(255,79,163,.20), transparent 34%), linear-gradient(125deg, #fff9f3, #f5f8ff 54%, #fff1f8); color: var(--ink); text-align: left; cursor: pointer; box-shadow: 0 22px 54px rgba(47,107,255,.10); transition: transform .25s ease, box-shadow .25s ease; }
 .startup-summary-card:hover { transform: translateY(-4px); box-shadow: 0 30px 70px rgba(47,107,255,.15); }
@@ -821,7 +821,7 @@ td code { font-family: ui-monospace, monospace; font-size: 10px; background: #ed
   .policy-grid { grid-template-columns: 1fr; }
   .policy-card { min-height: 210px; border-right: 0; border-bottom: 1px solid var(--line); }
   .policy-card:last-child { border-bottom: 0; }
-  .startup-section { margin-top: 72px; }
+  .startup-section { margin-top: 44px; }
   .startup-summary-card { align-items: flex-start; flex-direction: column; }
   .startup-summary-action { align-self: stretch; text-align: center; }
   .startup-directory-backdrop { padding: 8px; }

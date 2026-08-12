@@ -764,8 +764,7 @@ export default function Dashboard() {
 
             <section className="startup-section" aria-labelledby="startup-heading">
               <div className="section-heading startup-heading">
-                <div><p className="eyebrow">STARTUP DIRECTORY</p><h2 id="startup-heading">Startup ที่เกิดขึ้นจากผู้เข้าร่วมโครงการ</h2></div>
-                <p>ข้อมูลเชิงคุณภาพจากผู้ที่ระบุสถานะเป็นเจ้าของกิจการ ผู้ประกอบการ หรือ Startup Founder</p>
+                <div><h2 id="startup-heading">Startup ที่เกิดขึ้นจากผู้เข้าร่วมโครงการ</h2></div>
               </div>
               <button className="startup-summary-card" type="button" onClick={() => setShowStartups(true)}>
                 <span className="startup-summary-copy"><small>จำนวนกิจการ / บริษัท / โครงการ Startup</small><strong>{startupFounders.length.toLocaleString("th-TH")}</strong><p>คลิกเพื่อดูว่ามีอะไรบ้าง พร้อมข้อมูลเว็บไซต์ ประเภทธุรกิจ รายได้ จำนวนพนักงาน และสถานะปัจจุบัน</p></span>
