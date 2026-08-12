@@ -281,7 +281,7 @@ a { color: inherit; }
 .industry-tabs button { padding: 9px 16px; border: 0; border-radius: 999px; background: transparent; color: var(--muted); font-size: 10px; cursor: pointer; }
 .industry-tabs button.active { background: linear-gradient(135deg, #2f6bff, #6d4aff); color: white; box-shadow: 0 7px 18px rgba(47,107,255,.18); }
 .industry-groups { margin-top: 26px; display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-.industry-groups article { padding: 20px; border: 1px solid #e0e8ff; border-radius: 17px; background: rgba(255,255,255,.86); }
+.industry-groups article { padding: 20px; border: 1px solid #e0e8ff; border-top-width: 4px; border-radius: 17px; background: rgba(255,255,255,.86); }
 .industry-groups article > header { display: flex; justify-content: space-between; gap: 14px; align-items: baseline; }
 .industry-groups h3 { margin: 0; font-size: 17px; }
 .industry-groups header strong { color: #234fc2; font-size: 11px; white-space: nowrap; }
@@ -293,6 +293,7 @@ a { color: inherit; }
 .organization-list { margin-top: 26px; display: flex; flex-direction: column; }
 .organization-list button { grid-template-columns: 38px 1fr 40px; padding: 14px 4px; }
 .organization-list button > b { color: #aebde2; font-size: 11px; }
+.industry-empty { margin: 10px 0 0; padding: 15px 0 4px; color: var(--muted); font-size: 10px; }
 
 .bottom-grid { margin-top: 72px; }
 .compact-bars { gap: 23px; }
