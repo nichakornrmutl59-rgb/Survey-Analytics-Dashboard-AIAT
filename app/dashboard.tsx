@@ -292,7 +292,10 @@ function sanitizeParticipant(value: unknown, index: number): Participant | null 
     Object.entries(source).map(([key, fieldValue]) => [key, typeof fieldValue === "string" ? fieldValue : fieldValue == null ? "" : String(fieldValue)]),
   ) as Participant;
 
-  participant.key = participant.key || `participant-${index + 1}`;
+  // Always make the client-side key unique. The source participant code can be
+  // duplicated across rows/seasons, and duplicate React keys may leave stale
+  // participant cards visible after applying a company/Sector filter.
+  participant.key = `${participant.key || "participant"}-${index + 1}`;
   participant.sectorOriginal = participant.sector;
 
   const explicitSector = isGenericOrganizationLabel(participant.sectorOriginal)
@@ -570,8 +573,17 @@ export default function Dashboard() {
   );
   const visibleIncomeParticipants = useMemo(() => {
     if (!incomeListFilter) return selectedIncomeParticipants;
-    return selectedIncomeParticipants.filter((person) => person[incomeListFilter.type] === incomeListFilter.value);
-  }, [selectedIncomeParticipants, incomeListFilter]);
+
+    // Reuse the exact participant array behind the clicked summary card. This
+    // guarantees that a card labelled “1 คน” renders exactly one participant,
+    // instead of independently filtering the source data with slightly
+    // different whitespace/normalization rules.
+    if (incomeListFilter.type === "organization") {
+      return selectedIncomeOrganizations.find(([organization]) => organization === incomeListFilter.value)?.[1] ?? [];
+    }
+
+    return selectedIncomeSectorGroups.find(([sector]) => sector === incomeListFilter.value)?.[1] ?? [];
+  }, [selectedIncomeParticipants, selectedIncomeOrganizations, selectedIncomeSectorGroups, incomeListFilter]);
   const startupFounders = useMemo(
     () => participants.filter((item) => item.workType?.includes("เจ้าของกิจการ")),
     [participants],
@@ -1254,7 +1266,7 @@ export default function Dashboard() {
               {visibleIncomeParticipants.map((person, index) => {
                 const evidence = extractLinks(person.portfolio || person.outcomes || "");
                 return (
-                  <article className="income-person-card" key={person.key}>
+                  <article className="income-person-card" key={`${person.key}-${person.code || "no-code"}-${person.email || "no-email"}-${index}`}>
                     <span className="income-person-index">{String(index + 1).padStart(2, "0")}</span>
                     <div className="income-person-main">
                       <div className="income-person-meta"><span>{person.season || "ไม่ระบุ Season"}</span><span>{person.track || "ไม่ระบุ Track"}</span></div>

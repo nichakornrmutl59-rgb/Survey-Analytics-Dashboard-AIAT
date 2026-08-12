@@ -308,7 +308,10 @@ function normalize(group: Group, row: string[], rowIndex: number, headers: strin
   }
 
   return {
-    key: `${group}-${clean(row[1]) || rowIndex}`,
+    // Row index is always included because participant codes are not guaranteed
+    // to be unique in the source sheets. Unique keys prevent stale React cards
+    // from surviving when a company/Sector filter changes the visible list.
+    key: `${group}-${clean(row[1]) || "row"}-${rowIndex}`,
     group,
     code: clean(row[1]),
     season: clean(row[2]),
