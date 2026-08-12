@@ -3,6 +3,7 @@
 import { GradientCard } from "@/components/ui/gradient-card";
 import { Card as GlowCard, CardCanvas } from "@/components/ui/animated-glow-card";
 import { HeroSection } from "@/components/ui/hero-section-2";
+import ParticlesComponent from "@/components/ui/particles-bg";
 import Image from "next/image";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
@@ -665,6 +666,7 @@ export default function Dashboard() {
 
   return (
     <main>
+      <ParticlesComponent />
       <header className="topbar">
         <a className="brand" href="#top" aria-label="กลับด้านบน">
           <span className="brand-logos" aria-hidden="true">

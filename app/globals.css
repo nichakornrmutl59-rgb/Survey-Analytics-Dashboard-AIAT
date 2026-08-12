@@ -32,6 +32,36 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+main { min-height: 100vh; position: relative; isolation: isolate; }
+
+.dashboard-particles {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  background:
+    linear-gradient(135deg, rgba(255,248,242,.72), rgba(244,248,255,.68) 44%, rgba(255,244,250,.62)),
+    radial-gradient(circle at 12% 12%, rgba(255,122,26,.18), transparent 27%),
+    radial-gradient(circle at 88% 18%, rgba(25,188,235,.20), transparent 31%),
+    radial-gradient(circle at 78% 78%, rgba(109,74,255,.13), transparent 30%);
+}
+
+.dashboard-particles canvas { position: absolute; inset: 0; width: 100%; height: 100%; opacity: .82; }
+.particle-orb { position: absolute; border-radius: 50%; filter: blur(34px); opacity: .28; animation: particle-orb-float 16s ease-in-out infinite alternate; }
+.particle-orb-orange { width: 340px; height: 340px; left: -120px; top: 16%; background: rgba(255,122,26,.30); }
+.particle-orb-blue { width: 440px; height: 440px; right: -160px; top: 5%; background: rgba(25,188,235,.27); animation-delay: -5s; }
+.particle-orb-pink { width: 390px; height: 390px; right: 12%; bottom: -180px; background: rgba(255,79,163,.22); animation-delay: -9s; }
+
+@keyframes particle-orb-float {
+  from { transform: translate3d(-2%, -2%, 0) scale(.94); }
+  to { transform: translate3d(7%, 6%, 0) scale(1.08); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .particle-orb { animation: none; }
+}
+
 ::selection { background: rgba(255, 79, 163, .22); color: var(--ink); }
 
 button, input, select { font: inherit; }
