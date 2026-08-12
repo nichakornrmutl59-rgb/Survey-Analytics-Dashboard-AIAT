@@ -84,6 +84,10 @@ const DETAIL_FIELDS: Array<[string, string]> = [
   ["scholarship", "ได้รับทุนการศึกษา"],
   ["scholarshipAfterProject", "ทุนเกิดหลังเข้าร่วมโครงการ"],
   ["futureStudyPlan", "แผนศึกษาต่อ"],
+  ["desiredEducationLevel", "ระดับการศึกษาที่ต้องการศึกษาต่อ"],
+  ["desiredStudyField", "สาขาที่สนใจศึกษาต่อ"],
+  ["desiredStudyInstitution", "สถาบัน / ประเทศที่คาดหวัง"],
+  ["desiredStudyTimeline", "แผนระยะเวลาศึกษาต่อ"],
   ["unemploymentDuration", "ระยะเวลาว่างงาน"],
   ["priorExperience", "ประสบการณ์ทำงานเดิม"],
   ["priorRole", "งานที่เคยทำ"],
@@ -161,6 +165,18 @@ function normalizeEducation(value?: string) {
   if (/ปริญญาโท/.test(normalized)) return "ปริญญาโท";
   if (/ปริญญาเอก/.test(normalized)) return "ปริญญาเอก";
   return "อื่น ๆ";
+}
+
+function educationRank(value?: string) {
+  const normalized = value?.trim() ?? "";
+  if (/ปริญญาเอก/.test(normalized)) return 7;
+  if (/ปริญญาโท/.test(normalized)) return 6;
+  if (/ปริญญาตรี/.test(normalized)) return 5;
+  if (/ปวส|อนุปริญญา/.test(normalized)) return 4;
+  if (/ปวช|มัธยมศึกษาตอนปลาย|ม\.ปลาย/.test(normalized)) return 3;
+  if (/มัธยมศึกษาตอนต้น|ม\.ต้น/.test(normalized)) return 2;
+  if (/ประถม/.test(normalized)) return 1;
+  return 0;
 }
 
 function countDerived(items: Participant[], getValue: (item: Participant) => string) {
@@ -299,6 +315,8 @@ export default function Dashboard() {
   const [workFilter, setWorkFilter] = useState("ทั้งหมด");
   const [selected, setSelected] = useState<Participant | null>(null);
   const [showStartups, setShowStartups] = useState(false);
+  const [showIndustry, setShowIndustry] = useState(false);
+  const [industryTab, setIndustryTab] = useState<"sector" | "organization">("sector");
   const [page, setPage] = useState(1);
 
   const loadData = useCallback(async (quiet = false) => {
@@ -391,6 +409,52 @@ export default function Dashboard() {
   const startupFounders = useMemo(
     () => participants.filter((item) => item.workType.includes("เจ้าของกิจการ")),
     [participants],
+  );
+  const employedParticipants = useMemo(
+    () => participants.filter((item) => item.group === "ทำงาน" || item.group === "เรียนและทำงาน"),
+    [participants],
+  );
+  const sectorDirectory = useMemo(() => {
+    const groups = new Map<string, Participant[]>();
+    employedParticipants.forEach((item) => {
+      const sector = item.sector.trim() || "ไม่ระบุ Sector";
+      groups.set(sector, [...(groups.get(sector) ?? []), item]);
+    });
+    return [...groups.entries()].sort((a, b) => b[1].length - a[1].length);
+  }, [employedParticipants]);
+  const organizationDirectory = useMemo(() => {
+    const groups = new Map<string, Participant[]>();
+    employedParticipants.forEach((item) => {
+      const organization = item.organization.trim();
+      if (organization) groups.set(organization, [...(groups.get(organization) ?? []), item]);
+    });
+    return [...groups.entries()].sort((a, b) => b[1].length - a[1].length);
+  }, [employedParticipants]);
+  const knownIncomeParticipants = useMemo(
+    () => employedParticipants.filter((item) => Boolean(item.income)),
+    [employedParticipants],
+  );
+  const incomeStats = useMemo(() => {
+    const counts = countBy(knownIncomeParticipants, "income");
+    return ["น้อยกว่า 20,000 บาท", "20,001-35,000 บาท", "35,001-50,000 บาท", "มากกว่า 50,000 บาท"]
+      .map((label) => [label, counts[label] ?? 0] as [string, number]);
+  }, [knownIncomeParticipants]);
+  const incomeEstimatedAverage = useMemo(() => {
+    const midpoint: Record<string, number> = { "น้อยกว่า 20,000 บาท": 15000, "20,001-35,000 บาท": 27500, "35,001-50,000 บาท": 42500, "มากกว่า 50,000 บาท": 55000 };
+    const totalIncome = incomeStats.reduce((sum, [label, count]) => sum + (midpoint[label] ?? 0) * count, 0);
+    const counted = incomeStats.reduce((sum, [, count]) => sum + count, 0);
+    return counted ? Math.round(totalIncome / counted) : 0;
+  }, [incomeStats]);
+  const continuingStudents = useMemo(
+    () => participants.filter((item) => item.group === "เรียน" && educationRank(item.desiredEducationLevel) > educationRank(item.educationLevel)),
+    [participants],
+  );
+  const continuingBySeason = useMemo(
+    () => seasons.map((season) => {
+      const people = continuingStudents.filter((item) => item.season === season);
+      return { season, people, levels: sortEntries(Object.entries(countBy(people, "desiredEducationLevel"))) };
+    }).filter((item) => item.people.length > 0),
+    [continuingStudents, seasons],
   );
 
   const filtered = useMemo(() => {
@@ -638,6 +702,37 @@ export default function Dashboard() {
               </button>
             </section>
 
+            <section className="outcome-section" aria-labelledby="outcome-heading">
+              <div className="section-heading outcome-heading">
+                <div><p className="eyebrow">INDUSTRY & EDUCATION OUTCOMES</p><h2 id="outcome-heading">ผลลัพธ์ด้านรายได้ อุตสาหกรรม และการศึกษาต่อ</h2></div>
+                <p>เชื่อมภาพรวมเชิงสถิติเข้ากับรายชื่อบริษัท หน่วยงาน และผู้เข้าร่วมในแต่ละ Season</p>
+              </div>
+              <div className="outcome-kpi-grid">
+                <article><span>ผู้มีข้อมูลรายได้</span><strong>{knownIncomeParticipants.length.toLocaleString("th-TH")}</strong><p>จากกลุ่มทำงานและเรียนควบคู่กับงาน</p></article>
+                <article><span>รายได้เฉลี่ยโดยประมาณ</span><strong>฿{incomeEstimatedAverage.toLocaleString("th-TH")}</strong><p>ต่อเดือน • ประมาณจากค่ากลางของช่วงรายได้</p></article>
+                <article><span>Sector ที่พบ</span><strong>{sectorDirectory.length.toLocaleString("th-TH")}</strong><p>คลิกด้านล่างเพื่อดูบริษัทและหน่วยงานภายใต้ Sector</p></article>
+                <article><span>มีแผนศึกษาต่อระดับสูงขึ้น</span><strong>{continuingStudents.length.toLocaleString("th-TH")}</strong><p>ผู้เรียนที่ระบุระดับการศึกษาที่ต้องการศึกษาต่อ</p></article>
+              </div>
+              <div className="outcome-grid">
+                <article className="panel income-stat-card">
+                  <div className="outcome-card-heading"><h3>สถิติช่วงรายได้ต่อเดือน</h3><span>{knownIncomeParticipants.length.toLocaleString("th-TH")} ผู้ตอบ</span></div>
+                  <div className="bars-list compact-bars">{incomeStats.map(([label, count], index) => <BreakdownBar key={label} label={label} value={count} total={knownIncomeParticipants.length} color={["#19BCEB", "#2F6BFF", "#6D4AFF", "#FF4FA3"][index]} />)}</div>
+                </article>
+                <article className="panel industry-preview-card">
+                  <div className="outcome-card-heading"><h3>หน่วยงานที่มีผู้เข้าร่วมทำงานมากที่สุด</h3><button type="button" onClick={() => { setIndustryTab("organization"); setShowIndustry(true); }}>ดูทั้งหมด →</button></div>
+                  <div className="rank-list">{organizationDirectory.slice(0, 6).map(([name, people], index) => <button key={name} type="button" onClick={() => { setIndustryTab("organization"); setShowIndustry(true); }}><b>{index + 1}</b><span>{name}<small>{people[0]?.sector || "ไม่ระบุ Sector"}</small></span><strong>{people.length}</strong></button>)}</div>
+                </article>
+                <article className="panel sector-preview-card">
+                  <div className="outcome-card-heading"><h3>การทำงานตาม Sector / อุตสาหกรรม</h3><button type="button" onClick={() => { setIndustryTab("sector"); setShowIndustry(true); }}>ดูบริษัทภายใต้ Sector →</button></div>
+                  <div className="bars-list compact-bars">{sectorDirectory.slice(0, 7).map(([sector, people], index) => <BreakdownBar key={sector} label={sector} value={people.length} total={employedParticipants.length} color={["#2F6BFF", "#19BCEB", "#FF7A1A", "#FF4FA3", "#6D4AFF", "#163A8A", "#E9A11B"][index]} onClick={() => { setIndustryTab("sector"); setShowIndustry(true); }} />)}</div>
+                </article>
+                <article className="panel education-season-card">
+                  <div className="outcome-card-heading"><h3>แผนเรียนต่อ แยกตาม Season</h3><span>ระดับที่ต้องการศึกษาต่อ</span></div>
+                  <div className="education-season-list">{continuingBySeason.map(({ season, people, levels }) => <div key={season} className="education-season-row"><div><strong>{season}</strong><span>{people.length.toLocaleString("th-TH")} คน</span></div><p>{levels.map(([level, count]) => `${level} ${count}`).join(" • ")}</p></div>)}</div>
+                </article>
+              </div>
+            </section>
+
             <section className="insight-grid bottom-grid">
               <article className="panel">
                 <div className="panel-heading"><div><p className="eyebrow">03 / TRACK</p><h2>การกระจายตาม Track</h2></div></div>
@@ -808,6 +903,16 @@ export default function Dashboard() {
                 );
               })}
             </div>
+          </section>
+        </div>
+      )}
+
+      {showIndustry && (
+        <div className="drawer-backdrop industry-directory-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setShowIndustry(false); }}>
+          <section className="industry-directory" role="dialog" aria-modal="true" aria-label="รายละเอียด Sector บริษัท และหน่วยงาน">
+            <button className="drawer-close" type="button" onClick={() => setShowIndustry(false)} aria-label="ปิดรายละเอียดอุตสาหกรรม">×</button>
+            <header className="industry-directory-heading"><p className="eyebrow">INDUSTRY DIRECTORY</p><h2>Sector บริษัท และหน่วยงาน</h2><div className="industry-tabs"><button className={industryTab === "sector" ? "active" : ""} type="button" onClick={() => setIndustryTab("sector")}>แยกตาม Sector</button><button className={industryTab === "organization" ? "active" : ""} type="button" onClick={() => setIndustryTab("organization")}>แยกตามบริษัท / หน่วยงาน</button></div></header>
+            {industryTab === "sector" ? <div className="industry-groups">{sectorDirectory.map(([sector, people]) => <article key={sector}><header><h3>{sector}</h3><strong>{people.length.toLocaleString("th-TH")} คน</strong></header><div>{[...new Set(people.map((person) => person.organization).filter(Boolean))].map((organization) => { const members = people.filter((person) => person.organization === organization); return <button key={organization} type="button" onClick={() => { setShowIndustry(false); setSelected(members[0]); }}><span>{organization}<small>{members.map((person) => `${person.firstName} ${person.lastName}`).join(", ")}</small></span><b>{members.length}</b></button>; })}</div></article>)}</div> : <div className="organization-list">{organizationDirectory.map(([organization, people], index) => <button key={organization} type="button" onClick={() => { setShowIndustry(false); setSelected(people[0]); }}><b>{String(index + 1).padStart(2, "0")}</b><span>{organization}<small>{people[0]?.sector || "ไม่ระบุ Sector"} • {people.map((person) => `${person.firstName} ${person.lastName}`).join(", ")}</small></span><strong>{people.length}</strong></button>)}</div>}
           </section>
         </div>
       )}
