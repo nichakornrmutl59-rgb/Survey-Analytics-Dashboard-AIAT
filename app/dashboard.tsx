@@ -317,6 +317,7 @@ export default function Dashboard() {
   const [selected, setSelected] = useState<Participant | null>(null);
   const [showStartups, setShowStartups] = useState(false);
   const [showIndustry, setShowIndustry] = useState(false);
+  const [selectedIncome, setSelectedIncome] = useState<string | null>(null);
   const [industryTab, setIndustryTab] = useState<"sector" | "organization">("sector");
   const [page, setPage] = useState(1);
 
@@ -399,6 +400,18 @@ export default function Dashboard() {
     return ["น้อยกว่า 20,000 บาท", "20,001-35,000 บาท", "35,001-50,000 บาท", "มากกว่า 50,000 บาท"]
       .map((income) => [income, counts[income] ?? 0] as [string, number]);
   }, [participants]);
+  const selectedIncomeParticipants = useMemo(
+    () => selectedIncome
+      ? participants.filter(
+          (item) => (item.group === "ทำงาน" || item.group === "เรียนและทำงาน") && item.income === selectedIncome,
+        )
+      : [],
+    [participants, selectedIncome],
+  );
+  const selectedIncomeSectors = useMemo(
+    () => sortEntries(Object.entries(countBy(selectedIncomeParticipants, "sector"))).slice(0, 5),
+    [selectedIncomeParticipants],
+  );
   const startupFounders = useMemo(
     () => participants.filter((item) => item.workType?.includes("เจ้าของกิจการ")),
     [participants],
@@ -654,6 +667,30 @@ export default function Dashboard() {
               </div>
             </section>
 
+            <section className="income-section income-overview-section" aria-labelledby="income-overview-heading">
+              <div className="section-heading income-heading">
+                <div><h2 id="income-overview-heading">ช่วงรายได้ของผู้ที่ทำงาน</h2></div>
+                <p>รวมกลุ่มทำงานและเรียนควบคู่กับงาน เฉพาะผู้ที่ระบุรายได้ • คลิกแต่ละช่วงเพื่อดูข้อมูลเชิงคุณภาพ</p>
+              </div>
+              <div className="income-grid income-card-grid">
+                {incomeEntries.map(([income, count], index) => (
+                  <button
+                    className={`income-card income-card-${index + 1}`}
+                    key={income}
+                    type="button"
+                    onClick={() => setSelectedIncome(income)}
+                    aria-label={`ดูข้อมูลเชิงคุณภาพของผู้มีรายได้ ${income}`}
+                  >
+                    <span className="income-card-dot" style={{ background: ["#FF7A1A", "#2F6BFF", "#FF4FA3", "#19BCEB"][index] }} />
+                    <small>ช่วงรายได้ต่อเดือน</small>
+                    <strong>{count.toLocaleString("th-TH")}</strong>
+                    <p>{income}</p>
+                    <b>ดูข้อมูลเชิงคุณภาพ <i aria-hidden="true">→</i></b>
+                  </button>
+                ))}
+              </div>
+            </section>
+
             <section className="startup-section" aria-labelledby="startup-heading">
               <div className="section-heading startup-heading">
                 <div><p className="eyebrow">STARTUP DIRECTORY</p><h2 id="startup-heading">Startup ที่เกิดขึ้นจากผู้เข้าร่วมโครงการ</h2></div>
@@ -738,17 +775,6 @@ export default function Dashboard() {
               </div>
             </section>
 
-            <section className="income-section">
-              <div className="section-heading"><div><p className="eyebrow">INCOME SIGNAL</p><h2>ช่วงรายได้ของผู้ที่ทำงาน</h2></div><p>รวมกลุ่มทำงานและเรียนควบคู่กับงาน เฉพาะผู้ที่ระบุรายได้</p></div>
-              <div className="income-grid">
-                {incomeEntries.map(([income, count], index) => (
-                  <article key={income}>
-                    <span style={{ background: ["#FF7A1A", "#2F6BFF", "#FF4FA3", "#19BCEB"][index] ?? "#6D4AFF" }} />
-                    <strong>{count}</strong><p>{income}</p>
-                  </article>
-                ))}
-              </div>
-            </section>
           </>
         ) : (
           <section className="people-view">
@@ -849,6 +875,52 @@ export default function Dashboard() {
 
             <section className="drawer-section"><h3>เส้นทางหลังจบโครงการ</h3><div className="detail-list">{selected.workType && <div><span>รูปแบบการทำงาน</span><strong>{selected.workType}</strong></div>}{DETAIL_FIELDS.filter(([key]) => Boolean(selected[key])).map(([key, label]) => <div key={key}><span>{label}</span><DetailValue field={key} value={selected[key]} /></div>)}</div></section>
           </aside>
+        </div>
+      )}
+
+      {selectedIncome && (
+        <div className="drawer-backdrop income-directory-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setSelectedIncome(null); }}>
+          <section className="income-directory" role="dialog" aria-modal="true" aria-label={`ข้อมูลเชิงคุณภาพช่วงรายได้ ${selectedIncome}`}>
+            <button className="drawer-close" type="button" onClick={() => setSelectedIncome(null)} aria-label="ปิดข้อมูลช่วงรายได้">×</button>
+            <header className="income-directory-heading">
+              <p>ข้อมูลเชิงคุณภาพตามช่วงรายได้</p>
+              <h2>{selectedIncome}</h2>
+              <span>พบทั้งหมด <strong>{selectedIncomeParticipants.length.toLocaleString("th-TH")}</strong> คน</span>
+            </header>
+
+            <div className="income-directory-summary">
+              <article><span>ผู้เข้าร่วม</span><strong>{selectedIncomeParticipants.length.toLocaleString("th-TH")}</strong><small>คนที่ระบุรายได้ช่วงนี้</small></article>
+              <article><span>บริษัท / หน่วยงาน</span><strong>{new Set(selectedIncomeParticipants.map((person) => person.organization).filter(Boolean)).size.toLocaleString("th-TH")}</strong><small>แห่งที่ระบุชื่อไว้</small></article>
+              <article><span>Sector ที่พบ</span><strong>{new Set(selectedIncomeParticipants.map((person) => person.sector).filter(Boolean)).size.toLocaleString("th-TH")}</strong><small>{selectedIncomeSectors.map(([sector, count]) => `${sector} ${count}`).join(" • ") || "ยังไม่ระบุ Sector"}</small></article>
+            </div>
+
+            <div className="income-person-list">
+              {selectedIncomeParticipants.map((person, index) => {
+                const evidence = extractLinks(person.portfolio || person.outcomes || "");
+                return (
+                  <article className="income-person-card" key={person.key}>
+                    <span className="income-person-index">{String(index + 1).padStart(2, "0")}</span>
+                    <div className="income-person-main">
+                      <div className="income-person-meta"><span>{person.season || "ไม่ระบุ Season"}</span><span>{person.track || "ไม่ระบุ Track"}</span></div>
+                      <h3>{person.title}{person.firstName} {person.lastName}</h3>
+                      <p>{person.organization || "ไม่ระบุบริษัท / หน่วยงาน"}</p>
+                    </div>
+                    <dl className="income-person-facts">
+                      <div><dt>ตำแหน่ง / รูปแบบงาน</dt><dd>{person.position || person.workType || "ไม่ระบุ"}</dd></div>
+                      <div><dt>Sector / อุตสาหกรรม</dt><dd>{person.sector || "ไม่ระบุ"}</dd></div>
+                      <div><dt>ความเกี่ยวข้องกับ AI</dt><dd>{person.aiUsage || person.aiField || person.responsibilities || "ไม่ระบุ"}</dd></div>
+                      <div><dt>ข้อมูลเชิงคุณภาพเพิ่มเติม</dt><dd>{person.outcomes || person.responsibilities || person.tools || "ไม่ระบุ"}</dd></div>
+                    </dl>
+                    <div className="income-person-actions">
+                      {evidence.length > 0 && <a href={evidence[0]} target="_blank" rel="noopener noreferrer">ผลงาน / หลักฐาน ↗</a>}
+                      <button type="button" onClick={() => { setSelectedIncome(null); setSelected(person); }}>ดูข้อมูลรายบุคคล →</button>
+                    </div>
+                  </article>
+                );
+              })}
+              {!selectedIncomeParticipants.length && <div className="empty-state"><strong>ไม่พบข้อมูลในช่วงรายได้นี้</strong></div>}
+            </div>
+          </section>
         </div>
       )}
 
