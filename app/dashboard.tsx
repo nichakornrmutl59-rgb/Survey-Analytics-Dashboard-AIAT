@@ -491,7 +491,6 @@ export default function Dashboard() {
   };
 
   const total = participants.length;
-  const accountedFor = (totals["ทำงาน"] ?? 0) + (totals["เรียน"] ?? 0) + (totals["เรียนและทำงาน"] ?? 0);
   const groupGradient = GROUPS.reduce(
     (result, group, index) => {
       const previous = GROUPS.slice(0, index).reduce((sum, item) => sum + (totals[item.name] ?? 0), 0);
@@ -545,18 +544,13 @@ export default function Dashboard() {
         {view === "overview" ? (
           <>
             <HeroSection
-              kicker="ติดตามผลผู้เข้าร่วม • SEASON 1–5"
-              title={<>จากห้องเรียน<br /><span>สู่ผลลัพธ์จริง</span></>}
+              title={<>ติดตามผลผู้เข้าร่วมโครงการ<br /><span>Super AI Engineer</span></>}
               subtitle="ภาพรวมเส้นทางหลังจบโครงการ เพื่อมองเห็นกำลังคนที่เข้าสู่อุตสาหกรรม การศึกษาต่อ และโอกาสพัฒนาเชิงนโยบาย"
               callToAction={{ text: "สำรวจผู้เข้าร่วม", onClick: () => setView("people") }}
               privacyText="ข้อมูลส่วนบุคคลแสดงเฉพาะหน้ารายบุคคล"
               backgroundImage="/sponsor-superai.png"
               liveValue={loading ? "—" : total.toLocaleString("th-TH")}
               liveLabel="ผู้เข้าร่วมที่ติดตามผลแล้ว"
-              coverageLabel="มีเส้นทางต่อเนื่อง"
-              coverageValue={loading ? "—" : `${percent(accountedFor, total)}%`}
-              coveragePercent={(accountedFor / Math.max(total, 1)) * 100}
-              coverageNote="ทำงาน เรียน หรือทำทั้งสองอย่าง"
             />
 
             <section className="demographic-section demographic-first" aria-labelledby="demographic-heading">

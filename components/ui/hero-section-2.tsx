@@ -11,7 +11,6 @@ type HeroAction = {
 };
 
 export interface HeroSectionProps extends Omit<HTMLMotionProps<"section">, "title"> {
-  kicker: string;
   title: React.ReactNode;
   subtitle: string;
   callToAction: HeroAction;
@@ -19,10 +18,6 @@ export interface HeroSectionProps extends Omit<HTMLMotionProps<"section">, "titl
   backgroundImage: string;
   liveValue: string;
   liveLabel: string;
-  coverageLabel: string;
-  coverageValue: string;
-  coveragePercent: number;
-  coverageNote: string;
 }
 
 const containerVariants: Variants = {
@@ -46,7 +41,6 @@ const HeroSection = React.forwardRef<HTMLElement, HeroSectionProps>(
   (
     {
       className,
-      kicker,
       title,
       subtitle,
       callToAction,
@@ -54,10 +48,6 @@ const HeroSection = React.forwardRef<HTMLElement, HeroSectionProps>(
       backgroundImage,
       liveValue,
       liveLabel,
-      coverageLabel,
-      coverageValue,
-      coveragePercent,
-      coverageNote,
       ...props
     },
     ref,
@@ -72,7 +62,6 @@ const HeroSection = React.forwardRef<HTMLElement, HeroSectionProps>(
       {...props}
     >
       <motion.div className="outcome-hero-copy" variants={containerVariants}>
-        <motion.p className="outcome-hero-kicker" variants={itemVariants}>{kicker}</motion.p>
         <motion.h1 variants={itemVariants}>{title}</motion.h1>
         <motion.div className="outcome-hero-rule" variants={itemVariants} />
         <motion.p className="outcome-hero-description" variants={itemVariants}>{subtitle}</motion.p>
@@ -103,11 +92,6 @@ const HeroSection = React.forwardRef<HTMLElement, HeroSectionProps>(
           <div className="outcome-live-label"><i /> LIVE DATA</div>
           <strong>{liveValue}</strong>
           <p>{liveLabel}</p>
-          <div className="outcome-coverage">
-            <div><span>{coverageLabel}</span><b>{coverageValue}</b></div>
-            <div className="outcome-coverage-track"><span style={{ width: `${coveragePercent}%` }} /></div>
-            <small>{coverageNote}</small>
-          </div>
         </motion.div>
       </motion.div>
     </motion.section>
