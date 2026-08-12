@@ -397,6 +397,7 @@ export default function Dashboard() {
   const [selected, setSelected] = useState<Participant | null>(null);
   const [showStartups, setShowStartups] = useState(false);
   const [showIndustry, setShowIndustry] = useState(false);
+  const [industrySectorFilter, setIndustrySectorFilter] = useState<string | null>(null);
   const [showMedals, setShowMedals] = useState(false);
   const [medalSeasonFilter, setMedalSeasonFilter] = useState("ทั้งหมด");
   const [medalTypeFilter, setMedalTypeFilter] = useState("ทั้งหมด");
@@ -541,6 +542,25 @@ export default function Dashboard() {
     });
     return [...groups.entries()].sort((a, b) => b[1].length - a[1].length);
   }, [employedParticipants]);
+  const selectedIndustryParticipants = useMemo(
+    () => industrySectorFilter
+      ? employedParticipants.filter((item) => item.sector?.trim() === industrySectorFilter)
+      : employedParticipants,
+    [employedParticipants, industrySectorFilter],
+  );
+  const selectedIndustryOrganizations = useMemo(() => {
+    if (!industrySectorFilter) return organizationDirectory;
+    const groups = new Map<string, Participant[]>();
+    selectedIndustryParticipants.forEach((item) => {
+      const organization = item.organization?.trim() ?? "";
+      if (organization) groups.set(organization, [...(groups.get(organization) ?? []), item]);
+    });
+    return [...groups.entries()].sort((a, b) => b[1].length - a[1].length || a[0].localeCompare(b[0], "th"));
+  }, [industrySectorFilter, organizationDirectory, selectedIndustryParticipants]);
+  const openIndustryDirectory = (sector: string | null = null) => {
+    setIndustrySectorFilter(sector);
+    setShowIndustry(true);
+  };
   const knownIncomeParticipants = useMemo(
     () => employedParticipants.filter((item) => Boolean(item.income)),
     [employedParticipants],
@@ -929,12 +949,13 @@ export default function Dashboard() {
               </div>
               <div className="outcome-grid">
                 <article className="panel industry-preview-card">
-                  <div className="outcome-card-heading"><h3>หน่วยงานที่มีผู้เข้าร่วมทำงานมากที่สุด</h3><button type="button" onClick={() => setShowIndustry(true)}>ดูทั้งหมด →</button></div>
+                  <div className="outcome-card-heading"><h3>หน่วยงานที่มีผู้เข้าร่วมทำงานมากที่สุด</h3><button type="button" onClick={() => openIndustryDirectory()}>ดูทั้งหมด →</button></div>
                   <div className="rank-list rank-list-static">{organizationDirectory.slice(0, 6).map(([name, people], index) => <div key={name}><b>{index + 1}</b><span>{name}</span><strong>{people.length}</strong></div>)}</div>
                 </article>
                 <article className="panel sector-preview-card">
-                  <div className="outcome-card-heading"><h3>ตาม Sector / อุตสาหกรรม</h3><button type="button" onClick={() => setShowIndustry(true)}>ดูรายชื่อบริษัท / หน่วยงาน →</button></div>
-                  <div className="bars-list compact-bars">{sectorDirectory.map(([sector, people], index) => <BreakdownBar key={sector} label={sector} value={people.length} total={employedParticipants.length} color={SECTORS[index].color} />)}</div>
+                  <div className="outcome-card-heading"><h3>Sector / อุตสาหกรรม</h3><button type="button" onClick={() => openIndustryDirectory()}>ดูรายชื่อทั้งหมด →</button></div>
+                  <p className="sector-click-hint">คลิกแต่ละ Sector เพื่อดูบริษัทและหน่วยงานในกลุ่ม</p>
+                  <div className="bars-list compact-bars">{sectorDirectory.map(([sector, people], index) => <BreakdownBar key={sector} label={sector} value={people.length} total={employedParticipants.length} color={SECTORS[index].color} onClick={() => openIndustryDirectory(sector)} />)}</div>
                 </article>
                 <article className="panel education-season-card">
                   <div className="outcome-card-heading"><h3>แผนเรียนต่อ แยกตาม Season</h3><span>ระดับที่ต้องการศึกษาต่อ</span></div>
@@ -1279,8 +1300,21 @@ export default function Dashboard() {
         <div className="drawer-backdrop industry-directory-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setShowIndustry(false); }}>
           <section className="industry-directory" role="dialog" aria-modal="true" aria-label="รายชื่อบริษัทและหน่วยงาน">
             <button className="drawer-close" type="button" onClick={() => setShowIndustry(false)} aria-label="ปิดรายชื่อบริษัทและหน่วยงาน">×</button>
-            <header className="industry-directory-heading"><h2>บริษัท และหน่วยงาน</h2><p>พบทั้งหมด <strong>{organizationDirectory.length.toLocaleString("th-TH")}</strong> แห่ง</p></header>
-            <div className="organization-list organization-list-static">{organizationDirectory.map(([organization, people], index) => <div className="organization-row" key={organization}><b>{String(index + 1).padStart(2, "0")}</b><span>{organization}</span><strong>{people.length.toLocaleString("th-TH")}</strong></div>)}</div>
+            <header className="industry-directory-heading">
+              <span className="industry-directory-eyebrow">SECTOR / อุตสาหกรรม</span>
+              <h2>{industrySectorFilter ?? "บริษัท และหน่วยงานทั้งหมด"}</h2>
+              <p>
+                ผู้เข้าร่วม <strong>{selectedIndustryParticipants.length.toLocaleString("th-TH")}</strong> คน
+                <span aria-hidden="true"> • </span>
+                บริษัท/หน่วยงานที่ระบุชื่อ <strong>{selectedIndustryOrganizations.length.toLocaleString("th-TH")}</strong> แห่ง
+              </p>
+            </header>
+            {industrySectorFilter && <button className="industry-directory-back" type="button" onClick={() => setIndustrySectorFilter(null)}>← ดูบริษัทและหน่วยงานทั้งหมด</button>}
+            {selectedIndustryOrganizations.length > 0 ? (
+              <div className="organization-list organization-list-static">{selectedIndustryOrganizations.map(([organization, people], index) => <div className="organization-row" key={organization}><b>{String(index + 1).padStart(2, "0")}</b><span>{organization}</span><strong>{people.length.toLocaleString("th-TH")} คน</strong></div>)}</div>
+            ) : (
+              <div className="industry-directory-empty"><strong>ยังไม่มีรายชื่อบริษัทหรือหน่วยงาน</strong><p>พบผู้เข้าร่วมใน Sector นี้ {selectedIndustryParticipants.length.toLocaleString("th-TH")} คน แต่ยังไม่มีผู้ระบุชื่อบริษัทหรือหน่วยงาน</p></div>
+            )}
           </section>
         </div>
       )}

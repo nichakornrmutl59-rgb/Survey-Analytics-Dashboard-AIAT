@@ -326,6 +326,10 @@ a { color: inherit; }
 .outcome-card-heading h3 { margin: 0; font-family: "Noto Sans Thai", sans-serif; font-size: clamp(21px, 2vw, 28px); line-height: 1.35; }
 .outcome-card-heading > span { color: var(--muted); font-size: 10px; text-align: right; }
 .outcome-card-heading > button { border: 0; background: transparent; color: #234fc2; font-size: 10px; font-weight: 650; cursor: pointer; }
+.sector-click-hint { margin: 10px 0 -3px; color: var(--muted); font-size: 9px; line-height: 1.5; }
+.sector-preview-card .bar-button { margin: -7px -10px; padding: 7px 10px; border-radius: 10px; transition: background .2s ease, transform .2s ease; }
+.sector-preview-card .bar-button:hover { background: rgba(47,107,255,.06); transform: translateX(3px); }
+.sector-preview-card .bar-button:focus-visible { outline: 2px solid #2f6bff; outline-offset: 2px; }
 .rank-list { margin-top: 24px; display: flex; flex-direction: column; }
 .rank-list button { padding: 12px 0; display: grid; grid-template-columns: 28px 1fr 30px; gap: 10px; align-items: center; border: 0; border-bottom: 1px solid #e6edff; background: transparent; color: var(--ink); text-align: left; cursor: pointer; }
 .rank-list button > b { color: #aebde2; font-size: 11px; }
@@ -343,6 +347,12 @@ a { color: inherit; }
 .industry-directory-heading h2 { margin: 5px 0 18px; font-family: "Noto Sans Thai", sans-serif; font-size: clamp(30px, 4vw, 48px); line-height: 1.25; }
 .industry-directory-heading p { margin: -8px 0 0; color: var(--muted); font-size: 11px; }
 .industry-directory-heading p strong { color: #234fc2; font-size: 15px; }
+.industry-directory-eyebrow { color: #2f6bff; font-size: 10px; font-weight: 800; letter-spacing: .16em; }
+.industry-directory-back { margin-top: 22px; padding: 10px 15px; border: 1px solid #dce6ff; border-radius: 999px; background: #f4f7ff; color: #234fc2; font-size: 10px; font-weight: 700; cursor: pointer; transition: transform .2s ease, background .2s ease; }
+.industry-directory-back:hover { transform: translateX(-2px); background: #eaf0ff; }
+.industry-directory-empty { margin-top: 24px; padding: 30px; border: 1px dashed #cddaff; border-radius: 18px; background: rgba(244,247,255,.76); text-align: center; }
+.industry-directory-empty strong { color: var(--ink); font-size: 16px; }
+.industry-directory-empty p { margin: 8px auto 0; max-width: 520px; color: var(--muted); font-size: 11px; line-height: 1.7; }
 .industry-tabs { display: inline-flex; padding: 4px; border: 1px solid #dbe5ff; border-radius: 999px; background: #f4f7ff; }
 .industry-tabs button { padding: 9px 16px; border: 0; border-radius: 999px; background: transparent; color: var(--muted); font-size: 10px; cursor: pointer; }
 .industry-tabs button.active { background: linear-gradient(135deg, #2f6bff, #6d4aff); color: white; box-shadow: 0 7px 18px rgba(47,107,255,.18); }
