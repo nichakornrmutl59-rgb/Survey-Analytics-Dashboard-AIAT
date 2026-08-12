@@ -962,7 +962,11 @@ export default function Dashboard() {
                       const color = TRACK_COLORS[track] ?? "#19BCEB";
                       const isAiEngineer = track === "AI Engineer";
                       return (
-                        <div className={`track-legend-item ${isAiEngineer ? "track-legend-engineer" : ""}`} key={track}>
+                        <div
+                          className={`track-legend-item ${isAiEngineer ? "track-legend-engineer" : ""}`}
+                          key={track}
+                          style={{ "--track-color": color } as React.CSSProperties}
+                        >
                           <div className="track-legend-main">
                             <i style={{ background: color }} />
                             <span>{track}</span>

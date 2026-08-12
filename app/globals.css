@@ -1111,15 +1111,17 @@ td code { font-family: ui-monospace, monospace; font-size: 10px; background: #ed
 .industry-unspecified-list button > strong { flex: 0 0 auto; color: #234fc2; font-size: 10px; }
 
 /* v7: Track donut + AI Engineer house directory */
-.track-distribution-panel { overflow: hidden; }
-.track-donut-layout { margin-top: 28px; display: grid; grid-template-columns: minmax(150px, .78fr) minmax(220px, 1.22fr); gap: clamp(24px, 3vw, 42px); align-items: center; }
-.track-donut { width: min(100%, 250px); justify-self: center; box-shadow: inset 0 0 0 1px rgba(47,107,255,.04), 0 16px 36px rgba(47,107,255,.08); }
+.track-distribution-panel { overflow: hidden; align-self: start; }
+.track-donut-layout { margin-top: 18px; display: grid; grid-template-columns: minmax(160px, .88fr) minmax(220px, 1.12fr); gap: 20px; align-items: center; }
+.track-donut { width: min(100%, 215px); justify-self: center; box-shadow: inset 0 0 0 1px rgba(47,107,255,.04), 0 12px 28px rgba(47,107,255,.08); }
 .track-donut::after { inset: 25%; background: rgba(255,255,255,.97); box-shadow: 0 0 28px rgba(47,107,255,.06); }
 .track-donut strong { font-size: clamp(30px, 3vw, 44px); }
 .track-donut span { font-size: 9px; }
-.track-legend-list { min-width: 0; display: flex; flex-direction: column; gap: 9px; }
-.track-legend-item { padding: 11px 12px; border: 1px solid #e8edff; border-radius: 14px; background: rgba(255,255,255,.72); }
-.track-legend-engineer { border-color: rgba(47,107,255,.24); background: linear-gradient(135deg, rgba(47,107,255,.055), rgba(255,255,255,.92)); }
+.track-legend-list { min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+.track-legend-item { --track-color: #2f6bff; position: relative; padding: 10px 12px 10px 14px; border: 1px solid color-mix(in srgb, var(--track-color) 28%, #e8edff); border-left: 4px solid var(--track-color); border-radius: 14px; background: rgba(255,255,255,.78); box-shadow: 0 5px 15px rgba(27,50,110,.035); }
+.track-legend-item::before { content: ""; position: absolute; top: 50%; left: -24px; width: 20px; height: 2px; border-radius: 999px; background: var(--track-color); transform: translateY(-50%); opacity: .72; }
+.track-legend-item::after { content: ""; position: absolute; top: 50%; left: -27px; width: 6px; height: 6px; border: 2px solid #fff; border-radius: 50%; background: var(--track-color); box-shadow: 0 0 0 1px color-mix(in srgb, var(--track-color) 34%, transparent); transform: translateY(-50%); }
+.track-legend-engineer { background: linear-gradient(135deg, rgba(47,107,255,.055), rgba(255,255,255,.92)); }
 .track-legend-main { display: grid; grid-template-columns: 9px minmax(0, 1fr) auto; gap: 9px; align-items: center; }
 .track-legend-main i { width: 8px; height: 8px; border-radius: 50%; }
 .track-legend-main span { color: #34466f; font-size: 12px; font-weight: 650; }
@@ -1161,8 +1163,9 @@ td code { font-family: ui-monospace, monospace; font-size: 10px; background: #ed
 .track-house-person-action:hover { filter: brightness(.96); }
 
 @media (max-width: 760px) {
-  .track-donut-layout { grid-template-columns: 1fr; }
-  .track-donut { width: min(230px, 80vw); }
+  .track-donut-layout { grid-template-columns: 1fr; gap: 16px; }
+  .track-donut { width: min(210px, 72vw); }
+  .track-legend-item::before, .track-legend-item::after { display: none; }
   .track-house-directory-backdrop { padding: 8px; }
   .track-house-directory { max-height: calc(100vh - 16px); padding: 24px 14px; border-radius: 20px; }
   .track-house-filter-grid { grid-template-columns: 1fr 1fr; }
