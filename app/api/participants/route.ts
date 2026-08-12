@@ -142,12 +142,17 @@ function inferOrganizationSector(headers: string[], row: string[]) {
 }
 
 function inferSector(headers: string[], row: string[]) {
-  return valueFromHeaders(
+  const value = valueFromHeaders(
     headers,
     row,
     /(?:^|\b)sector(?:\b|$)|อุตสาหกรรม|ประเภทธุรกิจ|ประเภทของธุรกิจ|ธุรกิจ.*ด้าน|ด้าน.*ธุรกิจ/i,
     /ภาคส่วนหน่วยงาน|ประเภทหน่วยงาน|หน่วยงาน.*ประเภท|องค์กร.*ประเภท|สังกัด/i,
   );
+
+  // Values such as "ภาครัฐ / รัฐวิสาหกิจ" describe the organization type,
+  // not the participant's industry. Leaving sector empty prevents them from
+  // being incorrectly counted as Public Services.
+  return isGenericOrganizationLabel(value) ? "" : value;
 }
 
 function workFields(group: Group, row: string[], workType: string): Record<string, string> {
@@ -180,7 +185,7 @@ function workFields(group: Group, row: string[], workType: string): Record<strin
       graduation: clean(row[21]),
       organization: clean(row[22]),
       organizationSector: clean(row[23]),
-      sector: clean(row[23]),
+      sector: "",
       employmentType: clean(row[24]),
       position: clean(row[25]),
       responsibilities: clean(row[26]),
@@ -268,7 +273,7 @@ function workFields(group: Group, row: string[], workType: string): Record<strin
 
   return {
     organizationSector: clean(row[17]),
-    sector: clean(row[17]),
+    sector: "",
     organization: clean(row[18]),
     website: clean(row[19]),
     position: clean(row[20]),

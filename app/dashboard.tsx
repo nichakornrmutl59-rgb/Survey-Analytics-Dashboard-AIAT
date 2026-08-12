@@ -264,7 +264,9 @@ function sanitizeParticipant(value: unknown, index: number): Participant | null 
 
   participant.key = participant.key || `participant-${index + 1}`;
   participant.sectorOriginal = participant.sector;
-  participant.sector = normalizeSector(participant.sector);
+  participant.sector = isGenericOrganizationLabel(participant.sectorOriginal)
+    ? ""
+    : normalizeSector(participant.sectorOriginal);
   return participant;
 }
 
