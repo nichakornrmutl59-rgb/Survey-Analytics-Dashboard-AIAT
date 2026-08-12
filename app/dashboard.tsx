@@ -455,6 +455,7 @@ export default function Dashboard() {
   const [showStartups, setShowStartups] = useState(false);
   const [showIndustry, setShowIndustry] = useState(false);
   const [industrySectorFilter, setIndustrySectorFilter] = useState<string | null>(null);
+  const [selectedStudySeason, setSelectedStudySeason] = useState<string | null>(null);
   const [showMedals, setShowMedals] = useState(false);
   const [medalSeasonFilter, setMedalSeasonFilter] = useState("ทั้งหมด");
   const [medalTypeFilter, setMedalTypeFilter] = useState("ทั้งหมด");
@@ -668,6 +669,18 @@ export default function Dashboard() {
     }).filter((item) => item.people.length > 0),
     [continuingStudents, seasons],
   );
+  const selectedStudySeasonEntry = useMemo(
+    () => selectedStudySeason ? continuingBySeason.find((item) => item.season === selectedStudySeason) ?? null : null,
+    [continuingBySeason, selectedStudySeason],
+  );
+  const classifiedIndustryParticipants = useMemo(
+    () => employedParticipants.filter((item) => Boolean(item.sector?.trim())),
+    [employedParticipants],
+  );
+  const organizationParticipantTotal = useMemo(
+    () => organizationDirectory.reduce((sum, [, people]) => sum + people.length, 0),
+    [organizationDirectory],
+  );
   const medalTypes = [
     { name: "เหรียญทอง", color: "#F2A900" },
     { name: "เหรียญเงิน", color: "#8591AA" },
@@ -769,11 +782,13 @@ export default function Dashboard() {
 
   const detailReturnLabel = selectedIncome
     ? "กลับไปรายชื่อในช่วงรายได้"
-    : showMedals
-      ? "กลับไปรายชื่อผู้ได้รับเหรียญ"
-      : showStartups
-        ? "กลับไปทะเบียน Startup"
-        : "กลับไปยังรายการเดิม";
+    : selectedStudySeason
+      ? `กลับไปแผนเรียนต่อ ${selectedStudySeason}`
+      : showMedals
+        ? "กลับไปรายชื่อผู้ได้รับเหรียญ"
+        : showStartups
+          ? "กลับไปทะเบียน Startup"
+          : "กลับไปยังรายการเดิม";
 
   const logout = async () => {
     await fetch("/api/auth/logout", { method: "POST" });
@@ -1031,17 +1046,20 @@ export default function Dashboard() {
               <div className="outcome-grid">
                 <article className="panel industry-preview-card">
                   <div className="outcome-card-heading"><h3>หน่วยงานที่มีผู้เข้าร่วมทำงานมากที่สุด</h3><button type="button" onClick={() => openIndustryDirectory()}>ดูทั้งหมด →</button></div>
+                  <div className="outcome-panel-total"><span>ยอดรวมที่ระบุชื่อหน่วยงาน</span><strong>{organizationParticipantTotal.toLocaleString("th-TH")} คน</strong><small>{organizationDirectory.length.toLocaleString("th-TH")} บริษัท / หน่วยงาน</small></div>
                   <div className="rank-list rank-list-static">{organizationDirectory.slice(0, 6).map(([name, people], index) => <div key={name}><b>{index + 1}</b><span>{name}</span><strong>{people.length}</strong></div>)}</div>
                 </article>
                 <article className="panel sector-preview-card">
                   <div className="outcome-card-heading"><h3>Sector / อุตสาหกรรม</h3><button type="button" onClick={() => openIndustryDirectory()}>ดูรายชื่อทั้งหมด →</button></div>
+                  <div className="outcome-panel-total"><span>ยอดรวมผู้ทำงาน</span><strong>{employedParticipants.length.toLocaleString("th-TH")} คน</strong><small>จัดกลุ่ม Sector แล้ว {classifiedIndustryParticipants.length.toLocaleString("th-TH")} คน</small></div>
                   <p className="sector-click-hint">คลิกแต่ละ Sector เพื่อดูบริษัทและหน่วยงานในกลุ่ม • หากไม่ได้ระบุ Sector ระบบจะจัดกลุ่มจากหน้าที่ / ขอบเขตงานก่อน</p>
                   <div className="bars-list compact-bars">{sectorDirectory.map(([sector, people], index) => <BreakdownBar key={sector} label={sector} value={people.length} total={employedParticipants.length} color={SECTORS[index].color} onClick={() => openIndustryDirectory(sector)} />)}</div>
                   {unclassifiedIndustryParticipants.length > 0 && <p className="sector-click-hint">ยังจัดกลุ่ม Sector ไม่ได้ {unclassifiedIndustryParticipants.length.toLocaleString("th-TH")} คน เนื่องจากข้อมูลหน้าที่ / ขอบเขตงานยังไม่ชี้ไปที่อุตสาหกรรมใดชัดเจน</p>}
                 </article>
                 <article className="panel education-season-card">
-                  <div className="outcome-card-heading"><h3>แผนเรียนต่อ แยกตาม Season</h3><span>ระดับที่ต้องการศึกษาต่อ</span></div>
-                  <div className="education-season-list">{continuingBySeason.map(({ season, people, levels }) => <div key={season} className="education-season-row"><div><strong>{season}</strong><span>{people.length.toLocaleString("th-TH")} คน</span></div><p>{levels.map(([level, count]) => `${level} ${count}`).join(" • ")}</p></div>)}</div>
+                  <div className="outcome-card-heading"><h3>แผนเรียนต่อ แยกตาม Season</h3><span>กดแต่ละ Season เพื่อดูรายชื่อ</span></div>
+                  <div className="outcome-panel-total education-total"><span>ยอดรวมแผนศึกษาต่อระดับสูงขึ้น</span><strong>{continuingStudents.length.toLocaleString("th-TH")} คน</strong><small>{continuingBySeason.length.toLocaleString("th-TH")} Season ที่มีข้อมูล</small></div>
+                  <div className="education-season-list">{continuingBySeason.map(({ season, people, levels }) => <button key={season} className="education-season-row" type="button" onClick={() => setSelectedStudySeason(season)} aria-label={`ดูรายชื่อผู้มีแผนเรียนต่อ ${season} จำนวน ${people.length} คน`}><div><strong>{season}</strong><span>{people.length.toLocaleString("th-TH")} คน <b aria-hidden="true">→</b></span></div><p>{levels.map(([level, count]) => `${level} ${count}`).join(" • ")}</p></button>)}</div>
                 </article>
               </div>
             </section>
@@ -1287,6 +1305,45 @@ export default function Dashboard() {
                 );
               })}
               {!visibleIncomeParticipants.length && <div className="empty-state"><strong>ไม่พบข้อมูลตามตัวกรองนี้</strong></div>}
+            </div>
+          </section>
+        </div>
+      )}
+
+      {selectedStudySeasonEntry && (
+        <div className="drawer-backdrop study-directory-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setSelectedStudySeason(null); }}>
+          <section className="study-directory" role="dialog" aria-modal="true" aria-label={`รายชื่อผู้มีแผนเรียนต่อ ${selectedStudySeasonEntry.season}`}>
+            <button className="drawer-close" type="button" onClick={() => setSelectedStudySeason(null)} aria-label="ปิดรายชื่อแผนเรียนต่อ">×</button>
+            <header className="study-directory-heading">
+              <span>CONTINUING EDUCATION • {selectedStudySeasonEntry.season}</span>
+              <h2>แผนเรียนต่อ {selectedStudySeasonEntry.season}</h2>
+              <p>ผู้ที่มีแผนศึกษาต่อระดับสูงขึ้นใน Season นี้ <strong>{selectedStudySeasonEntry.people.length.toLocaleString("th-TH")}</strong> คน • ยอดรวมทุก Season <strong>{continuingStudents.length.toLocaleString("th-TH")}</strong> คน</p>
+            </header>
+            <div className="study-directory-levels" aria-label="สรุประดับการศึกษาที่ต้องการศึกษาต่อ">
+              {selectedStudySeasonEntry.levels.map(([level, count]) => <span key={level}><b>{level}</b><strong>{count.toLocaleString("th-TH")} คน</strong></span>)}
+            </div>
+            <div className="study-directory-list">
+              {selectedStudySeasonEntry.people.map((person, index) => (
+                <article className="study-person-card" key={`${person.key}-${person.code || "no-code"}-${person.email || "no-email"}-${index}`}>
+                  <span className="study-person-index">{String(index + 1).padStart(2, "0")}</span>
+                  <div className="study-person-main">
+                    <div><span>{person.track || "ไม่ระบุ Track"}</span><span>{person.code || "ไม่ระบุรหัส"}</span></div>
+                    <h3>{person.title}{person.firstName} {person.lastName}</h3>
+                    <p>{person.institution || person.organization || "ไม่ระบุสถาบันปัจจุบัน"}</p>
+                  </div>
+                  <dl className="study-person-facts">
+                    <div><dt>ระดับปัจจุบัน</dt><dd>{person.educationLevel || "ไม่ระบุ"}</dd></div>
+                    <div><dt>ระดับที่ต้องการศึกษาต่อ</dt><dd>{person.desiredEducationLevel || "ไม่ระบุ"}</dd></div>
+                    <div><dt>สาขาที่สนใจ</dt><dd>{person.desiredStudyField || "ไม่ระบุ"}</dd></div>
+                    <div><dt>สถาบัน / ประเทศที่คาดหวัง</dt><dd>{person.desiredStudyInstitution || "ไม่ระบุ"}</dd></div>
+                  </dl>
+                  <div className="study-person-actions">
+                    <span>{person.desiredStudyTimeline || person.futureStudyPlan || "ไม่ระบุช่วงเวลา"}</span>
+                    <button type="button" onMouseDown={(event) => event.stopPropagation()} onClick={(event) => { event.preventDefault(); event.stopPropagation(); setSelected({ ...person }); }}>ดูข้อมูลรายบุคคล →</button>
+                  </div>
+                </article>
+              ))}
+              {selectedStudySeasonEntry.people.length === 0 && <div className="empty-state"><strong>ไม่พบรายชื่อใน Season นี้</strong></div>}
             </div>
           </section>
         </div>
