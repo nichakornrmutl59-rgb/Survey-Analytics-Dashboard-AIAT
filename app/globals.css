@@ -306,6 +306,7 @@ a { color: inherit; }
 .industry-empty { margin: 10px 0 0; padding: 15px 0 4px; color: var(--muted); font-size: 10px; }
 
 .bottom-grid { margin-top: 72px; }
+.demographic-insights { margin-top: 18px; }
 .compact-bars { gap: 23px; }
 .mini-note { margin-top: 28px; padding-top: 18px; border-top: 1px solid #e7edff; display: flex; gap: 12px; align-items: baseline; }
 .mini-note strong { color: var(--teal); font-size: 11px; }

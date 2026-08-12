@@ -664,6 +664,48 @@ export default function Dashboard() {
               </div>
             </section>
 
+            <section className="insight-grid bottom-grid demographic-insights">
+              <article className="panel">
+                <div className="panel-heading"><div><h2>การกระจายตาม Track</h2></div></div>
+                <div className="bars-list compact-bars">
+                  {tracks.map(([track, count], index) => (
+                    <BreakdownBar key={track} label={track} value={count} total={total} color={["#2F6BFF", "#FF7A1A", "#FF4FA3"][index] ?? "#19BCEB"} />
+                  ))}
+                </div>
+                <div className="mini-note"><strong>AI Engineer</strong><span>ดูรายละเอียด “บ้าน” ของผู้เข้าร่วมได้ในหน้ารายบุคคล</span></div>
+              </article>
+
+              <article className="panel">
+                <div className="panel-heading"><div><h2>ภาคส่วนการทำงาน</h2></div></div>
+                <div className="bars-list compact-bars">
+                  {sectorEntries.map(([sector, count], index) => (
+                    <BreakdownBar key={sector} label={sector} value={count} total={Math.max(...sectorEntries.map(([, value]) => value), 1)} color={SECTORS[index].color} />
+                  ))}
+                </div>
+              </article>
+            </section>
+
+            <section className="panel season-panel">
+              <div className="panel-heading"><div><h2>เส้นทางของผู้เข้าร่วมในแต่ละ Season</h2></div></div>
+              <div className="season-chart">
+                {seasons.map((season) => {
+                  const seasonTotal = participants.filter((item) => item.season === season).length;
+                  return (
+                    <div className="season-row" key={season}>
+                      <strong>{season}</strong>
+                      <div className="season-stack">
+                        {GROUPS.map((group) => {
+                          const value = participants.filter((item) => item.season === season && item.group === group.name).length;
+                          return value ? <span key={group.name} title={`${group.short}: ${value}`} style={{ width: `${(value / seasonTotal) * 100}%`, background: group.color }} /> : null;
+                        })}
+                      </div>
+                      <span>{seasonTotal}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+
             <section className="status-summary-section" aria-labelledby="status-summary-heading">
               <div className="status-summary-heading">
                 <div>
@@ -794,48 +836,6 @@ export default function Dashboard() {
                 <span className="startup-summary-copy"><small>จำนวนกิจการ / บริษัท / โครงการ Startup</small><strong>{startupFounders.length.toLocaleString("th-TH")}</strong><p>คลิกเพื่อดูว่ามีอะไรบ้าง พร้อมข้อมูลเว็บไซต์ ประเภทธุรกิจ รายได้ จำนวนพนักงาน และสถานะปัจจุบัน</p></span>
                 <span className="startup-summary-action">เปิดทะเบียน Startup <b>→</b></span>
               </button>
-            </section>
-
-            <section className="insight-grid bottom-grid">
-              <article className="panel">
-                <div className="panel-heading"><div><p className="eyebrow">03 / TRACK</p><h2>การกระจายตาม Track</h2></div></div>
-                <div className="bars-list compact-bars">
-                  {tracks.map(([track, count], index) => (
-                    <BreakdownBar key={track} label={track} value={count} total={total} color={["#2F6BFF", "#FF7A1A", "#FF4FA3"][index] ?? "#19BCEB"} />
-                  ))}
-                </div>
-                <div className="mini-note"><strong>AI Engineer</strong><span>ดูรายละเอียด “บ้าน” ของผู้เข้าร่วมได้ในหน้ารายบุคคล</span></div>
-              </article>
-
-              <article className="panel">
-                <div className="panel-heading"><div><p className="eyebrow">04 / SECTOR</p><h2>ภาคส่วนการทำงาน</h2></div><span className="panel-note">จากผู้ที่ระบุภาคส่วน</span></div>
-                <div className="bars-list compact-bars">
-                  {sectorEntries.map(([sector, count], index) => (
-                    <BreakdownBar key={sector} label={sector} value={count} total={Math.max(...sectorEntries.map(([, value]) => value), 1)} color={SECTORS[index].color} />
-                  ))}
-                </div>
-              </article>
-            </section>
-
-            <section className="panel season-panel">
-              <div className="panel-heading"><div><p className="eyebrow">05 / COHORT VIEW</p><h2>เส้นทางของผู้เข้าร่วมในแต่ละ Season</h2></div><span className="panel-note">จำนวนผู้ตอบแบบติดตามผล</span></div>
-              <div className="season-chart">
-                {seasons.map((season) => {
-                  const seasonTotal = participants.filter((item) => item.season === season).length;
-                  return (
-                    <div className="season-row" key={season}>
-                      <strong>{season}</strong>
-                      <div className="season-stack">
-                        {GROUPS.map((group) => {
-                          const value = participants.filter((item) => item.season === season && item.group === group.name).length;
-                          return value ? <span key={group.name} title={`${group.short}: ${value}`} style={{ width: `${(value / seasonTotal) * 100}%`, background: group.color }} /> : null;
-                        })}
-                      </div>
-                      <span>{seasonTotal}</span>
-                    </div>
-                  );
-                })}
-              </div>
             </section>
 
           </>
