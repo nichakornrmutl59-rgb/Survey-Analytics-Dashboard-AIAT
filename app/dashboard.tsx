@@ -601,12 +601,10 @@ export default function Dashboard() {
     }, {}),
     [medalRecipientsInSeason],
   );
-  const visibleMedalRecipients = useMemo(
-    () => medalTypeFilter === "ทั้งหมด"
-      ? medalRecipientsInSeason
-      : medalRecipientsInSeason.filter((item) => item.medalType === medalTypeFilter),
-    [medalRecipientsInSeason, medalTypeFilter],
-  );
+  const visibleMedalRecipients = medalRecipients.filter((item) => (
+    (medalSeasonFilter === "ทั้งหมด" || item.season === medalSeasonFilter)
+    && (medalTypeFilter === "ทั้งหมด" || item.medalType === medalTypeFilter)
+  ));
   const openMedalDirectory = useCallback((season = "ทั้งหมด", medalType = "ทั้งหมด") => {
     setMedalSeasonFilter(season);
     setMedalTypeFilter(medalType);
@@ -1224,12 +1222,12 @@ export default function Dashboard() {
             </div>
 
             <div className="medal-result-heading"><span>รายการที่แสดง • {medalSeasonFilter === "ทั้งหมด" ? "ทุก Season" : medalSeasonFilter} • {medalTypeFilter === "ทั้งหมด" ? "ทุกประเภทเหรียญ" : medalTypeFilter}</span><strong>{visibleMedalRecipients.length.toLocaleString("th-TH")} คน</strong></div>
-            <div className="medal-recipient-list">
+            <div className="medal-recipient-list" key={`${medalSeasonFilter}-${medalTypeFilter}`}>
               {visibleMedalRecipients.map((recipient, index) => {
                 const matchedParticipant = participantByMedal(recipient);
                 const extraAward = recipient.award.replace(/^เหรียญทองแดง(?:\s*\([^)]*\))?\s*,?\s*|^เหรียญเงิน(?:\s*\([^)]*\))?\s*,?\s*|^เหรียญทอง(?:\s*\([^)]*\))?\s*,?\s*/, "").trim();
                 return (
-                  <article className="medal-recipient-card" key={recipient.key}>
+                  <article className="medal-recipient-card" key={`${medalSeasonFilter}-${medalTypeFilter}-${recipient.key}-${recipient.season}-${recipient.medalType}-${index}`}>
                     <span className="medal-recipient-index">{String(index + 1).padStart(2, "0")}</span>
                     <div className="medal-recipient-main">
                       <div><span>{recipient.season}</span><span>{recipient.code || "ไม่ระบุรหัส"}</span></div>
@@ -1246,6 +1244,7 @@ export default function Dashboard() {
                   </article>
                 );
               })}
+              {visibleMedalRecipients.length === 0 && <div className="empty-state"><strong>ไม่พบผู้ได้รับเหรียญตามตัวกรองนี้</strong><p>ลองเลือก Season หรือประเภทเหรียญอื่น</p></div>}
             </div>
           </section>
         </div>
