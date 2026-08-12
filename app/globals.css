@@ -1182,3 +1182,34 @@ td code { font-family: ui-monospace, monospace; font-size: 10px; background: #ed
   .track-house-person-facts div:last-child { grid-column: auto; }
   .track-house-person-action { width: 100%; }
 }
+
+/* v12: demographic donut + participant directories */
+.gender-card,
+.age-card { display: flex; flex-direction: column; }
+.gender-donut-wrap { margin-top: 12px; position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 16px; }
+.gender-donut { width: min(178px, 72%); box-shadow: inset 0 0 0 1px rgba(47,107,255,.05), 0 14px 32px rgba(47,107,255,.08); }
+.gender-donut::after { inset: 27%; background: rgba(255,255,255,.97); }
+.gender-donut strong { font-size: clamp(28px, 2.6vw, 38px); }
+.gender-donut span { font-size: 9px; }
+.gender-inline-legend { width: 100%; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 7px; }
+.gender-inline-legend > div { min-width: 0; padding: 8px 7px; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 5px; align-items: center; border: 1px solid rgba(47,107,255,.10); border-radius: 12px; background: rgba(255,255,255,.62); }
+.gender-inline-legend i { width: 7px; height: 7px; border-radius: 50%; }
+.gender-inline-legend span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #5f6e90; font-size: 9px; }
+.gender-inline-legend strong { color: #18336f; font-size: 10px; }
+.demographic-directory-button { width: 100%; margin-top: auto; padding: 11px 13px; position: relative; z-index: 2; display: flex; align-items: center; justify-content: space-between; gap: 12px; border: 1px solid rgba(47,107,255,.20); border-radius: 14px; background: rgba(255,255,255,.76); color: #2f6bff; font-family: inherit; font-size: 10px; font-weight: 750; cursor: pointer; transition: transform .18s ease, border-color .18s ease, background .18s ease, box-shadow .18s ease; }
+.demographic-directory-button:hover { transform: translateY(-1px); border-color: rgba(47,107,255,.42); background: #fff; box-shadow: 0 9px 22px rgba(47,107,255,.10); }
+.demographic-directory-button:focus-visible { outline: 2px solid #2f6bff; outline-offset: 2px; }
+.age-directory-button { margin-top: 18px; }
+.demographic-directory-backdrop { z-index: 119; padding: 22px; align-items: center; justify-content: center; }
+.demographic-directory { border-color: rgba(109,74,255,.18); background: radial-gradient(circle at 100% 0%, rgba(109,74,255,.11), transparent 30%), radial-gradient(circle at 0% 100%, rgba(25,188,235,.08), transparent 28%), linear-gradient(145deg, #fff, #f7f9ff 65%, #f5f1ff); }
+.demographic-directory-heading > span { color: #6d4aff; }
+.demographic-filter-grid button.active { border-color: #6d4aff; background: linear-gradient(135deg, rgba(47,107,255,.09), rgba(109,74,255,.10)); }
+.demographic-person-card .track-house-person-main > div span:first-child { background: rgba(109,74,255,.09); color: #5940cc; }
+
+@media (max-width: 700px) {
+  .gender-donut { width: min(180px, 58vw); }
+  .gender-inline-legend { grid-template-columns: 1fr; }
+  .gender-inline-legend > div { padding: 9px 10px; }
+  .demographic-directory-backdrop { padding: 8px; }
+  .demographic-directory { max-height: calc(100vh - 16px); padding: 24px 14px; border-radius: 20px; }
+}

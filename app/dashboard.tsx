@@ -463,6 +463,8 @@ export default function Dashboard() {
   const [industrySectorFilter, setIndustrySectorFilter] = useState<string | null>(null);
   const [showTrackHouses, setShowTrackHouses] = useState(false);
   const [selectedHouse, setSelectedHouse] = useState<string | null>(null);
+  const [demographicDirectory, setDemographicDirectory] = useState<"gender" | "age" | null>(null);
+  const [demographicFilter, setDemographicFilter] = useState<string | null>(null);
   const [selectedStudySeason, setSelectedStudySeason] = useState<string | null>(null);
   const [studyLevelFilter, setStudyLevelFilter] = useState("ทั้งหมด");
   const [showMedals, setShowMedals] = useState(false);
@@ -544,9 +546,11 @@ export default function Dashboard() {
   const workTypes = useMemo(() => countBy(workers, "workType"), [workers]);
   const genderEntries = useMemo(() => {
     const counts = countDerived(participants, (item) => normalizeGender(item.gender));
-    return ["ชาย", "หญิง", "อื่น ๆ / ไม่ประสงค์ระบุ", "ไม่ระบุ"]
-      .map((label) => [label, counts[label] ?? 0] as [string, number])
-      .filter(([, count]) => count > 0);
+    return [
+      ["ชาย", counts["ชาย"] ?? 0],
+      ["หญิง", counts["หญิง"] ?? 0],
+      ["อื่น ๆ", (counts["อื่น ๆ / ไม่ประสงค์ระบุ"] ?? 0) + (counts["ไม่ระบุ"] ?? 0)],
+    ] as Array<[string, number]>;
   }, [participants]);
   const ageEntries = useMemo(() => {
     const counts = countDerived(participants, (item) => ageRange(item.age));
@@ -554,6 +558,34 @@ export default function Dashboard() {
       .map((label) => [label, counts[label] ?? 0] as [string, number])
       .filter(([, count]) => count > 0);
   }, [participants]);
+  const demographicDirectoryGroups = useMemo(() => {
+    if (!demographicDirectory) return [] as Array<[string, Participant[]]>;
+    if (demographicDirectory === "gender") {
+      return genderEntries
+        .map(([label]) => [label, participants.filter((person) => {
+          const normalized = normalizeGender(person.gender);
+          return label === "อื่น ๆ" ? normalized !== "ชาย" && normalized !== "หญิง" : normalized === label;
+        })] as [string, Participant[]])
+        .filter(([, people]) => people.length > 0);
+    }
+    return ageEntries
+      .map(([label]) => [label, participants.filter((person) => ageRange(person.age) === label)] as [string, Participant[]])
+      .filter(([, people]) => people.length > 0);
+  }, [ageEntries, demographicDirectory, genderEntries, participants]);
+  const visibleDemographicParticipants = useMemo(() => {
+    if (!demographicDirectory) return [] as Participant[];
+    if (!demographicFilter) return participants;
+    return demographicDirectoryGroups.find(([label]) => label === demographicFilter)?.[1] ?? [];
+  }, [demographicDirectory, demographicDirectoryGroups, demographicFilter, participants]);
+  const openDemographicDirectory = (type: "gender" | "age") => {
+    setDemographicFilter(null);
+    setDemographicDirectory(type);
+  };
+  const closeDemographicDirectory = () => {
+    setDemographicDirectory(null);
+    setDemographicFilter(null);
+  };
+
   const educationEntries = useMemo(() => {
     const counts = countDerived(participants, (item) => normalizeEducation(item.educationLevel));
     return ["ประถมศึกษา", "มัธยมศึกษาตอนต้น", "มัธยมศึกษาตอนปลาย", "ปวช. / ปวส. / อนุปริญญา", "ปริญญาตรี", "ปริญญาโท", "ปริญญาเอก", "อื่น ๆ", "ไม่ระบุ"]
@@ -831,7 +863,9 @@ export default function Dashboard() {
         ? "กลับไปรายชื่อผู้ได้รับเหรียญ"
         : showTrackHouses
           ? "กลับไปรายชื่อบ้าน AI Engineer"
-          : showStartups
+          : demographicDirectory
+            ? demographicDirectory === "gender" ? "กลับไปรายชื่อตามเพศ" : "กลับไปรายชื่อตามช่วงอายุ"
+            : showStartups
             ? "กลับไปทะเบียน Startup"
             : "กลับไปยังรายการเดิม";
 
@@ -841,6 +875,14 @@ export default function Dashboard() {
   };
 
   const total = participants.length;
+  const genderColors = ["#2F6BFF", "#FF4FA3", "#6D4AFF"] as const;
+  const genderTotal = genderEntries.reduce((sum, [, count]) => sum + count, 0);
+  const genderGradient = genderEntries.reduce((result, [, count], index) => {
+    const previous = genderEntries.slice(0, index).reduce((sum, [, value]) => sum + value, 0);
+    const start = (previous / Math.max(genderTotal, 1)) * 360;
+    const end = ((previous + count) / Math.max(genderTotal, 1)) * 360;
+    return `${result}${index ? ", " : ""}${genderColors[index] ?? "#19BCEB"} ${start}deg ${end}deg`;
+  }, "");
   const trackTotal = tracks.reduce((sum, [, count]) => sum + count, 0);
   const trackGradient = tracks.reduce((result, [track, count], index) => {
     const previous = tracks.slice(0, index).reduce((sum, [, value]) => sum + value, 0);
@@ -923,11 +965,23 @@ export default function Dashboard() {
               <div className="demographic-grid">
                 <article className="panel demographic-card gender-card">
                   <div className="demographic-card-heading"><span>เพศ</span><strong>{total.toLocaleString("th-TH")}</strong></div>
-                  <div className="demographic-bars">
-                    {genderEntries.map(([label, count], index) => (
-                      <BreakdownBar key={label} label={label} value={count} total={total} color={["#2F6BFF", "#FF4FA3", "#6D4AFF", "#A7B2CF"][index] ?? "#19BCEB"} />
-                    ))}
+                  <div className="gender-donut-wrap">
+                    <div className="donut gender-donut" style={{ background: `conic-gradient(${genderGradient || "#e5e7eb 0deg 360deg"})` }}>
+                      <div><strong>{genderTotal.toLocaleString("th-TH")}</strong><span>ผู้เข้าร่วม</span></div>
+                    </div>
+                    <div className="gender-inline-legend" aria-label="สรุปจำนวนตามเพศ">
+                      {genderEntries.map(([label, count], index) => (
+                        <div key={label}>
+                          <i style={{ background: genderColors[index] ?? "#19BCEB" }} />
+                          <span>{label}</span>
+                          <strong>{count.toLocaleString("th-TH")}</strong>
+                        </div>
+                      ))}
+                    </div>
                   </div>
+                  <button className="demographic-directory-button" type="button" onClick={() => openDemographicDirectory("gender")}>
+                    ดูรายชื่อตามเพศ <span aria-hidden="true">→</span>
+                  </button>
                 </article>
 
                 <article className="panel demographic-card age-card">
@@ -937,6 +991,9 @@ export default function Dashboard() {
                       <BreakdownBar key={label} label={label} value={count} total={total} color={["#19BCEB", "#2F6BFF", "#6D4AFF", "#FF4FA3", "#FF7A1A", "#E9A11B", "#A7B2CF"][index] ?? "#19BCEB"} />
                     ))}
                   </div>
+                  <button className="demographic-directory-button age-directory-button" type="button" onClick={() => openDemographicDirectory("age")}>
+                    ดูรายชื่อตามช่วงอายุ <span aria-hidden="true">→</span>
+                  </button>
                 </article>
 
                 <article className="panel demographic-card education-card">
@@ -1389,6 +1446,60 @@ export default function Dashboard() {
                 );
               })}
               {!visibleIncomeParticipants.length && <div className="empty-state"><strong>ไม่พบข้อมูลตามตัวกรองนี้</strong></div>}
+            </div>
+          </section>
+        </div>
+      )}
+
+      {demographicDirectory && (
+        <div className="drawer-backdrop demographic-directory-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) closeDemographicDirectory(); }}>
+          <section className="track-house-directory demographic-directory" role="dialog" aria-modal="true" aria-label={demographicDirectory === "gender" ? "รายชื่อตามเพศ" : "รายชื่อตามช่วงอายุ"}>
+            <button className="drawer-close" type="button" onClick={closeDemographicDirectory} aria-label="ปิดรายชื่อข้อมูลพื้นฐาน">×</button>
+            <header className="track-house-directory-heading demographic-directory-heading">
+              <span>PARTICIPANT DEMOGRAPHICS</span>
+              <h2>{demographicDirectory === "gender" ? "รายชื่อตามเพศ" : "รายชื่อตามช่วงอายุ"}</h2>
+              <p>ผู้เข้าร่วมทั้งหมด <strong>{participants.length.toLocaleString("th-TH")}</strong> คน เลือกกลุ่มด้านล่างเพื่อดูว่าเป็นใครบ้าง</p>
+            </header>
+
+            <div className="track-house-filter-grid demographic-filter-grid" role="group" aria-label={demographicDirectory === "gender" ? "เลือกเพศ" : "เลือกช่วงอายุ"}>
+              <button className={!demographicFilter ? "active" : ""} type="button" onClick={() => setDemographicFilter(null)}>
+                <span>ทั้งหมด</span>
+                <strong>{participants.length.toLocaleString("th-TH")} คน</strong>
+              </button>
+              {demographicDirectoryGroups.map(([label, people]) => (
+                <button className={demographicFilter === label ? "active" : ""} type="button" key={label} onClick={() => setDemographicFilter(label)}>
+                  <span>{label}</span>
+                  <strong>{people.length.toLocaleString("th-TH")} คน</strong>
+                </button>
+              ))}
+            </div>
+
+            <div className="track-house-list-heading">
+              <div>
+                <span>{demographicFilter || (demographicDirectory === "gender" ? "ทุกเพศ" : "ทุกช่วงอายุ")}</span>
+                <strong>{visibleDemographicParticipants.length.toLocaleString("th-TH")} คน</strong>
+              </div>
+              {demographicFilter && <button type="button" onClick={() => setDemographicFilter(null)}>แสดงทั้งหมด ×</button>}
+            </div>
+
+            <div className="track-house-person-list" key={`${demographicDirectory}-${demographicFilter || "all"}`}>
+              {visibleDemographicParticipants.map((person, index) => (
+                <article className="track-house-person-card demographic-person-card" key={`${person.key}-${person.code || "no-code"}-${person.email || "no-email"}-${index}`}>
+                  <span className="track-house-person-index">{String(index + 1).padStart(2, "0")}</span>
+                  <div className="track-house-person-main">
+                    <div><span>{normalizeGender(person.gender) === "อื่น ๆ / ไม่ประสงค์ระบุ" || normalizeGender(person.gender) === "ไม่ระบุ" ? "อื่น ๆ" : normalizeGender(person.gender)}</span><span>{ageRange(person.age)}</span></div>
+                    <h3>{person.title}{person.firstName} {person.lastName}</h3>
+                    <p>{person.code || "ไม่ระบุรหัส"} • {person.nickname ? `ชื่อเล่น ${person.nickname}` : "ไม่ระบุชื่อเล่น"}</p>
+                  </div>
+                  <dl className="track-house-person-facts">
+                    <div><dt>Track / Season</dt><dd>{person.track || "ไม่ระบุ Track"} • {person.season || "ไม่ระบุ Season"}</dd></div>
+                    <div><dt>สถานะปัจจุบัน</dt><dd>{person.group || "ไม่ระบุ"}</dd></div>
+                    <div><dt>บริษัท / สถาบัน</dt><dd>{person.organization || person.institution || "ไม่ระบุ"}</dd></div>
+                  </dl>
+                  <button className="track-house-person-action" type="button" onMouseDown={(event) => event.stopPropagation()} onClick={(event) => { event.preventDefault(); event.stopPropagation(); setSelected({ ...person }); }}>ดูข้อมูลรายบุคคล →</button>
+                </article>
+              ))}
+              {visibleDemographicParticipants.length === 0 && <div className="empty-state"><strong>ไม่พบรายชื่อตามกลุ่มที่เลือก</strong></div>}
             </div>
           </section>
         </div>
