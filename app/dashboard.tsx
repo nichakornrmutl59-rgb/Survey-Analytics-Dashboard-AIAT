@@ -464,6 +464,7 @@ export default function Dashboard() {
   const [showTrackHouses, setShowTrackHouses] = useState(false);
   const [selectedHouse, setSelectedHouse] = useState<string | null>(null);
   const [selectedStudySeason, setSelectedStudySeason] = useState<string | null>(null);
+  const [studyLevelFilter, setStudyLevelFilter] = useState("ทั้งหมด");
   const [showMedals, setShowMedals] = useState(false);
   const [medalSeasonFilter, setMedalSeasonFilter] = useState("ทั้งหมด");
   const [medalTypeFilter, setMedalTypeFilter] = useState("ทั้งหมด");
@@ -696,6 +697,14 @@ export default function Dashboard() {
   const selectedStudySeasonEntry = useMemo(
     () => selectedStudySeason ? continuingBySeason.find((item) => item.season === selectedStudySeason) ?? null : null,
     [continuingBySeason, selectedStudySeason],
+  );
+  const visibleStudyParticipants = useMemo(
+    () => !selectedStudySeasonEntry
+      ? []
+      : studyLevelFilter === "ทั้งหมด"
+        ? selectedStudySeasonEntry.people
+        : selectedStudySeasonEntry.people.filter((item) => item.desiredEducationLevel === studyLevelFilter),
+    [selectedStudySeasonEntry, studyLevelFilter],
   );
   const classifiedIndustryParticipants = useMemo(
     () => employedParticipants.filter((item) => Boolean(item.sector?.trim())),
@@ -1126,7 +1135,7 @@ export default function Dashboard() {
                 <article className="panel education-season-card">
                   <div className="outcome-card-heading"><h3>แผนเรียนต่อ แยกตาม Season</h3><span>กดแต่ละ Season เพื่อดูรายชื่อ</span></div>
                   <div className="outcome-panel-total education-total"><span>ยอดรวมแผนศึกษาต่อระดับสูงขึ้น</span><strong>{continuingStudents.length.toLocaleString("th-TH")} คน</strong><small>{continuingBySeason.length.toLocaleString("th-TH")} Season ที่มีข้อมูล</small></div>
-                  <div className="education-season-list">{continuingBySeason.map(({ season, people, levels }) => <button key={season} className="education-season-row" type="button" onClick={() => setSelectedStudySeason(season)} aria-label={`ดูรายชื่อผู้มีแผนเรียนต่อ ${season} จำนวน ${people.length} คน`}><div><strong>{season}</strong><span>{people.length.toLocaleString("th-TH")} คน <b aria-hidden="true">→</b></span></div><p>{levels.map(([level, count]) => `${level} ${count}`).join(" • ")}</p></button>)}</div>
+                  <div className="education-season-list">{continuingBySeason.map(({ season, people, levels }) => <button key={season} className="education-season-row" type="button" onClick={() => { setSelectedStudySeason(season); setStudyLevelFilter("ทั้งหมด"); }} aria-label={`ดูรายชื่อผู้มีแผนเรียนต่อ ${season} จำนวน ${people.length} คน`}><div><strong>{season}</strong><span>{people.length.toLocaleString("th-TH")} คน <b aria-hidden="true">→</b></span></div><p>{levels.map(([level, count]) => `${level} ${count}`).join(" • ")}</p></button>)}</div>
                 </article>
               </div>
             </section>
@@ -1432,19 +1441,24 @@ export default function Dashboard() {
       )}
 
       {selectedStudySeasonEntry && (
-        <div className="drawer-backdrop study-directory-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setSelectedStudySeason(null); }}>
+        <div className="drawer-backdrop study-directory-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) { setSelectedStudySeason(null); setStudyLevelFilter("ทั้งหมด"); } }}>
           <section className="study-directory" role="dialog" aria-modal="true" aria-label={`รายชื่อผู้มีแผนเรียนต่อ ${selectedStudySeasonEntry.season}`}>
-            <button className="drawer-close" type="button" onClick={() => setSelectedStudySeason(null)} aria-label="ปิดรายชื่อแผนเรียนต่อ">×</button>
+            <button className="drawer-close" type="button" onClick={() => { setSelectedStudySeason(null); setStudyLevelFilter("ทั้งหมด"); }} aria-label="ปิดรายชื่อแผนเรียนต่อ">×</button>
             <header className="study-directory-heading">
               <span>CONTINUING EDUCATION • {selectedStudySeasonEntry.season}</span>
               <h2>แผนเรียนต่อ {selectedStudySeasonEntry.season}</h2>
               <p>ผู้ที่มีแผนศึกษาต่อระดับสูงขึ้นใน Season นี้ <strong>{selectedStudySeasonEntry.people.length.toLocaleString("th-TH")}</strong> คน • ยอดรวมทุก Season <strong>{continuingStudents.length.toLocaleString("th-TH")}</strong> คน</p>
             </header>
-            <div className="study-directory-levels" aria-label="สรุประดับการศึกษาที่ต้องการศึกษาต่อ">
-              {selectedStudySeasonEntry.levels.map(([level, count]) => <span key={level}><b>{level}</b><strong>{count.toLocaleString("th-TH")} คน</strong></span>)}
+            <div className="study-directory-levels" role="group" aria-label="กรองตามระดับการศึกษาที่ต้องการศึกษาต่อ">
+              <button type="button" className={studyLevelFilter === "ทั้งหมด" ? "is-active" : ""} aria-pressed={studyLevelFilter === "ทั้งหมด"} onClick={() => setStudyLevelFilter("ทั้งหมด")}><b>ทั้งหมด</b><strong>{selectedStudySeasonEntry.people.length.toLocaleString("th-TH")} คน</strong></button>
+              {selectedStudySeasonEntry.levels.map(([level, count]) => <button type="button" key={level} className={studyLevelFilter === level ? "is-active" : ""} aria-pressed={studyLevelFilter === level} onClick={() => setStudyLevelFilter(level)}><b>{level}</b><strong>{count.toLocaleString("th-TH")} คน</strong></button>)}
             </div>
-            <div className="study-directory-list">
-              {selectedStudySeasonEntry.people.map((person, index) => (
+            <div className="study-directory-result-heading">
+              <span>{studyLevelFilter === "ทั้งหมด" ? "แสดงทุกระดับ" : `เฉพาะ ${studyLevelFilter}`}</span>
+              <strong>{visibleStudyParticipants.length.toLocaleString("th-TH")} คน</strong>
+            </div>
+            <div className="study-directory-list" key={`${selectedStudySeasonEntry.season}-${studyLevelFilter}`}>
+              {visibleStudyParticipants.map((person, index) => (
                 <article className="study-person-card" key={`${person.key}-${person.code || "no-code"}-${person.email || "no-email"}-${index}`}>
                   <span className="study-person-index">{String(index + 1).padStart(2, "0")}</span>
                   <div className="study-person-main">
@@ -1464,7 +1478,7 @@ export default function Dashboard() {
                   </div>
                 </article>
               ))}
-              {selectedStudySeasonEntry.people.length === 0 && <div className="empty-state"><strong>ไม่พบรายชื่อใน Season นี้</strong></div>}
+              {visibleStudyParticipants.length === 0 && <div className="empty-state"><strong>ไม่พบรายชื่อตามระดับที่เลือก</strong></div>}
             </div>
           </section>
         </div>

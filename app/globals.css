@@ -358,10 +358,18 @@ a { color: inherit; }
 .study-directory-heading p { max-width: 760px; margin: 10px 0 0; color: var(--muted); font-size: 11px; line-height: 1.7; }
 .study-directory-heading p strong { color: #234fc2; font-size: 14px; }
 .study-directory-levels { margin-top: 22px; display: flex; flex-wrap: wrap; gap: 9px; }
-.study-directory-levels span { padding: 9px 12px; display: inline-flex; align-items: center; gap: 9px; border: 1px solid #e2e8fb; border-radius: 999px; background: rgba(255,255,255,.84); }
+.study-directory-levels button { padding: 9px 12px; display: inline-flex; align-items: center; gap: 9px; border: 1px solid #e2e8fb; border-radius: 999px; background: rgba(255,255,255,.84); color: inherit; cursor: pointer; transition: border-color .18s ease, background .18s ease, box-shadow .18s ease, transform .18s ease; }
+.study-directory-levels button:hover { transform: translateY(-1px); border-color: #b9c9ff; background: #fff; box-shadow: 0 7px 18px rgba(47,107,255,.08); }
+.study-directory-levels button:focus-visible { outline: 2px solid #2f6bff; outline-offset: 2px; }
+.study-directory-levels button.is-active { border-color: #6d4aff; background: linear-gradient(135deg, rgba(47,107,255,.10), rgba(255,79,163,.09)); box-shadow: inset 0 0 0 1px rgba(109,74,255,.12); }
 .study-directory-levels b { color: #40527b; font-size: 9px; }
 .study-directory-levels strong { color: #d93c89; font-size: 10px; }
-.study-directory-list { margin-top: 22px; display: flex; flex-direction: column; gap: 12px; }
+.study-directory-levels button.is-active b { color: #273d83; }
+.study-directory-levels button.is-active strong { color: #6d4aff; }
+.study-directory-result-heading { margin-top: 18px; padding: 0 2px 8px; display: flex; align-items: center; justify-content: space-between; gap: 12px; border-bottom: 1px solid #e6ebfa; }
+.study-directory-result-heading span { color: #667493; font-size: 10px; font-weight: 650; }
+.study-directory-result-heading strong { color: #163a8a; font-size: 12px; }
+.study-directory-list { margin-top: 14px; display: flex; flex-direction: column; gap: 12px; }
 .study-person-card { padding: 20px; display: grid; grid-template-columns: 38px 1.05fr 1.7fr auto; gap: 17px; align-items: center; border: 1px solid #e2e7f7; border-radius: 18px; background: rgba(255,255,255,.92); box-shadow: 0 10px 28px rgba(47,107,255,.05); }
 .study-person-index { color: #aab8dd; font-size: 12px; font-weight: 800; }
 .study-person-main > div { display: flex; flex-wrap: wrap; gap: 6px; }
