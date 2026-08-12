@@ -980,7 +980,8 @@ export default function Dashboard() {
                     </div>
                   </div>
                   <button className="demographic-directory-button" type="button" onClick={() => openDemographicDirectory("gender")}>
-                    ดูรายชื่อตามเพศ <span aria-hidden="true">→</span>
+                    <span className="button-label">ดูรายชื่อตามเพศ</span>
+                    <span className="button-icon" aria-hidden="true">→</span>
                   </button>
                 </article>
 
@@ -992,7 +993,8 @@ export default function Dashboard() {
                     ))}
                   </div>
                   <button className="demographic-directory-button age-directory-button" type="button" onClick={() => openDemographicDirectory("age")}>
-                    ดูรายชื่อตามช่วงอายุ <span aria-hidden="true">→</span>
+                    <span className="button-label">ดูรายชื่อตามช่วงอายุ</span>
+                    <span className="button-icon" aria-hidden="true">→</span>
                   </button>
                 </article>
 
