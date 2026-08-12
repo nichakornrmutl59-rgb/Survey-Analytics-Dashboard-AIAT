@@ -255,6 +255,8 @@ a { color: inherit; }
 .startup-summary-copy p { max-width: 650px; margin: 22px 0 0; color: var(--muted); font-size: 12px; line-height: 1.8; }
 .startup-summary-action { flex: 0 0 auto; padding: 14px 18px; border-radius: 999px; background: #10214b; color: white; font-size: 12px; font-weight: 650; box-shadow: 0 12px 26px rgba(16,33,75,.18); }
 .startup-summary-action b { margin-left: 14px; font-size: 16px; }
+.medal-after-startup { margin-top: 30px; }
+.organization-sector-note { margin: 18px 0 0; padding-top: 14px; border-top: 1px solid #e3eaff; color: var(--muted); font-size: 10px; line-height: 1.65; }
 .startup-directory-backdrop { z-index: 100; padding: 22px; }
 .startup-directory { width: min(1180px, 100%); max-height: calc(100vh - 44px); margin: auto; padding: clamp(26px, 4vw, 52px); position: relative; overflow-y: auto; border: 1px solid rgba(47,107,255,.16); border-radius: 30px; background: linear-gradient(145deg, #fff, #f5f8ff 72%, #fff3f9); box-shadow: 0 34px 100px rgba(1,8,30,.28); }
 .startup-directory-heading h2 { margin: 5px 0 0; font-family: "Noto Sans Thai", sans-serif; font-size: clamp(30px, 4vw, 48px); line-height: 1.25; }

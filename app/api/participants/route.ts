@@ -110,6 +110,7 @@ function workFields(group: Group, row: string[], workType: string) {
       institution: clean(row[19]),
       graduation: clean(row[21]),
       organization: clean(row[22]),
+      organizationSector: clean(row[23]),
       sector: clean(row[23]),
       employmentType: clean(row[24]),
       position: clean(row[25]),
@@ -138,6 +139,7 @@ function workFields(group: Group, row: string[], workType: string) {
 
   if (workType.includes("เจ้าของกิจการ")) {
     return {
+      organizationSector: clean(row[17]),
       organization: clean(row[27]),
       sector: clean(row[29]),
       employeeCount: clean(row[31]),
@@ -150,6 +152,7 @@ function workFields(group: Group, row: string[], workType: string) {
 
   if (workType.includes("ฟรีแลนซ์")) {
     return {
+      organizationSector: clean(row[17]),
       sector: clean(row[33]),
       responsibilities: clean(row[33]),
       clientGroup: clean(row[35]),
@@ -163,6 +166,7 @@ function workFields(group: Group, row: string[], workType: string) {
 
   if (workType.includes("นักวิจัย")) {
     return {
+      organizationSector: clean(row[17]),
       organization: clean(row[42]),
       position: clean(row[43]),
       responsibilities: clean(row[44]),
@@ -179,6 +183,7 @@ function workFields(group: Group, row: string[], workType: string) {
 
   if (workType.includes("อาจารย์")) {
     return {
+      organizationSector: clean(row[17]),
       organization: clean(row[55]),
       position: clean(row[56]),
       teachingLevel: clean(row[57]),
@@ -193,6 +198,7 @@ function workFields(group: Group, row: string[], workType: string) {
   }
 
   return {
+    organizationSector: clean(row[17]),
     sector: clean(row[17]),
     organization: clean(row[18]),
     website: clean(row[19]),

@@ -87,6 +87,7 @@ const DETAIL_FIELDS: Array<[string, string]> = [
   ["graduation", "คาดว่าจะจบการศึกษา"],
   ["organization", "บริษัท / หน่วยงาน"],
   ["website", "เว็บไซต์บริษัท / หน่วยงาน"],
+  ["organizationSector", "ภาคส่วนหน่วยงาน"],
   ["sector", "ภาคส่วน / อุตสาหกรรม"],
   ["employmentType", "ลักษณะการจ้างงาน"],
   ["position", "ตำแหน่ง"],
@@ -207,6 +208,18 @@ function normalizeSector(value?: string) {
   if (/agriculure|agriculture|agricultural|agri|farm|farming|crop|livestock|เกษตร|ฟาร์ม|ปศุสัตว์|เพาะปลูก/.test(normalized)) return "Agriculture";
 
   return "";
+}
+
+function normalizeOrganizationSector(value?: string) {
+  const normalized = value?.trim().toLocaleLowerCase("th") ?? "";
+  if (!normalized || normalized === "-" || normalized === "ไม่ระบุ") return "ไม่ระบุ";
+  if (/ภาครัฐ|รัฐวิสาหกิจ|ราชการ|หน่วยงานรัฐ|public sector|government/.test(normalized)) return "ภาครัฐ / รัฐวิสาหกิจ";
+  if (/สถาบันการศึกษา|มหาวิทยาลัย|วิจัย|โรงเรียน|education|university|research/.test(normalized)) return "สถาบันการศึกษา / วิจัย";
+  if (/สตาร์ทอัพ|startup|sme/.test(normalized)) return "Startup / SME";
+  if (/ภาคเอกชน|private|บริษัท/.test(normalized)) return "ภาคเอกชน";
+  if (/ไม่แสวง|มูลนิธิ|สมาคม|ngo|non.?profit/.test(normalized)) return "องค์กรไม่แสวงกำไร";
+  if (/อิสระ|ฟรีแลนซ์|freelance|self.?employ/.test(normalized)) return "อาชีพอิสระ";
+  return "อื่น ๆ";
 }
 
 function educationRank(value?: string) {
@@ -461,13 +474,13 @@ export default function Dashboard() {
       .map((label) => [label, counts[label] ?? 0] as [string, number])
       .filter(([, count]) => count > 0);
   }, [participants]);
-  const sectorEntries = useMemo(
-    () => {
-      const counts = countBy(participants.filter((item) => item.group === "ทำงาน" || item.group === "เรียนและทำงาน"), "sector");
-      return SECTORS.map((sector) => [sector.name, counts[sector.name] ?? 0] as [string, number]);
-    },
-    [participants],
-  );
+  const organizationSectorEntries = useMemo(() => {
+    const employed = participants.filter((item) => item.group === "ทำงาน" || item.group === "เรียนและทำงาน");
+    const counts = countDerived(employed, (item) => normalizeOrganizationSector(item.organizationSector));
+    return ["ภาครัฐ / รัฐวิสาหกิจ", "ภาคเอกชน", "สถาบันการศึกษา / วิจัย", "Startup / SME", "องค์กรไม่แสวงกำไร", "อาชีพอิสระ", "อื่น ๆ", "ไม่ระบุ"]
+      .map((label) => [label, counts[label] ?? 0] as [string, number])
+      .filter(([, count]) => count > 0);
+  }, [participants]);
   const incomeEntries = useMemo(() => {
     const counts = countBy(participants.filter((item) => item.group === "ทำงาน" || item.group === "เรียนและทำงาน"), "income");
     return ["น้อยกว่า 20,000 บาท", "20,001-35,000 บาท", "35,001-50,000 บาท", "มากกว่า 50,000 บาท"]
@@ -737,57 +750,6 @@ export default function Dashboard() {
               </div>
             </section>
 
-            <section className="medal-section" aria-labelledby="medal-heading">
-              <div className="medal-section-heading">
-                <div>
-                  <span>ผลสัมฤทธิ์ของผู้เข้าร่วม • SEASON 1–5</span>
-                  <h2 id="medal-heading">ผู้ที่ได้รับเหรียญ</h2>
-                  <p>สรุปจากรายชื่อรางวัลราย Season และเปิดดูรายละเอียดเชิงคุณภาพของผู้ได้รับเหรียญแต่ละคนได้</p>
-                </div>
-                <button type="button" onClick={() => { setMedalFilter("ทั้งหมด"); setShowMedals(true); }}>
-                  ดูรายชื่อผู้ได้รับเหรียญทั้งหมด <b aria-hidden="true">→</b>
-                </button>
-              </div>
-
-              <div className="medal-overview-grid">
-                <button className="medal-total-card" type="button" onClick={() => { setMedalFilter("ทั้งหมด"); setShowMedals(true); }}>
-                  <span>ผู้ได้รับเหรียญทั้งหมด</span>
-                  <strong>{medalRecipients.length.toLocaleString("th-TH")}</strong>
-                  <small>คน • คลิกเพื่อดูรายชื่อและสังกัด</small>
-                  <i aria-hidden="true">🏅</i>
-                </button>
-                {medalTypes.map((type) => (
-                  <button
-                    className={`medal-type-card medal-type-${type.name === "เหรียญทอง" ? "gold" : type.name === "เหรียญเงิน" ? "silver" : "bronze"}`}
-                    type="button"
-                    key={type.name}
-                    onClick={() => { setMedalFilter(type.name); setShowMedals(true); }}
-                  >
-                    <i style={{ background: type.color }} />
-                    <span>{type.name}</span>
-                    <strong>{(medalCounts[type.name] ?? 0).toLocaleString("th-TH")}</strong>
-                    <small>คน • ดูข้อมูลเชิงคุณภาพ</small>
-                    <b aria-hidden="true">→</b>
-                  </button>
-                ))}
-              </div>
-
-              <div className="medal-season-panel">
-                <div className="medal-season-heading"><h3>จำนวนผู้ได้รับเหรียญในแต่ละ Season</h3><span>ทอง • เงิน • ทองแดง</span></div>
-                <div className="medal-season-list">
-                  {medalSeasonSummary.map(({ season, total: seasonMedals, counts }) => (
-                    <button key={season} type="button" onClick={() => { setMedalFilter(season); setShowMedals(true); }}>
-                      <div><strong>{season}</strong><span>{seasonMedals.toLocaleString("th-TH")} คน</span></div>
-                      <div className="medal-season-stack" aria-label={`${season} มีผู้ได้รับเหรียญ ${seasonMedals} คน`}>
-                        {counts.map((entry) => entry.value > 0 ? <i key={entry.name} title={`${entry.name} ${entry.value} คน`} style={{ width: `${(entry.value / Math.max(seasonMedals, 1)) * 100}%`, background: entry.color }} /> : null)}
-                      </div>
-                      <small>{counts.map((entry) => `${entry.name.replace("เหรียญ", "")} ${entry.value}`).join(" • ")}</small>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </section>
-
             <section className="insight-grid bottom-grid demographic-insights">
               <article className="panel">
                 <div className="panel-heading"><div><h2>การกระจายตาม Track</h2></div></div>
@@ -802,10 +764,11 @@ export default function Dashboard() {
               <article className="panel">
                 <div className="panel-heading"><div><h2>ภาคส่วนการทำงาน</h2></div></div>
                 <div className="bars-list compact-bars">
-                  {sectorEntries.map(([sector, count], index) => (
-                    <BreakdownBar key={sector} label={sector} value={count} total={Math.max(...sectorEntries.map(([, value]) => value), 1)} color={SECTORS[index].color} />
+                  {organizationSectorEntries.map(([sector, count], index) => (
+                    <BreakdownBar key={sector} label={sector} value={count} total={Math.max(...organizationSectorEntries.map(([, value]) => value), 1)} color={["#2F6BFF", "#FF7A1A", "#6D4AFF", "#FF4FA3", "#22A06B", "#19BCEB", "#E9A11B", "#A7B2CF"][index] ?? "#2F6BFF"} />
                   ))}
                 </div>
+                <p className="organization-sector-note">จัดกลุ่มจากคำตอบ “หน่วยงานที่สังกัด” ของกลุ่มทำงาน และกลุ่มเรียนพร้อมทำงาน</p>
               </article>
             </section>
 
@@ -960,6 +923,57 @@ export default function Dashboard() {
                 <span className="startup-summary-copy"><small>จำนวนกิจการ / บริษัท / โครงการ Startup</small><strong>{startupFounders.length.toLocaleString("th-TH")}</strong><p>คลิกเพื่อดูว่ามีอะไรบ้าง พร้อมข้อมูลเว็บไซต์ ประเภทธุรกิจ รายได้ จำนวนพนักงาน และสถานะปัจจุบัน</p></span>
                 <span className="startup-summary-action">เปิดทะเบียน Startup <b>→</b></span>
               </button>
+            </section>
+
+            <section className="medal-section medal-after-startup" aria-labelledby="medal-heading">
+              <div className="medal-section-heading">
+                <div>
+                  <span>ผลสัมฤทธิ์ของผู้เข้าร่วม • SEASON 1–5</span>
+                  <h2 id="medal-heading">ผู้ที่ได้รับเหรียญ</h2>
+                  <p>สรุปจากรายชื่อรางวัลราย Season และเปิดดูรายละเอียดเชิงคุณภาพของผู้ได้รับเหรียญแต่ละคนได้</p>
+                </div>
+                <button type="button" onClick={() => { setMedalFilter("ทั้งหมด"); setShowMedals(true); }}>
+                  ดูรายชื่อผู้ได้รับเหรียญทั้งหมด <b aria-hidden="true">→</b>
+                </button>
+              </div>
+
+              <div className="medal-overview-grid">
+                <button className="medal-total-card" type="button" onClick={() => { setMedalFilter("ทั้งหมด"); setShowMedals(true); }}>
+                  <span>ผู้ได้รับเหรียญทั้งหมด</span>
+                  <strong>{medalRecipients.length.toLocaleString("th-TH")}</strong>
+                  <small>คน • คลิกเพื่อดูรายชื่อและสังกัด</small>
+                  <i aria-hidden="true">🏅</i>
+                </button>
+                {medalTypes.map((type) => (
+                  <button
+                    className={`medal-type-card medal-type-${type.name === "เหรียญทอง" ? "gold" : type.name === "เหรียญเงิน" ? "silver" : "bronze"}`}
+                    type="button"
+                    key={type.name}
+                    onClick={() => { setMedalFilter(type.name); setShowMedals(true); }}
+                  >
+                    <i style={{ background: type.color }} />
+                    <span>{type.name}</span>
+                    <strong>{(medalCounts[type.name] ?? 0).toLocaleString("th-TH")}</strong>
+                    <small>คน • ดูข้อมูลเชิงคุณภาพ</small>
+                    <b aria-hidden="true">→</b>
+                  </button>
+                ))}
+              </div>
+
+              <div className="medal-season-panel">
+                <div className="medal-season-heading"><h3>จำนวนผู้ได้รับเหรียญในแต่ละ Season</h3><span>ทอง • เงิน • ทองแดง</span></div>
+                <div className="medal-season-list">
+                  {medalSeasonSummary.map(({ season, total: seasonMedals, counts }) => (
+                    <button key={season} type="button" onClick={() => { setMedalFilter(season); setShowMedals(true); }}>
+                      <div><strong>{season}</strong><span>{seasonMedals.toLocaleString("th-TH")} คน</span></div>
+                      <div className="medal-season-stack" aria-label={`${season} มีผู้ได้รับเหรียญ ${seasonMedals} คน`}>
+                        {counts.map((entry) => entry.value > 0 ? <i key={entry.name} title={`${entry.name} ${entry.value} คน`} style={{ width: `${(entry.value / Math.max(seasonMedals, 1)) * 100}%`, background: entry.color }} /> : null)}
+                      </div>
+                      <small>{counts.map((entry) => `${entry.name.replace("เหรียญ", "")} ${entry.value}`).join(" • ")}</small>
+                    </button>
+                  ))}
+                </div>
+              </div>
             </section>
 
           </>
