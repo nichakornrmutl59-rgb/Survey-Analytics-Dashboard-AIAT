@@ -30,8 +30,21 @@ type Participant = {
 
 type ApiResponse = {
   participants?: unknown;
+  medalRecipients?: unknown;
   updatedAt?: string;
   error?: string;
+};
+
+type MedalRecipient = {
+  key: string;
+  season: string;
+  code: string;
+  title: string;
+  firstName: string;
+  lastName: string;
+  organization: string;
+  award: string;
+  medalType: string;
 };
 
 const GROUPS = [
@@ -237,6 +250,28 @@ function sanitizeParticipants(value: unknown): Participant[] {
     .filter((participant): participant is Participant => participant !== null);
 }
 
+function sanitizeMedalRecipients(value: unknown): MedalRecipient[] {
+  if (!Array.isArray(value)) return [];
+  return value.flatMap((item, index) => {
+    if (!item || typeof item !== "object" || Array.isArray(item)) return [];
+    const source = item as Record<string, unknown>;
+    const text = (key: string) => typeof source[key] === "string" ? source[key] : source[key] == null ? "" : String(source[key]);
+    const medalType = text("medalType");
+    if (!medalType) return [];
+    return [{
+      key: text("key") || `medal-${index + 1}`,
+      season: text("season"),
+      code: text("code"),
+      title: text("title"),
+      firstName: text("firstName"),
+      lastName: text("lastName"),
+      organization: text("organization"),
+      award: text("award"),
+      medalType,
+    }];
+  });
+}
+
 function formatUpdatedAt(value: string) {
   if (!value) return "กำลังเชื่อมข้อมูล";
   return new Intl.DateTimeFormat("th-TH", {
@@ -334,6 +369,7 @@ function BreakdownBar({
 
 export default function Dashboard() {
   const [participants, setParticipants] = useState<Participant[]>([]);
+  const [medalRecipients, setMedalRecipients] = useState<MedalRecipient[]>([]);
   const [updatedAt, setUpdatedAt] = useState("");
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -347,6 +383,8 @@ export default function Dashboard() {
   const [selected, setSelected] = useState<Participant | null>(null);
   const [showStartups, setShowStartups] = useState(false);
   const [showIndustry, setShowIndustry] = useState(false);
+  const [showMedals, setShowMedals] = useState(false);
+  const [medalFilter, setMedalFilter] = useState("ทั้งหมด");
   const [selectedIncome, setSelectedIncome] = useState<string | null>(null);
   const [incomeSummaryView, setIncomeSummaryView] = useState<"organizations" | "sectors" | null>(null);
   const [incomeListFilter, setIncomeListFilter] = useState<{ type: "organization" | "sector"; value: string } | null>(null);
@@ -368,6 +406,7 @@ export default function Dashboard() {
         throw new Error(payload.error || "ไม่สามารถเชื่อมต่อข้อมูลได้");
       }
       setParticipants(sanitizeParticipants(payload.participants));
+      setMedalRecipients(sanitizeMedalRecipients(payload.medalRecipients));
       setUpdatedAt(payload.updatedAt ?? new Date().toISOString());
       setError("");
     } catch (loadError) {
@@ -513,6 +552,40 @@ export default function Dashboard() {
     }).filter((item) => item.people.length > 0),
     [continuingStudents, seasons],
   );
+  const medalTypes = [
+    { name: "เหรียญทอง", color: "#F2A900" },
+    { name: "เหรียญเงิน", color: "#8591AA" },
+    { name: "เหรียญทองแดง", color: "#C66A2B" },
+  ] as const;
+  const medalCounts = useMemo(
+    () => medalRecipients.reduce<Record<string, number>>((result, item) => {
+      result[item.medalType] = (result[item.medalType] ?? 0) + 1;
+      return result;
+    }, {}),
+    [medalRecipients],
+  );
+  const medalSeasonSummary = useMemo(
+    () => ["Season 1", "Season 2", "Season 3", "Season 4", "Season 5"].map((season) => ({
+      season,
+      total: medalRecipients.filter((item) => item.season === season).length,
+      counts: medalTypes.map((type) => ({ ...type, value: medalRecipients.filter((item) => item.season === season && item.medalType === type.name).length })),
+    })),
+    [medalRecipients],
+  );
+  const visibleMedalRecipients = useMemo(
+    () => medalFilter === "ทั้งหมด"
+      ? medalRecipients
+      : medalRecipients.filter((item) => item.medalType === medalFilter || item.season === medalFilter),
+    [medalRecipients, medalFilter],
+  );
+  const participantByMedal = useCallback((recipient: MedalRecipient) => {
+    const normalizedCode = recipient.code.trim().toLocaleLowerCase("th");
+    const normalizedName = `${recipient.firstName}${recipient.lastName}`.replace(/\s/g, "").toLocaleLowerCase("th");
+    return participants.find((person) => {
+      if (normalizedCode && person.code.trim().toLocaleLowerCase("th") === normalizedCode) return true;
+      return `${person.firstName}${person.lastName}`.replace(/\s/g, "").toLocaleLowerCase("th") === normalizedName;
+    });
+  }, [participants]);
 
   const filtered = useMemo(() => {
     const normalizedQuery = query.trim().toLocaleLowerCase("th");
@@ -661,6 +734,57 @@ export default function Dashboard() {
                     ))}
                   </div>
                 </article>
+              </div>
+            </section>
+
+            <section className="medal-section" aria-labelledby="medal-heading">
+              <div className="medal-section-heading">
+                <div>
+                  <span>ผลสัมฤทธิ์ของผู้เข้าร่วม • SEASON 1–5</span>
+                  <h2 id="medal-heading">ผู้ที่ได้รับเหรียญ</h2>
+                  <p>สรุปจากรายชื่อรางวัลราย Season และเปิดดูรายละเอียดเชิงคุณภาพของผู้ได้รับเหรียญแต่ละคนได้</p>
+                </div>
+                <button type="button" onClick={() => { setMedalFilter("ทั้งหมด"); setShowMedals(true); }}>
+                  ดูรายชื่อผู้ได้รับเหรียญทั้งหมด <b aria-hidden="true">→</b>
+                </button>
+              </div>
+
+              <div className="medal-overview-grid">
+                <button className="medal-total-card" type="button" onClick={() => { setMedalFilter("ทั้งหมด"); setShowMedals(true); }}>
+                  <span>ผู้ได้รับเหรียญทั้งหมด</span>
+                  <strong>{medalRecipients.length.toLocaleString("th-TH")}</strong>
+                  <small>คน • คลิกเพื่อดูรายชื่อและสังกัด</small>
+                  <i aria-hidden="true">🏅</i>
+                </button>
+                {medalTypes.map((type) => (
+                  <button
+                    className={`medal-type-card medal-type-${type.name === "เหรียญทอง" ? "gold" : type.name === "เหรียญเงิน" ? "silver" : "bronze"}`}
+                    type="button"
+                    key={type.name}
+                    onClick={() => { setMedalFilter(type.name); setShowMedals(true); }}
+                  >
+                    <i style={{ background: type.color }} />
+                    <span>{type.name}</span>
+                    <strong>{(medalCounts[type.name] ?? 0).toLocaleString("th-TH")}</strong>
+                    <small>คน • ดูข้อมูลเชิงคุณภาพ</small>
+                    <b aria-hidden="true">→</b>
+                  </button>
+                ))}
+              </div>
+
+              <div className="medal-season-panel">
+                <div className="medal-season-heading"><h3>จำนวนผู้ได้รับเหรียญในแต่ละ Season</h3><span>ทอง • เงิน • ทองแดง</span></div>
+                <div className="medal-season-list">
+                  {medalSeasonSummary.map(({ season, total: seasonMedals, counts }) => (
+                    <button key={season} type="button" onClick={() => { setMedalFilter(season); setShowMedals(true); }}>
+                      <div><strong>{season}</strong><span>{seasonMedals.toLocaleString("th-TH")} คน</span></div>
+                      <div className="medal-season-stack" aria-label={`${season} มีผู้ได้รับเหรียญ ${seasonMedals} คน`}>
+                        {counts.map((entry) => entry.value > 0 ? <i key={entry.name} title={`${entry.name} ${entry.value} คน`} style={{ width: `${(entry.value / Math.max(seasonMedals, 1)) * 100}%`, background: entry.color }} /> : null)}
+                      </div>
+                      <small>{counts.map((entry) => `${entry.name.replace("เหรียญ", "")} ${entry.value}`).join(" • ")}</small>
+                    </button>
+                  ))}
+                </div>
               </div>
             </section>
 
@@ -1017,6 +1141,55 @@ export default function Dashboard() {
                 );
               })}
               {!visibleIncomeParticipants.length && <div className="empty-state"><strong>ไม่พบข้อมูลตามตัวกรองนี้</strong></div>}
+            </div>
+          </section>
+        </div>
+      )}
+
+      {showMedals && (
+        <div className="drawer-backdrop medal-directory-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setShowMedals(false); }}>
+          <section className="medal-directory" role="dialog" aria-modal="true" aria-label="รายชื่อผู้ได้รับเหรียญ">
+            <button className="drawer-close" type="button" onClick={() => setShowMedals(false)} aria-label="ปิดรายชื่อผู้ได้รับเหรียญ">×</button>
+            <header className="medal-directory-heading">
+              <span>MEDAL RECIPIENTS • SEASON 1–5</span>
+              <h2>ผู้ที่ได้รับเหรียญ</h2>
+              <p>ข้อมูลเชิงคุณภาพจากชีทรายชื่อรางวัล ประกอบด้วยรหัส ชื่อ สังกัด Season และประเภทรางวัล</p>
+            </header>
+
+            <div className="medal-directory-summary">
+              <article><span>ผู้ได้รับเหรียญทั้งหมด</span><strong>{medalRecipients.length.toLocaleString("th-TH")}</strong><small>คน</small></article>
+              {medalTypes.map((type) => <article key={type.name}><i style={{ background: type.color }} /><span>{type.name}</span><strong>{(medalCounts[type.name] ?? 0).toLocaleString("th-TH")}</strong><small>คน</small></article>)}
+            </div>
+
+            <div className="medal-filter-row" role="group" aria-label="กรองรายชื่อผู้ได้รับเหรียญ">
+              <button className={medalFilter === "ทั้งหมด" ? "active" : ""} type="button" onClick={() => setMedalFilter("ทั้งหมด")}>ทั้งหมด</button>
+              {medalTypes.map((type) => <button className={medalFilter === type.name ? "active" : ""} type="button" key={type.name} onClick={() => setMedalFilter(type.name)}>{type.name}</button>)}
+              {["Season 1", "Season 2", "Season 3", "Season 4", "Season 5"].map((season) => <button className={medalFilter === season ? "active" : ""} type="button" key={season} onClick={() => setMedalFilter(season)}>{season}</button>)}
+            </div>
+
+            <div className="medal-result-heading"><span>รายการที่แสดง</span><strong>{visibleMedalRecipients.length.toLocaleString("th-TH")} คน</strong></div>
+            <div className="medal-recipient-list">
+              {visibleMedalRecipients.map((recipient, index) => {
+                const matchedParticipant = participantByMedal(recipient);
+                const extraAward = recipient.award.replace(/^เหรียญทองแดง(?:\s*\([^)]*\))?\s*,?\s*|^เหรียญเงิน(?:\s*\([^)]*\))?\s*,?\s*|^เหรียญทอง(?:\s*\([^)]*\))?\s*,?\s*/, "").trim();
+                return (
+                  <article className="medal-recipient-card" key={recipient.key}>
+                    <span className="medal-recipient-index">{String(index + 1).padStart(2, "0")}</span>
+                    <div className="medal-recipient-main">
+                      <div><span>{recipient.season}</span><span>{recipient.code || "ไม่ระบุรหัส"}</span></div>
+                      <h3>{recipient.title}{recipient.firstName} {recipient.lastName}</h3>
+                      <p>{recipient.organization || "ไม่ระบุสังกัด"}</p>
+                    </div>
+                    <div className="medal-recipient-award">
+                      <span><i style={{ background: medalTypes.find((type) => type.name === recipient.medalType)?.color }} />{recipient.medalType}</span>
+                      <p>{extraAward || "ไม่มีรางวัลพิเศษที่ระบุเพิ่มเติม"}</p>
+                    </div>
+                    <div className="medal-recipient-actions">
+                      {matchedParticipant ? <button type="button" onClick={() => { setShowMedals(false); setSelected(matchedParticipant); }}>ดูข้อมูลรายบุคคล →</button> : <span>ยังไม่พบในแบบติดตามผล</span>}
+                    </div>
+                  </article>
+                );
+              })}
             </div>
           </section>
         </div>

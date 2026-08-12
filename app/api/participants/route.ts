@@ -9,6 +9,14 @@ const SHEETS = [
   { name: "ว่างงาน_48", group: "ว่างงาน" },
 ] as const;
 
+const MEDAL_SHEETS = [
+  { name: "Season 1_107", season: "Season 1" },
+  { name: "Season 2_126", season: "Season 2" },
+  { name: "Season 3_134", season: "Season 3" },
+  { name: "Season 4_170", season: "Season 4" },
+  { name: "Season 5_129", season: "Season 5" },
+] as const;
+
 type Group = (typeof SHEETS)[number]["group"];
 
 function parseCsv(input: string) {
@@ -245,6 +253,47 @@ async function loadSheet(sheet: (typeof SHEETS)[number]) {
     .map((row, index) => normalize(sheet.group, row, index + 1));
 }
 
+function medalType(value?: string) {
+  const normalized = clean(value);
+  if (normalized.startsWith("เหรียญทองแดง")) return "เหรียญทองแดง";
+  if (normalized.startsWith("เหรียญเงิน")) return "เหรียญเงิน";
+  if (normalized.startsWith("เหรียญทอง")) return "เหรียญทอง";
+  return "";
+}
+
+async function loadMedalSheet(sheet: (typeof MEDAL_SHEETS)[number]) {
+  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheet.name)}`;
+  const response = await fetch(url, {
+    cache: "no-store",
+    headers: { Accept: "text/csv" },
+  });
+
+  if (!response.ok) {
+    throw new Error(`อ่านชีท ${sheet.name} ไม่สำเร็จ (${response.status})`);
+  }
+
+  const csv = await response.text();
+  if (csv.trimStart().startsWith("<")) {
+    throw new Error(`ชีท ${sheet.name} ไม่ได้เปิดสิทธิ์ให้อ่านด้วยลิงก์`);
+  }
+
+  return parseCsv(csv)
+    .slice(1)
+    .filter((row) => clean(row[1]) || clean(row[3]) || clean(row[4]))
+    .map((row, index) => ({
+      key: `medal-${sheet.season}-${clean(row[1]) || index + 1}`,
+      season: sheet.season,
+      code: clean(row[1]),
+      title: clean(row[2]),
+      firstName: clean(row[3]),
+      lastName: clean(row[4]),
+      organization: clean(row[5]),
+      award: clean(row[6]),
+      medalType: medalType(row[6]),
+    }))
+    .filter((recipient) => recipient.medalType);
+}
+
 export async function GET() {
   if (!(await isDashboardAuthenticated())) {
     return Response.json({ error: "กรุณาเข้าสู่ระบบ" }, { status: 401 });
@@ -255,12 +304,17 @@ export async function GET() {
       throw new Error("ยังไม่ได้ตั้งค่า GOOGLE_SHEET_ID");
     }
 
-    const groups = await Promise.all(SHEETS.map(loadSheet));
+    const [groups, medalGroups] = await Promise.all([
+      Promise.all(SHEETS.map(loadSheet)),
+      Promise.all(MEDAL_SHEETS.map(loadMedalSheet)),
+    ]);
     const participants = groups.flat();
+    const medalRecipients = medalGroups.flat();
 
     return Response.json(
       {
         participants,
+        medalRecipients,
         updatedAt: new Date().toISOString(),
         source: "Google Sheets",
       },
