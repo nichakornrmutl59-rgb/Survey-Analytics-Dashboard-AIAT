@@ -131,16 +131,16 @@ function percent(value: number, total: number) {
   return ((value / total) * 100).toFixed(1);
 }
 
-function normalizeGender(value: string) {
-  const normalized = value.trim().toLocaleLowerCase("th");
+function normalizeGender(value?: string) {
+  const normalized = value?.trim().toLocaleLowerCase("th") ?? "";
   if (!normalized) return "ไม่ระบุ";
   if (normalized === "ชาย" || normalized === "ผู้ชาย" || normalized === "male") return "ชาย";
   if (normalized === "หญิง" || normalized === "ผู้หญิง" || normalized === "female") return "หญิง";
   return "อื่น ๆ / ไม่ประสงค์ระบุ";
 }
 
-function ageRange(value: string) {
-  const age = Number.parseInt(value.replace(/[^0-9]/g, ""), 10);
+function ageRange(value?: string) {
+  const age = Number.parseInt(value?.replace(/[^0-9]/g, "") ?? "", 10);
   if (!Number.isFinite(age)) return "ไม่ระบุ";
   if (age < 18) return "ต่ำกว่า 18 ปี";
   if (age <= 22) return "18–22 ปี";
@@ -150,8 +150,8 @@ function ageRange(value: string) {
   return "50 ปีขึ้นไป";
 }
 
-function normalizeEducation(value: string) {
-  const normalized = value.trim();
+function normalizeEducation(value?: string) {
+  const normalized = value?.trim() ?? "";
   if (!normalized) return "ไม่ระบุ";
   if (/ประถม/.test(normalized)) return "ประถมศึกษา";
   if (/มัธยมศึกษาตอนต้น|ม\.ต้น/.test(normalized)) return "มัธยมศึกษาตอนต้น";
