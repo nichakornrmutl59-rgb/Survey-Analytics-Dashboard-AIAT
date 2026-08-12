@@ -762,25 +762,13 @@ export default function Dashboard() {
               </CardCanvas>
             </section>
 
-            <section className="startup-section" aria-labelledby="startup-heading">
-              <div className="section-heading startup-heading">
-                <div><h2 id="startup-heading">Startup ที่เกิดขึ้นจากผู้เข้าร่วมโครงการ</h2></div>
-              </div>
-              <button className="startup-summary-card" type="button" onClick={() => setShowStartups(true)}>
-                <span className="startup-summary-copy"><small>จำนวนกิจการ / บริษัท / โครงการ Startup</small><strong>{startupFounders.length.toLocaleString("th-TH")}</strong><p>คลิกเพื่อดูว่ามีอะไรบ้าง พร้อมข้อมูลเว็บไซต์ ประเภทธุรกิจ รายได้ จำนวนพนักงาน และสถานะปัจจุบัน</p></span>
-                <span className="startup-summary-action">เปิดทะเบียน Startup <b>→</b></span>
-              </button>
-            </section>
-
             <section className="outcome-section" aria-labelledby="outcome-heading">
               <div className="section-heading outcome-heading">
-                <div><p className="eyebrow">INDUSTRY & EDUCATION OUTCOMES</p><h2 id="outcome-heading">ผลลัพธ์ด้านรายได้ อุตสาหกรรม และการศึกษาต่อ</h2></div>
-                <p>เชื่อมภาพรวมเชิงสถิติเข้ากับรายชื่อบริษัท หน่วยงาน และผู้เข้าร่วมในแต่ละ Season</p>
+                <div><h2 id="outcome-heading">ผลลัพธ์ด้านรายได้ อุตสาหกรรม และการศึกษาต่อ</h2></div>
               </div>
               <div className="outcome-kpi-grid">
                 <article><span>ผู้มีข้อมูลรายได้</span><strong>{knownIncomeParticipants.length.toLocaleString("th-TH")}</strong><p>จากกลุ่มทำงานและเรียนควบคู่กับงาน</p></article>
                 <article><span>รายได้เฉลี่ยโดยประมาณ</span><strong>฿{incomeEstimatedAverage.toLocaleString("th-TH")}</strong><p>ต่อเดือน • ประมาณจากค่ากลางของช่วงรายได้</p></article>
-                <article><span>กลุ่ม Sector / อุตสาหกรรม</span><strong>{SECTORS.length.toLocaleString("th-TH")}</strong><p>จัดกลุ่มมาตรฐานเพื่อดูบริษัทและหน่วยงานภายใต้แต่ละ Sector</p></article>
                 <article><span>มีแผนศึกษาต่อระดับสูงขึ้น</span><strong>{continuingStudents.length.toLocaleString("th-TH")}</strong><p>ผู้เรียนที่ระบุระดับการศึกษาที่ต้องการศึกษาต่อ</p></article>
               </div>
               <div className="outcome-grid">
@@ -801,6 +789,16 @@ export default function Dashboard() {
                   <div className="education-season-list">{continuingBySeason.map(({ season, people, levels }) => <div key={season} className="education-season-row"><div><strong>{season}</strong><span>{people.length.toLocaleString("th-TH")} คน</span></div><p>{levels.map(([level, count]) => `${level} ${count}`).join(" • ")}</p></div>)}</div>
                 </article>
               </div>
+            </section>
+
+            <section className="startup-section" aria-labelledby="startup-heading">
+              <div className="section-heading startup-heading">
+                <div><h2 id="startup-heading">Startup ที่เกิดขึ้นจากผู้เข้าร่วมโครงการ</h2></div>
+              </div>
+              <button className="startup-summary-card" type="button" onClick={() => setShowStartups(true)}>
+                <span className="startup-summary-copy"><small>จำนวนกิจการ / บริษัท / โครงการ Startup</small><strong>{startupFounders.length.toLocaleString("th-TH")}</strong><p>คลิกเพื่อดูว่ามีอะไรบ้าง พร้อมข้อมูลเว็บไซต์ ประเภทธุรกิจ รายได้ จำนวนพนักงาน และสถานะปัจจุบัน</p></span>
+                <span className="startup-summary-action">เปิดทะเบียน Startup <b>→</b></span>
+              </button>
             </section>
 
             <section className="insight-grid bottom-grid">
