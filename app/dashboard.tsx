@@ -407,7 +407,7 @@ export default function Dashboard() {
     [participants],
   );
   const startupFounders = useMemo(
-    () => participants.filter((item) => item.workType.includes("เจ้าของกิจการ")),
+    () => participants.filter((item) => item.workType?.includes("เจ้าของกิจการ")),
     [participants],
   );
   const employedParticipants = useMemo(
@@ -417,7 +417,7 @@ export default function Dashboard() {
   const sectorDirectory = useMemo(() => {
     const groups = new Map<string, Participant[]>();
     employedParticipants.forEach((item) => {
-      const sector = item.sector.trim() || "ไม่ระบุ Sector";
+      const sector = item.sector?.trim() || "ไม่ระบุ Sector";
       groups.set(sector, [...(groups.get(sector) ?? []), item]);
     });
     return [...groups.entries()].sort((a, b) => b[1].length - a[1].length);
@@ -425,7 +425,7 @@ export default function Dashboard() {
   const organizationDirectory = useMemo(() => {
     const groups = new Map<string, Participant[]>();
     employedParticipants.forEach((item) => {
-      const organization = item.organization.trim();
+      const organization = item.organization?.trim() ?? "";
       if (organization) groups.set(organization, [...(groups.get(organization) ?? []), item]);
     });
     return [...groups.entries()].sort((a, b) => b[1].length - a[1].length);
