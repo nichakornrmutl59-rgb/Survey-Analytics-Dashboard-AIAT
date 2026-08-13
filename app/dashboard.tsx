@@ -486,7 +486,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState("");
-  const [view, setView] = useState<"overview" | "track-report" | "people">("overview");
+  const [view, setView] = useState<"overview" | "track-report" | "award-report" | "people">("overview");
   const [query, setQuery] = useState("");
   const [groupFilter, setGroupFilter] = useState("ทั้งหมด");
   const [trackFilter, setTrackFilter] = useState("ทั้งหมด");
@@ -986,6 +986,7 @@ export default function Dashboard() {
         <nav className="view-switch" aria-label="เลือกมุมมอง">
           <button className={view === "overview" ? "active" : ""} type="button" onClick={() => setView("overview")}>ภาพรวม</button>
           <button className={view === "track-report" ? "active" : ""} type="button" onClick={() => setView("track-report")}>รายงาน Track</button>
+          <button className={view === "award-report" ? "active" : ""} type="button" onClick={() => setView("award-report")}>รายงานเหรียญ</button>
           <button className={view === "people" ? "active" : ""} type="button" onClick={() => setView("people")}>รายบุคคล</button>
         </nav>
         <div className="sync-status">
@@ -1414,10 +1415,28 @@ export default function Dashboard() {
                 );
               })}
             </div>
+          </section>
+        ) : view === "award-report" ? (
+          <section className="track-report-view award-report-view">
+            <button className="back-overview-button" type="button" onClick={() => setView("overview")}>
+              <span aria-hidden="true">←</span> กลับสู่ภาพรวม
+            </button>
+            <div className="track-report-heading award-report-heading">
+              <div>
+                <p className="eyebrow">AWARD / MEDAL REPORT</p>
+                <h1>Report รางวัล / เหรียญ แยกตาม Track</h1>
+                <p>รายงานเฉพาะผลรางวัลของแต่ละ Track แยก AI Innovator, AI Engineer และ AI Researcher โดยคนที่อยู่มากกว่า 1 Track จะถูกนับซ้ำในทุก Track ที่สังกัด</p>
+              </div>
+              <div className="track-report-summary award-report-summary">
+                <article><span>รายการรางวัลทั้งหมด</span><strong>{medalRecipients.length.toLocaleString("th-TH")}</strong><small>จากชีทรางวัล / เหรียญ</small></article>
+                <article><span>Track memberships</span><strong>{trackReportData.reduce((sum, entry) => sum + entry.medals.length, 0).toLocaleString("th-TH")}</strong><small>นับซ้ำเมื่ออยู่หลาย Track</small></article>
+                <article><span>จับคู่ข้อมูลไม่ได้</span><strong>{medalsWithoutParticipantMatch.toLocaleString("th-TH")}</strong><small>รายการที่ยังไม่พบผู้เข้าร่วม</small></article>
+              </div>
+            </div>
 
-            <section className="track-medal-report-section" aria-labelledby="track-medal-report-heading">
+            <section className="track-medal-report-section standalone-award-report" aria-labelledby="track-medal-report-heading">
               <div className="track-medal-report-heading">
-                <div><p className="eyebrow">AWARD / MEDAL REPORT</p><h2 id="track-medal-report-heading">Report รางวัล / เหรียญ แยกตาม Track</h2><p>ทั้งเหรียญ รางวัล AI Developer / AI Participant / AI Designer และผู้ไม่ได้เหรียญ จะถูกแยกตาม Track โดยคนที่อยู่มากกว่า 1 Track จะถูกนับซ้ำในทุก Track ที่สังกัด</p></div>
+                <div><h2 id="track-medal-report-heading">ผลรางวัลของแต่ละ Track</h2><p>แสดงเหรียญทอง / เงิน / ทองแดง, AI Developer, AI Participant, AI Designer และไม่ได้เหรียญ แยกตาม Track</p></div>
                 {medalsWithoutParticipantMatch > 0 && <span>มี {medalsWithoutParticipantMatch.toLocaleString("th-TH")} รายการรางวัลที่ยังจับคู่กับข้อมูลผู้เข้าร่วมไม่ได้</span>}
               </div>
               <div className="track-medal-report-grid">
