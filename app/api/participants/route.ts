@@ -379,6 +379,8 @@ const AWARD_TYPES = [
 ] as const;
 
 type AwardType = (typeof AWARD_TYPES)[number];
+type MedalOnlyType = "เหรียญทอง" | "เหรียญเงิน" | "เหรียญทองแดง";
+type AiAwardType = "AI Developer" | "AI Participant" | "AI Designer";
 
 function normalizeAwardText(value?: string) {
   return clean(value)
@@ -388,131 +390,65 @@ function normalizeAwardText(value?: string) {
     .trim();
 }
 
-function medalType(value?: string): AwardType | "" {
+// IMPORTANT: keep the original medal parsing contract intact. Before the
+// additional AI award categories were introduced, the medal source was column G
+// (row[6]) and those counts were correct. Do not infer medal types from other
+// columns, headers, job titles, or nearby text.
+function medalOnlyType(value?: string): MedalOnlyType | "" {
+  const normalized = normalizeAwardText(value);
+  if (!normalized) return "";
+  if (normalized.startsWith("เหรียญทองแดง") || /^bronze(?:\s+medal)?\b/i.test(normalized)) return "เหรียญทองแดง";
+  if (normalized.startsWith("เหรียญเงิน") || /^silver(?:\s+medal)?\b/i.test(normalized)) return "เหรียญเงิน";
+  if (normalized.startsWith("เหรียญทอง") || /^gold(?:\s+medal)?\b/i.test(normalized)) return "เหรียญทอง";
+  return "";
+}
+
+// AI Developer / Participant / Designer are an independent award channel. We
+// intentionally recognise them separately so adding these categories cannot
+// change the gold/silver/bronze result.
+function aiAwardType(value?: string): AiAwardType | "" {
   const normalized = normalizeAwardText(value);
   const lower = normalized.toLocaleLowerCase("en");
   if (!normalized) return "";
 
-  if (/เหรียญ\s*ทองแดง|bronze(?:\s+medal)?/i.test(normalized)) return "เหรียญทองแดง";
-  if (/เหรียญ\s*เงิน|silver(?:\s+medal)?/i.test(normalized)) return "เหรียญเงิน";
-  if (/เหรียญ\s*ทอง(?!แดง)|gold(?:\s+medal)?/i.test(normalized)) return "เหรียญทอง";
-
-  // Award sheets vary between "AI Developer", "Developer", "AI Dev" and
-  // equivalent labels. Matching is intentionally permissive here, but this
-  // function is only used on award candidate cells/headers below.
-  if (/\bai\s*(?:developer|dev)\b/i.test(lower) || /^(?:developer|dev)(?:\b|\s|[-_/,(])/i.test(lower) || /นักพัฒนา\s*(?:ai|เอไอ)?/i.test(normalized)) return "AI Developer";
-  if (/\bai\s*participant\b/i.test(lower) || /^participant(?:\b|\s|[-_/,(])/i.test(lower)) return "AI Participant";
-  if (/\bai\s*designer\b/i.test(lower) || /^designer(?:\b|\s|[-_/,(])/i.test(lower) || /นักออกแบบ\s*(?:ai|เอไอ)?/i.test(normalized)) return "AI Designer";
+  if (/^(?:ai\s*)?(?:developer|dev)(?:\s*(?:award|รางวัล))?(?:\s*[-:–—]\s*.*)?$/i.test(lower) || /^นักพัฒนา\s*(?:ai|เอไอ)?(?:\s*[-:–—]\s*.*)?$/i.test(normalized)) return "AI Developer";
+  if (/^(?:ai\s*)?participant(?:\s*(?:award|รางวัล))?(?:\s*[-:–—]\s*.*)?$/i.test(lower) || /^ผู้เข้าร่วม(?:\s*(?:ai|เอไอ))?(?:\s*[-:–—]\s*.*)?$/i.test(normalized)) return "AI Participant";
+  if (/^(?:ai\s*)?designer(?:\s*(?:award|รางวัล))?(?:\s*[-:–—]\s*.*)?$/i.test(lower) || /^นักออกแบบ\s*(?:ai|เอไอ)?(?:\s*[-:–—]\s*.*)?$/i.test(normalized)) return "AI Designer";
   return "";
-}
-
-function isAwardHeader(value?: string) {
-  const header = normalizeAwardText(value).toLocaleLowerCase("th");
-  return Boolean(medalType(header)) || /รางวัล|เหรียญ|award|medal|prize|ประเภท.*(?:รางวัล|เหรียญ)|ผล.*(?:รางวัล|เหรียญ)|award\s*type|award\s*category|result/i.test(header);
-}
-
-function headerIndex(headers: string[], include: RegExp, exclude?: RegExp) {
-  return headers.findIndex((raw) => {
-    const header = clean(raw);
-    return Boolean(header && include.test(header) && !(exclude && exclude.test(header)));
-  });
-}
-
-function medalHeaderScore(row: string[]) {
-  return row.reduce((score, cell) => {
-    const value = normalizeAwardText(cell);
-    if (!value) return score;
-    let next = score;
-    if (isAwardHeader(value)) next += 8;
-    if (/รหัส|code|id|ชื่อ|name|นามสกุล|surname|lastname|first\s*name|องค์กร|หน่วยงาน|company|organization/i.test(value)) next += 2;
-    return next;
-  }, 0);
-}
-
-function detectMedalHeaderRow(rows: string[][]) {
-  const limit = Math.min(rows.length, 12);
-  let bestIndex = 0;
-  let bestScore = -1;
-  for (let index = 0; index < limit; index += 1) {
-    const score = medalHeaderScore(rows[index] ?? []);
-    if (score > bestScore) {
-      bestScore = score;
-      bestIndex = index;
-    }
-  }
-  return bestIndex;
-}
-
-function detectAwardColumn(headers: string[], rows: string[][]) {
-  let bestIndex = -1;
-  let bestScore = -1;
-
-  const width = Math.max(headers.length, ...rows.map((row) => row.length), 0);
-  for (let index = 0; index < width; index += 1) {
-    const types = rows.map((row) => medalType(row[index])).filter(Boolean) as AwardType[];
-    if (!types.length) continue;
-    const recognized = types.length;
-    const distinct = new Set(types).size;
-    const header = headers[index] ?? "";
-    const headerBonus = isAwardHeader(header) ? 180 : /ประเภท|type|category|result|ผลลัพธ์/i.test(header) ? 40 : 0;
-    // A real award category column normally contains several of the six award
-    // labels; role/position columns tend to contain only one (e.g. Developer).
-    const score = recognized * 10 + distinct * 80 + headerBonus;
-    if (score > bestScore) {
-      bestScore = score;
-      bestIndex = index;
-    }
-  }
-
-  return bestIndex;
 }
 
 function isActiveAwardMarker(value?: string) {
   const normalized = normalizeAwardText(value).toLocaleLowerCase("th");
   if (!normalized) return false;
-  return !/^(?:0|false|no|none|n\/?a|na|ไม่มี|ไม่ได้รับ|ไม่|x|-)$/.test(normalized);
+  return !/^(?:0|false|no|none|n\/?a|na|ไม่มี|ไม่ได้รับ|ไม่|x|-|—)$/.test(normalized);
 }
 
-function awardFromRow(headers: string[], row: string[], awardColumn: number) {
-  // Some seasons use one column per award category and put a marker/check/value
-  // beneath the category header. In that layout the header itself is the award.
-  for (let index = 0; index < headers.length; index += 1) {
-    const typeFromHeader = medalType(headers[index]);
+function aiAwardFromRow(headers: string[], row: string[]): { award: string; medalType: AiAwardType | "" } {
+  // Layout A: one column per AI award, with a marker/check/value below the
+  // category header. Only AI award headers are considered here; medal headers
+  // are deliberately ignored to preserve the original medal calculation.
+  for (let index = 6; index < Math.max(headers.length, row.length); index += 1) {
+    const typeFromHeader = aiAwardType(headers[index]);
     if (!typeFromHeader || !isActiveAwardMarker(row[index])) continue;
-    return { award: clean(row[index]) || clean(headers[index]), medalType: typeFromHeader };
+    return { award: clean(headers[index]) || typeFromHeader, medalType: typeFromHeader };
   }
 
-  // Prefer explicitly award-labelled columns.
-  for (let index = 0; index < headers.length; index += 1) {
-    if (!isAwardHeader(headers[index])) continue;
+  // Layout B: the AI award label is stored directly in one of the award/result
+  // columns to the right of the participant identity fields. Matching is kept
+  // strict so ordinary role/title text is not mistaken for an award.
+  for (let index = 6; index < row.length; index += 1) {
     const value = clean(row[index]);
-    const type = medalType(value);
+    const type = aiAwardType(value);
     if (type) return { award: value, medalType: type };
   }
 
-  // Then use the statistically detected categorical award column. Do not scan
-  // arbitrary cells such as job title/position; that was the main source of
-  // false AI Developer classifications in the previous version.
-  const preferred = awardColumn >= 0 ? clean(row[awardColumn]) : "";
-  const preferredType = medalType(preferred);
-  if (preferredType) return { award: preferred, medalType: preferredType };
-
-  return { award: preferred, medalType: "" as const };
+  return { award: "", medalType: "" };
 }
 
 function isSummaryAwardRow(row: string[]) {
   const joined = row.map((cell) => normalizeAwardText(cell)).filter(Boolean).join(" ");
   if (!joined) return true;
   return /^(?:รวมทั้งหมด|รวม|total|sum)\b/i.test(joined) || /coming\s*soon/i.test(joined);
-}
-
-function awardIdentityIndexes(headers: string[]) {
-  const code = headerIndex(headers, /รหัส.*(?:ผู้|ผู้เข้า|อบรม)|participant\s*(?:id|code)|member\s*(?:id|code)|^code$|^id$/i);
-  const title = headerIndex(headers, /คำนำหน้า|title|prefix/i);
-  const firstName = headerIndex(headers, /ชื่อ(?!.*นามสกุล)|first\s*name|firstname|given\s*name/i, /ชื่อเล่น|nickname|บริษัท|หน่วยงาน|องค์กร/i);
-  const lastName = headerIndex(headers, /นามสกุล|last\s*name|lastname|surname|family\s*name/i);
-  const organization = headerIndex(headers, /บริษัท|หน่วยงาน|องค์กร|สังกัด|company|organization|affiliation/i, /ประเภท|sector/i);
-  return { code, title, firstName, lastName, organization };
 }
 
 async function loadMedalSheet(sheet: (typeof MEDAL_SHEETS)[number]) {
@@ -531,18 +467,14 @@ async function loadMedalSheet(sheet: (typeof MEDAL_SHEETS)[number]) {
     throw new Error(`ชีท ${sheet.name} ไม่ได้เปิดสิทธิ์ให้อ่านด้วยลิงก์`);
   }
 
+  // Use the same header/data boundary as the original medal report. This is
+  // what kept the medal totals stable before the AI award categories were added.
   const parsed = parseCsv(csv);
-  const headerRowIndex = detectMedalHeaderRow(parsed);
-  const headers = parsed[headerRowIndex] ?? [];
-  const rawRows = parsed
-    .slice(headerRowIndex + 1)
-    .filter((row) => row.some((cell) => clean(cell)))
-    .filter((row) => !isSummaryAwardRow(row));
-  const awardColumn = detectAwardColumn(headers, rawRows);
-  const indexes = awardIdentityIndexes(headers);
+  const headers = parsed[0] ?? [];
+  const rawRows = parsed.slice(1).filter((row) => row.some((cell) => clean(cell)));
 
-  let inheritedAwardType: AwardType | "" = "";
-  let inheritedAwardLabel = "";
+  let inheritedAiAward: AiAwardType | "" = "";
+  let inheritedAiAwardLabel = "";
   const recipients: Array<{
     key: string;
     season: string;
@@ -552,52 +484,78 @@ async function loadMedalSheet(sheet: (typeof MEDAL_SHEETS)[number]) {
     lastName: string;
     organization: string;
     award: string;
-    medalType: AwardType | "";
+    medalType: AwardType;
   }> = [];
 
+  let sourceRows = 0;
+
   rawRows.forEach((row, index) => {
-    const code = clean(row[indexes.code >= 0 ? indexes.code : 1]);
-    const title = clean(row[indexes.title >= 0 ? indexes.title : 2]);
-    const firstName = clean(row[indexes.firstName >= 0 ? indexes.firstName : 3]);
-    const lastName = clean(row[indexes.lastName >= 0 ? indexes.lastName : 4]);
-    const organization = clean(row[indexes.organization >= 0 ? indexes.organization : 5]);
-    const nonEmpty = row.map((cell) => clean(cell)).filter(Boolean);
-    const rowAwardCells = nonEmpty.map((cell) => ({ value: cell, type: medalType(cell) })).filter((entry) => entry.type);
+    if (isSummaryAwardRow(row)) return;
+
+    // Preserve the original fixed identity mapping used by the working medal
+    // report: B=code, C=title, D=first name, E=last name, F=organization,
+    // G=medal/result.
+    const code = clean(row[1]);
+    const title = clean(row[2]);
+    const firstName = clean(row[3]);
+    const lastName = clean(row[4]);
+    const organization = clean(row[5]);
     const hasPersonIdentity = Boolean(code || firstName || lastName);
 
-    // Several source sheets are arranged in award sections: a row containing
-    // only "AI Developer"/"AI Designer"/etc. is followed by recipient rows.
-    // Carry that section label forward until the next award section appears.
-    if (!hasPersonIdentity && nonEmpty.length <= 4 && rowAwardCells.length) {
-      inheritedAwardType = rowAwardCells[0].type as AwardType;
-      inheritedAwardLabel = rowAwardCells[0].value;
+    // Support sheets that place an AI award label on its own section row and
+    // list the recipients underneath. A section row is never allowed to alter
+    // the medal parser.
+    const nonEmpty = row.map((cell) => clean(cell)).filter(Boolean);
+    const sectionAi = nonEmpty.map((cell) => ({ value: cell, type: aiAwardType(cell) })).find((entry) => entry.type);
+    if (!hasPersonIdentity && nonEmpty.length <= 4 && sectionAi?.type) {
+      inheritedAiAward = sectionAi.type;
+      inheritedAiAwardLabel = sectionAi.value;
       return;
     }
 
-    const detectedAward = awardFromRow(headers, row, awardColumn);
-    const resolvedType = detectedAward.medalType || inheritedAwardType;
-    const resolvedAward = detectedAward.medalType ? detectedAward.award : inheritedAwardLabel;
+    if (!hasPersonIdentity) return;
+    sourceRows += 1;
 
-    // Ignore decoration/notes rows that contain neither participant identity nor
-    // a resolvable award category.
-    if (!hasPersonIdentity && !resolvedType) return;
+    // 1) Medal result: EXACTLY the original source column. This prevents the
+    // new AI categories from changing gold/silver/bronze counts.
+    const medal = medalOnlyType(row[6]);
+    if (medal) {
+      recipients.push({
+        key: `medal-${sheet.season}-${code || index + 1}-${index + 1}`,
+        season: sheet.season,
+        code,
+        title,
+        firstName,
+        lastName,
+        organization,
+        award: clean(row[6]),
+        medalType: medal,
+      });
+      return;
+    }
+
+    // 2) AI award result: scan only the award area / explicit AI award headers.
+    // It is intentionally separate from medal parsing.
+    const directAi = aiAwardFromRow(headers, row);
+    const resolvedAi = directAi.medalType || inheritedAiAward;
+    const resolvedAward = directAi.medalType ? directAi.award : inheritedAiAwardLabel;
+    if (!resolvedAi) return;
 
     recipients.push({
-      key: `medal-${sheet.season}-${code || `${firstName}-${lastName}` || index + 1}-${index + 1}`,
+      key: `award-${sheet.season}-${code || index + 1}-${index + 1}`,
       season: sheet.season,
       code,
       title,
       firstName,
       lastName,
       organization,
-      award: resolvedAward,
-      medalType: resolvedType,
+      award: resolvedAward || resolvedAi,
+      medalType: resolvedAi,
     });
   });
 
-  const recognized = recipients.filter((item) => item.medalType);
   const counts = AWARD_TYPES.reduce<Record<string, number>>((result, type) => {
-    result[type] = recognized.filter((item) => item.medalType === type).length;
+    result[type] = recipients.filter((item) => item.medalType === type).length;
     return result;
   }, {});
   const expectedCounts = EXPECTED_AWARD_COUNTS[sheet.season] ?? {};
@@ -609,9 +567,9 @@ async function loadMedalSheet(sheet: (typeof MEDAL_SHEETS)[number]) {
       season: sheet.season,
       sheet: sheet.name,
       expectedRows: sheet.expectedTotal,
-      sourceRows: recipients.length,
-      recognizedRows: recognized.length,
-      unresolvedRows: recipients.length - recognized.length,
+      sourceRows,
+      recognizedRows: recipients.length,
+      unresolvedRows: Math.max(sourceRows - recipients.length, 0),
       categoryMismatch,
       counts,
       expectedCounts,
