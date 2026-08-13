@@ -2493,3 +2493,47 @@ td code { font-family: ui-monospace, monospace; font-size: 10px; background: #ed
     overflow: visible;
   }
 }
+
+/* v25: award source completeness warning */
+.award-source-warning {
+  margin-top: 18px;
+  padding: 16px 18px;
+  border: 1px solid rgba(231, 156, 35, .28);
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(255, 248, 230, .94), rgba(255, 255, 255, .92));
+  color: #6f4b10;
+}
+.award-source-warning strong {
+  display: block;
+  color: #7c5310;
+  font-size: 13px;
+  font-weight: 800;
+}
+.award-source-warning p {
+  margin: 5px 0 0;
+  color: #8b6a32;
+  font-size: 11px;
+  line-height: 1.6;
+}
+.award-source-warning > div {
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+.award-source-warning > div > span {
+  padding: 6px 9px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .88);
+  border: 1px solid rgba(231, 156, 35, .18);
+  color: #75531d;
+  font-size: 10px;
+  font-weight: 750;
+}
+.award-source-warning.compact {
+  margin: 12px 0 0;
+  padding: 12px 14px;
+}
+.award-source-warning.compact > div {
+  margin-top: 7px;
+}
