@@ -407,13 +407,30 @@ function medalOnlyType(value?: string): MedalOnlyType | "" {
 // intentionally recognise them separately so adding these categories cannot
 // change the gold/silver/bronze result.
 function aiAwardType(value?: string): AiAwardType | "" {
-  const normalized = normalizeAwardText(value);
+  const normalized = normalizeAwardText(value).replace(/[\u200B-\u200D\uFEFF]/g, "");
   const lower = normalized.toLocaleLowerCase("en");
   if (!normalized) return "";
 
-  if (/^(?:ai\s*)?(?:developer|dev)(?:\s*(?:award|รางวัล))?(?:\s*[-:–—]\s*.*)?$/i.test(lower) || /^นักพัฒนา\s*(?:ai|เอไอ)?(?:\s*[-:–—]\s*.*)?$/i.test(normalized)) return "AI Developer";
-  if (/^(?:ai\s*)?participant(?:\s*(?:award|รางวัล))?(?:\s*[-:–—]\s*.*)?$/i.test(lower) || /^ผู้เข้าร่วม(?:\s*(?:ai|เอไอ))?(?:\s*[-:–—]\s*.*)?$/i.test(normalized)) return "AI Participant";
-  if (/^(?:ai\s*)?designer(?:\s*(?:award|รางวัล))?(?:\s*[-:–—]\s*.*)?$/i.test(lower) || /^นักออกแบบ\s*(?:ai|เอไอ)?(?:\s*[-:–—]\s*.*)?$/i.test(normalized)) return "AI Designer";
+  // This parser is intentionally broader than the original v20 matcher, but
+  // it is used only in verified award/result columns (or non-person header
+  // rows). That lets us catch labels such as "Developer Award", "AI Dev.",
+  // "Participant (Season 4)" and "AI Designer / ..." without interpreting
+  // ordinary job titles as awards.
+  if (
+    /(?:^|[\s(/,;:_-])(?:ai\s*)?(?:developer|dev\.?)\b/i.test(lower) ||
+    /(?:^|[\s(/,;:_-])นักพัฒนา(?:\s*(?:ai|เอไอ))?(?:$|[\s)/,;:_-])/i.test(normalized)
+  ) return "AI Developer";
+
+  if (
+    /(?:^|[\s(/,;:_-])(?:ai\s*)?participant(?:s|ion)?\b/i.test(lower) ||
+    /(?:^|[\s(/,;:_-])ผู้เข้าร่วม(?:\s*(?:ai|เอไอ))?(?:$|[\s)/,;:_-])/i.test(normalized)
+  ) return "AI Participant";
+
+  if (
+    /(?:^|[\s(/,;:_-])(?:ai\s*)?designer\b/i.test(lower) ||
+    /(?:^|[\s(/,;:_-])นักออกแบบ(?:\s*(?:ai|เอไอ))?(?:$|[\s)/,;:_-])/i.test(normalized)
+  ) return "AI Designer";
+
   return "";
 }
 
@@ -423,20 +440,63 @@ function isActiveAwardMarker(value?: string) {
   return !/^(?:0|false|no|none|n\/?a|na|ไม่มี|ไม่ได้รับ|ไม่|x|-|—)$/.test(normalized);
 }
 
-function aiAwardFromRow(headers: string[], row: string[]): { award: string; medalType: AiAwardType | "" } {
-  // Layout A: one column per AI award, with a marker/check/value below the
-  // category header. Only AI award headers are considered here; medal headers
-  // are deliberately ignored to preserve the original medal calculation.
+function isAwardLikeHeader(value?: string) {
+  const normalized = normalizeAwardText(value).toLocaleLowerCase("en");
+  if (!normalized) return false;
+  return /award|reward|result|medal|รางวัล|เหรียญ|ประเภท.*รางวัล|ผล.*รางวัล/.test(normalized);
+}
+
+function rowHasPersonIdentity(row: string[]) {
+  return Boolean(clean(row[1]) || clean(row[3]) || clean(row[4]));
+}
+
+function discoverAiAwardColumns(parsed: string[][]) {
+  const columns = new Map<number, AiAwardType>();
+  const probeRows = parsed.slice(0, Math.min(parsed.length, 14));
+
+  probeRows.forEach((row) => {
+    if (rowHasPersonIdentity(row)) return;
+    row.forEach((cell, index) => {
+      if (index < 6) return;
+      const type = aiAwardType(cell);
+      if (type) columns.set(index, type);
+    });
+  });
+
+  return columns;
+}
+
+function aiAwardFromRow(
+  headers: string[],
+  row: string[],
+  discoveredColumns: Map<number, AiAwardType>,
+): { award: string; medalType: AiAwardType | "" } {
+  // Layout A (most important): the original result column G contains the award
+  // label itself. We read this first and allow common label variants.
+  const primaryValue = clean(row[6]);
+  const primaryType = aiAwardType(primaryValue);
+  if (primaryType) return { award: primaryValue, medalType: primaryType };
+
+  // Layout B: multi-row / merged headers. A category may be written above the
+  // data rows rather than on parsed[0]. We discover those columns separately
+  // without changing the medal parser.
+  for (const [index, type] of discoveredColumns) {
+    if (!isActiveAwardMarker(row[index])) continue;
+    return { award: clean(row[index]) || type, medalType: type };
+  }
+
+  // Layout C: one column per AI award in the first header row.
   for (let index = 6; index < Math.max(headers.length, row.length); index += 1) {
     const typeFromHeader = aiAwardType(headers[index]);
     if (!typeFromHeader || !isActiveAwardMarker(row[index])) continue;
     return { award: clean(headers[index]) || typeFromHeader, medalType: typeFromHeader };
   }
 
-  // Layout B: the AI award label is stored directly in one of the award/result
-  // columns to the right of the participant identity fields. Matching is kept
-  // strict so ordinary role/title text is not mistaken for an award.
-  for (let index = 6; index < row.length; index += 1) {
+  // Layout D: a generic award/result column contains the category label. Only
+  // scan columns whose header explicitly says it is award/result data; this is
+  // deliberately safer than scanning job/title fields.
+  for (let index = 6; index < Math.max(headers.length, row.length); index += 1) {
+    if (!isAwardLikeHeader(headers[index])) continue;
     const value = clean(row[index]);
     const type = aiAwardType(value);
     if (type) return { award: value, medalType: type };
@@ -471,6 +531,7 @@ async function loadMedalSheet(sheet: (typeof MEDAL_SHEETS)[number]) {
   // what kept the medal totals stable before the AI award categories were added.
   const parsed = parseCsv(csv);
   const headers = parsed[0] ?? [];
+  const discoveredAiAwardColumns = discoverAiAwardColumns(parsed);
   const rawRows = parsed.slice(1).filter((row) => row.some((cell) => clean(cell)));
 
   let inheritedAiAward: AiAwardType | "" = "";
@@ -488,6 +549,7 @@ async function loadMedalSheet(sheet: (typeof MEDAL_SHEETS)[number]) {
   }> = [];
 
   let sourceRows = 0;
+  const unresolvedAwardValues = new Set<string>();
 
   rawRows.forEach((row, index) => {
     if (isSummaryAwardRow(row)) return;
@@ -500,7 +562,7 @@ async function loadMedalSheet(sheet: (typeof MEDAL_SHEETS)[number]) {
     const firstName = clean(row[3]);
     const lastName = clean(row[4]);
     const organization = clean(row[5]);
-    const hasPersonIdentity = Boolean(code || firstName || lastName);
+    const hasPersonIdentity = rowHasPersonIdentity(row);
 
     // Support sheets that place an AI award label on its own section row and
     // list the recipients underneath. A section row is never allowed to alter
@@ -536,10 +598,16 @@ async function loadMedalSheet(sheet: (typeof MEDAL_SHEETS)[number]) {
 
     // 2) AI award result: scan only the award area / explicit AI award headers.
     // It is intentionally separate from medal parsing.
-    const directAi = aiAwardFromRow(headers, row);
+    const directAi = aiAwardFromRow(headers, row, discoveredAiAwardColumns);
     const resolvedAi = directAi.medalType || inheritedAiAward;
     const resolvedAward = directAi.medalType ? directAi.award : inheritedAiAwardLabel;
-    if (!resolvedAi) return;
+    if (!resolvedAi) {
+      [row[6], ...Array.from(discoveredAiAwardColumns.keys()).map((column) => row[column])]
+        .map((value) => normalizeAwardText(value))
+        .filter(Boolean)
+        .forEach((value) => unresolvedAwardValues.add(value));
+      return;
+    }
 
     recipients.push({
       key: `award-${sheet.season}-${code || index + 1}-${index + 1}`,
@@ -573,6 +641,8 @@ async function loadMedalSheet(sheet: (typeof MEDAL_SHEETS)[number]) {
       categoryMismatch,
       counts,
       expectedCounts,
+      discoveredAiAwardColumns: Object.fromEntries(discoveredAiAwardColumns),
+      unresolvedAwardValues: Array.from(unresolvedAwardValues).slice(0, 30),
     },
   };
 }

@@ -2537,3 +2537,13 @@ td code { font-family: ui-monospace, monospace; font-size: 10px; background: #ed
 .award-source-warning.compact > div {
   margin-top: 7px;
 }
+
+
+/* v27 award parser diagnostics */
+.award-debug-values {
+  margin: 10px 0 0;
+  color: #8a5b18;
+  font-size: 10px;
+  line-height: 1.65;
+  word-break: break-word;
+}

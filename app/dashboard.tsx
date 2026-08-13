@@ -47,6 +47,8 @@ type AwardDiagnostic = {
   categoryMismatch: boolean;
   counts: Record<string, number>;
   expectedCounts: Record<string, number>;
+  discoveredAiAwardColumns?: Record<string, string>;
+  unresolvedAwardValues?: string[];
 };
 
 type MedalRecipient = {
@@ -1911,6 +1913,9 @@ export default function Dashboard() {
               <div className="award-source-warning compact" role="status">
                 <strong>ข้อมูลบาง Season ยังจำแนกประเภทรางวัลได้ไม่ครบ</strong>
                 <div>{awardDataMismatch.map((item) => <span key={item.season}>{item.season} {item.recognizedRows.toLocaleString("th-TH")}/{item.expectedRows.toLocaleString("th-TH")}</span>)}</div>
+                {awardDataMismatch.some((item) => item.unresolvedAwardValues?.length) && (
+                  <p className="award-debug-values">ค่ารางวัลที่ยังอ่านไม่ออก: {Array.from(new Set(awardDataMismatch.flatMap((item) => item.unresolvedAwardValues ?? []))).slice(0, 12).join(" • ")}</p>
+                )}
               </div>
             )}
 
