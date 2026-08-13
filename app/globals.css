@@ -1871,3 +1871,335 @@ td code { font-family: ui-monospace, monospace; font-size: 10px; background: #ed
     margin: 0 auto;
   }
 }
+
+/* v19: track outcome + medal-only report */
+.track-counting-note {
+  margin: 14px 0 0;
+  color: #6f80aa;
+  font-size: 10px;
+  line-height: 1.6;
+}
+.track-report-view {
+  padding-top: 68px;
+  padding-bottom: 32px;
+  min-height: 850px;
+}
+.track-report-heading {
+  margin-top: 26px;
+  padding: clamp(24px, 3vw, 38px);
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(360px, .9fr);
+  gap: 28px;
+  align-items: end;
+  border: 1px solid rgba(47,107,255,.14);
+  border-radius: 28px;
+  background: radial-gradient(circle at 100% 0%, rgba(109,74,255,.10), transparent 30%), linear-gradient(145deg, rgba(255,255,255,.96), rgba(246,249,255,.92));
+  box-shadow: 0 18px 48px rgba(47,107,255,.07);
+}
+.track-report-heading h1 {
+  margin: 8px 0 10px;
+  font-family: "Noto Sans Thai", sans-serif;
+  color: #132653;
+  font-size: clamp(34px, 4.2vw, 56px);
+  line-height: 1.14;
+  letter-spacing: -.025em;
+}
+.track-report-heading > div:first-child > p:last-child {
+  max-width: 780px;
+  margin: 0;
+  color: #63749c;
+  font-size: 12px;
+  line-height: 1.8;
+}
+.track-report-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+.track-report-summary article {
+  min-width: 0;
+  padding: 15px 14px;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid rgba(47,107,255,.11);
+  border-radius: 16px;
+  background: rgba(255,255,255,.82);
+}
+.track-report-summary span {
+  color: #6f80aa;
+  font-size: 9px;
+  font-weight: 700;
+}
+.track-report-summary strong {
+  margin-top: 5px;
+  color: #18336f;
+  font-family: "Noto Sans Thai", sans-serif;
+  font-size: 27px;
+  line-height: 1;
+}
+.track-report-summary small {
+  margin-top: 7px;
+  color: #8a98b7;
+  font-size: 8px;
+  line-height: 1.5;
+}
+.track-status-report-grid {
+  margin-top: 18px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+.track-status-report-card {
+  min-width: 0;
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(47,107,255,.13);
+  border-radius: 24px;
+  background: rgba(255,255,255,.92);
+  box-shadow: 0 14px 38px rgba(47,107,255,.06);
+}
+.track-status-report-card::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 4px;
+  background: var(--report-track-color);
+}
+.track-status-report-card header {
+  padding-bottom: 18px;
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+  border-bottom: 1px solid rgba(47,107,255,.08);
+}
+.track-status-report-card header > div > i {
+  width: 10px;
+  height: 10px;
+  margin-right: 7px;
+  display: inline-block;
+  border-radius: 99px;
+}
+.track-status-report-card header span {
+  color: #7888ad;
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+.track-status-report-card h2 {
+  margin: 5px 0 0;
+  color: #152b60;
+  font-size: 20px;
+  line-height: 1.25;
+}
+.track-status-report-card header > strong {
+  color: var(--report-track-color);
+  font-family: "Noto Sans Thai", sans-serif;
+  font-size: 28px;
+  line-height: 1;
+  white-space: nowrap;
+}
+.track-status-report-card header > strong small {
+  color: #7d8db2;
+  font-family: inherit;
+  font-size: 8px;
+  font-weight: 650;
+}
+.track-status-list {
+  margin-top: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+.track-status-row > div:first-child {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.track-status-row > div:first-child span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: #4e6089;
+  font-size: 11px;
+  font-weight: 650;
+}
+.track-status-row > div:first-child i {
+  width: 8px;
+  height: 8px;
+  border-radius: 99px;
+}
+.track-status-row > div:first-child strong {
+  color: #18336f;
+  font-size: 11px;
+}
+.track-status-bar {
+  height: 8px;
+  margin-top: 7px;
+  overflow: hidden;
+  border-radius: 99px;
+  background: #edf2ff;
+}
+.track-status-bar span {
+  height: 100%;
+  display: block;
+  border-radius: inherit;
+}
+.track-status-row > small {
+  margin-top: 4px;
+  display: block;
+  color: #8493b5;
+  font-size: 8px;
+  text-align: right;
+}
+.track-medal-report-section {
+  margin-top: 20px;
+  padding: clamp(24px, 3vw, 36px);
+  border: 1px solid rgba(242,169,0,.17);
+  border-radius: 28px;
+  background: radial-gradient(circle at 0 0, rgba(242,169,0,.09), transparent 26%), linear-gradient(145deg, rgba(255,255,255,.96), rgba(250,248,245,.94));
+}
+.track-medal-report-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  align-items: flex-end;
+}
+.track-medal-report-heading h2 {
+  margin: 6px 0 6px;
+  color: #172c5d;
+  font-family: "Noto Sans Thai", sans-serif;
+  font-size: clamp(27px, 3vw, 40px);
+  line-height: 1.2;
+}
+.track-medal-report-heading p:last-child {
+  max-width: 790px;
+  margin: 0;
+  color: #69799e;
+  font-size: 11px;
+  line-height: 1.7;
+}
+.track-medal-report-heading > span {
+  max-width: 320px;
+  padding: 9px 12px;
+  border-radius: 12px;
+  background: #fff4dc;
+  color: #8b6410;
+  font-size: 9px;
+  line-height: 1.5;
+}
+.track-medal-report-grid {
+  margin-top: 18px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+.track-medal-report-card {
+  min-width: 0;
+  padding: 20px;
+  border: 1px solid rgba(47,107,255,.11);
+  border-radius: 20px;
+  background: rgba(255,255,255,.9);
+}
+.track-medal-report-card header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+}
+.track-medal-report-card header > div {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.track-medal-report-card header i {
+  width: 10px;
+  height: 10px;
+  border-radius: 99px;
+}
+.track-medal-report-card h3 {
+  margin: 0;
+  color: #17316d;
+  font-size: 15px;
+}
+.track-medal-report-card header > strong {
+  color: var(--report-track-color);
+  font-size: 24px;
+  line-height: 1;
+}
+.track-medal-report-card header > strong small {
+  color: #7b8bae;
+  font-size: 9px;
+}
+.track-medal-type-list {
+  margin-top: 16px;
+  padding: 12px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border-top: 1px solid rgba(47,107,255,.08);
+  border-bottom: 1px solid rgba(47,107,255,.08);
+}
+.track-medal-type-list > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+}
+.track-medal-type-list span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #5d6e93;
+  font-size: 10px;
+}
+.track-medal-type-list i {
+  width: 8px;
+  height: 8px;
+  border-radius: 99px;
+}
+.track-medal-type-list strong {
+  color: #18336f;
+  font-size: 11px;
+}
+.track-medal-report-card > button {
+  width: 100%;
+  margin-top: 14px;
+  padding: 11px 13px;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  border: 1px solid rgba(47,107,255,.16);
+  border-radius: 13px;
+  background: #f6f9ff;
+  color: #2f60dc;
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 750;
+  cursor: pointer;
+  transition: transform .18s ease, background .18s ease, box-shadow .18s ease;
+}
+.track-medal-report-card > button:hover {
+  transform: translateY(-1px);
+  background: #fff;
+  box-shadow: 0 9px 20px rgba(47,107,255,.09);
+}
+@media (max-width: 1180px) {
+  .track-report-heading { grid-template-columns: 1fr; }
+  .track-status-report-grid,
+  .track-medal-report-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 820px) {
+  .track-report-view { padding-top: 46px; }
+  .track-report-summary { grid-template-columns: 1fr; }
+  .track-status-report-grid,
+  .track-medal-report-grid { grid-template-columns: 1fr; }
+  .track-medal-report-heading { align-items: flex-start; flex-direction: column; }
+  .view-switch button { padding-inline: 13px; font-size: 11px; }
+}

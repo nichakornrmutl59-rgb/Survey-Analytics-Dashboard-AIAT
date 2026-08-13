@@ -59,6 +59,8 @@ const GROUP_COLOR: Record<string, string> = Object.fromEntries(
   GROUPS.map((group) => [group.name, group.color]),
 );
 
+const TRACK_NAMES = ["AI Innovator", "AI Engineer", "AI Researcher"] as const;
+
 const TRACK_COLORS: Record<string, string> = {
   "AI Engineer": "#2F6BFF",
   "AI Innovator": "#FF7A1A",
@@ -163,6 +165,39 @@ function countBy(items: Participant[], key: keyof Participant) {
 
 function sortEntries(entries: Array<[string, number]>) {
   return entries.sort((a, b) => b[1] - a[1]);
+}
+
+function parseTracks(value?: string) {
+  const raw = value?.trim() ?? "";
+  if (!raw) return [] as string[];
+  const normalized = raw.toLocaleLowerCase("en");
+  const canonical = TRACK_NAMES.filter((track) => normalized.includes(track.toLocaleLowerCase("en")));
+  if (canonical.length) return [...canonical];
+  return [raw];
+}
+
+function participantHasTrack(person: Participant, track: string) {
+  return parseTracks(person.track).includes(track);
+}
+
+function countTrackMemberships(items: Participant[]) {
+  return items.reduce<Record<string, number>>((result, person) => {
+    parseTracks(person.track).forEach((track) => {
+      result[track] = (result[track] ?? 0) + 1;
+    });
+    return result;
+  }, {});
+}
+
+function findParticipantForMedal(recipient: MedalRecipient, participants: Participant[]) {
+  const normalizedCode = recipient.code.trim().toLocaleLowerCase("th");
+  const normalizedName = `${recipient.firstName}${recipient.lastName}`.replace(/\s/g, "").toLocaleLowerCase("th");
+  if (normalizedCode) {
+    const byCode = participants.find((person) => person.code.trim().toLocaleLowerCase("th") === normalizedCode);
+    if (byCode) return byCode;
+  }
+  const byName = participants.filter((person) => `${person.firstName}${person.lastName}`.replace(/\s/g, "").toLocaleLowerCase("th") === normalizedName);
+  return byName.find((person) => person.season === recipient.season) ?? byName[0];
 }
 
 function percent(value: number, total: number) {
@@ -451,7 +486,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState("");
-  const [view, setView] = useState<"overview" | "people">("overview");
+  const [view, setView] = useState<"overview" | "track-report" | "people">("overview");
   const [query, setQuery] = useState("");
   const [groupFilter, setGroupFilter] = useState("ทั้งหมด");
   const [trackFilter, setTrackFilter] = useState("ทั้งหมด");
@@ -470,6 +505,7 @@ export default function Dashboard() {
   const [showMedals, setShowMedals] = useState(false);
   const [medalSeasonFilter, setMedalSeasonFilter] = useState("ทั้งหมด");
   const [medalTypeFilter, setMedalTypeFilter] = useState("ทั้งหมด");
+  const [medalTrackFilter, setMedalTrackFilter] = useState("ทั้งหมด");
   const [selectedIncome, setSelectedIncome] = useState<string | null>(null);
   const [incomeSummaryView, setIncomeSummaryView] = useState<"organizations" | "sectors" | null>(null);
   const [incomeListFilter, setIncomeListFilter] = useState<{ type: "organization" | "sector"; value: string } | null>(null);
@@ -521,9 +557,9 @@ export default function Dashboard() {
   }, [view]);
 
   const totals = useMemo(() => countBy(participants, "group"), [participants]);
-  const tracks = useMemo(() => sortEntries(Object.entries(countBy(participants, "track"))), [participants]);
+  const tracks = useMemo(() => sortEntries(Object.entries(countTrackMemberships(participants))), [participants]);
   const aiEngineerParticipants = useMemo(
-    () => participants.filter((item) => item.track?.trim() === "AI Engineer"),
+    () => participants.filter((item) => participantHasTrack(item, "AI Engineer")),
     [participants],
   );
   const aiEngineerHouseGroups = useMemo(() => {
@@ -767,11 +803,20 @@ export default function Dashboard() {
     })),
     [medalRecipients],
   );
+  const medalRecipientsInTrack = useMemo(
+    () => medalTrackFilter === "ทั้งหมด"
+      ? medalRecipients
+      : medalRecipients.filter((recipient) => {
+          const participant = findParticipantForMedal(recipient, participants);
+          return participant ? participantHasTrack(participant, medalTrackFilter) : false;
+        }),
+    [medalRecipients, medalTrackFilter, participants],
+  );
   const medalRecipientsInSeason = useMemo(
     () => medalSeasonFilter === "ทั้งหมด"
-      ? medalRecipients
-      : medalRecipients.filter((item) => item.season === medalSeasonFilter),
-    [medalRecipients, medalSeasonFilter],
+      ? medalRecipientsInTrack
+      : medalRecipientsInTrack.filter((item) => item.season === medalSeasonFilter),
+    [medalRecipientsInTrack, medalSeasonFilter],
   );
   const filteredMedalCounts = useMemo(
     () => medalRecipientsInSeason.reduce<Record<string, number>>((result, item) => {
@@ -780,23 +825,35 @@ export default function Dashboard() {
     }, {}),
     [medalRecipientsInSeason],
   );
-  const visibleMedalRecipients = medalRecipients.filter((item) => (
-    (medalSeasonFilter === "ทั้งหมด" || item.season === medalSeasonFilter)
-    && (medalTypeFilter === "ทั้งหมด" || item.medalType === medalTypeFilter)
+  const visibleMedalRecipients = medalRecipientsInSeason.filter((item) => (
+    medalTypeFilter === "ทั้งหมด" || item.medalType === medalTypeFilter
   ));
-  const openMedalDirectory = useCallback((season = "ทั้งหมด", medalType = "ทั้งหมด") => {
+  const openMedalDirectory = useCallback((season = "ทั้งหมด", medalType = "ทั้งหมด", track = "ทั้งหมด") => {
     setMedalSeasonFilter(season);
     setMedalTypeFilter(medalType);
+    setMedalTrackFilter(track);
     setShowMedals(true);
   }, []);
-  const participantByMedal = useCallback((recipient: MedalRecipient) => {
-    const normalizedCode = recipient.code.trim().toLocaleLowerCase("th");
-    const normalizedName = `${recipient.firstName}${recipient.lastName}`.replace(/\s/g, "").toLocaleLowerCase("th");
-    return participants.find((person) => {
-      if (normalizedCode && person.code.trim().toLocaleLowerCase("th") === normalizedCode) return true;
-      return `${person.firstName}${person.lastName}`.replace(/\s/g, "").toLocaleLowerCase("th") === normalizedName;
+  const participantByMedal = useCallback((recipient: MedalRecipient) => findParticipantForMedal(recipient, participants), [participants]);
+  const trackReportData = useMemo(() => TRACK_NAMES.map((track) => {
+    const people = participants.filter((person) => participantHasTrack(person, track));
+    const status = GROUPS.map((group) => ({
+      ...group,
+      count: people.filter((person) => person.group === group.name).length,
+    }));
+    const medals = medalRecipients.filter((recipient) => {
+      const participant = findParticipantForMedal(recipient, participants);
+      return participant ? participantHasTrack(participant, track) : false;
     });
-  }, [participants]);
+    const medalCountsByType = medalTypes.map((type) => ({
+      ...type,
+      count: medals.filter((recipient) => recipient.medalType === type.name).length,
+    }));
+    return { track, people, status, medals, medalCountsByType };
+  }), [medalRecipients, participants]);
+  const trackMembershipTotal = useMemo(() => trackReportData.reduce((sum, item) => sum + item.people.length, 0), [trackReportData]);
+  const multiTrackParticipantCount = useMemo(() => participants.filter((person) => parseTracks(person.track).length > 1).length, [participants]);
+  const medalsWithoutParticipantMatch = useMemo(() => medalRecipients.filter((recipient) => !findParticipantForMedal(recipient, participants)).length, [medalRecipients, participants]);
 
   const filtered = useMemo(() => {
     const normalizedQuery = query.trim().toLocaleLowerCase("th");
@@ -807,7 +864,7 @@ export default function Dashboard() {
       return (
         (!normalizedQuery || haystack.includes(normalizedQuery)) &&
         (groupFilter === "ทั้งหมด" || item.group === groupFilter) &&
-        (trackFilter === "ทั้งหมด" || item.track === trackFilter) &&
+        (trackFilter === "ทั้งหมด" || participantHasTrack(item, trackFilter)) &&
         (seasonFilter === "ทั้งหมด" || item.season === seasonFilter) &&
         (workFilter === "ทั้งหมด" || item.workType === workFilter)
       );
@@ -924,6 +981,7 @@ export default function Dashboard() {
         </a>
         <nav className="view-switch" aria-label="เลือกมุมมอง">
           <button className={view === "overview" ? "active" : ""} type="button" onClick={() => setView("overview")}>ภาพรวม</button>
+          <button className={view === "track-report" ? "active" : ""} type="button" onClick={() => setView("track-report")}>รายงาน Track</button>
           <button className={view === "people" ? "active" : ""} type="button" onClick={() => setView("people")}>รายบุคคล</button>
         </nav>
         <div className="sync-status">
@@ -1035,7 +1093,7 @@ export default function Dashboard() {
                 </div>
                 <div className="track-donut-layout">
                   <div className="donut track-donut" style={{ background: `conic-gradient(${trackGradient || "#e5e7eb 0deg 360deg"})` }}>
-                    <div><strong>{trackTotal.toLocaleString("th-TH")}</strong><span>ผู้เข้าร่วม</span></div>
+                    <div><strong>{trackTotal.toLocaleString("th-TH")}</strong><span>Track memberships</span></div>
                   </div>
                   <div className="track-legend-list">
                     {tracks.map(([track, count]) => {
@@ -1063,6 +1121,7 @@ export default function Dashboard() {
                     })}
                   </div>
                 </div>
+                <p className="track-counting-note">ผู้เข้าร่วมที่มีมากกว่า 1 Track จะถูกนับซ้ำในทุก Track ที่เข้าร่วม</p>
               </article>
 
               <article className="panel">
@@ -1311,6 +1370,70 @@ export default function Dashboard() {
             </section>
 
           </>
+        ) : view === "track-report" ? (
+          <section className="track-report-view">
+            <button className="back-overview-button" type="button" onClick={() => setView("overview")}>
+              <span aria-hidden="true">←</span> กลับสู่ภาพรวม
+            </button>
+            <div className="track-report-heading">
+              <div>
+                <p className="eyebrow">TRACK OUTCOME REPORT</p>
+                <h1>สถานภาพและผลลัพธ์ แยกตาม Track</h1>
+                <p>รายงานนี้นับแบบ Track membership หากผู้เข้าร่วมคนเดียวอยู่มากกว่า 1 Track จะถูกนับซ้ำแยกในแต่ละ Track เพื่อให้ผลลัพธ์ของ AI Innovator, AI Engineer และ AI Researcher แยกจากกันชัดเจน</p>
+              </div>
+              <div className="track-report-summary">
+                <article><span>Track memberships</span><strong>{trackMembershipTotal.toLocaleString("th-TH")}</strong><small>รวมแบบนับซ้ำตาม Track</small></article>
+                <article><span>ผู้เข้าร่วมจริง</span><strong>{participants.length.toLocaleString("th-TH")}</strong><small>จำนวนบุคคลไม่ซ้ำ</small></article>
+                <article><span>อยู่หลาย Track</span><strong>{multiTrackParticipantCount.toLocaleString("th-TH")}</strong><small>คนที่ถูกนับในมากกว่า 1 Track</small></article>
+              </div>
+            </div>
+
+            <div className="track-status-report-grid">
+              {trackReportData.map((entry) => {
+                const color = TRACK_COLORS[entry.track] ?? "#2F6BFF";
+                return (
+                  <article className="track-status-report-card" key={entry.track} style={{ "--report-track-color": color } as React.CSSProperties}>
+                    <header>
+                      <div><i style={{ background: color }} /><span>สถานภาพปัจจุบัน</span><h2>{entry.track}</h2></div>
+                      <strong>{entry.people.length.toLocaleString("th-TH")}<small> memberships</small></strong>
+                    </header>
+                    <div className="track-status-list">
+                      {entry.status.map((group) => (
+                        <div className="track-status-row" key={group.name}>
+                          <div><span><i style={{ background: group.color }} />{group.name}</span><strong>{group.count.toLocaleString("th-TH")} คน</strong></div>
+                          <div className="track-status-bar"><span style={{ width: `${(group.count / Math.max(entry.people.length, 1)) * 100}%`, background: group.color }} /></div>
+                          <small>{percent(group.count, entry.people.length)}%</small>
+                        </div>
+                      ))}
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+
+            <section className="track-medal-report-section" aria-labelledby="track-medal-report-heading">
+              <div className="track-medal-report-heading">
+                <div><p className="eyebrow">MEDAL ONLY REPORT</p><h2 id="track-medal-report-heading">Report เฉพาะเหรียญ แยกตาม Track</h2><p>ผู้ได้รับเหรียญที่อยู่มากกว่า 1 Track จะถูกนับในทุก Track เช่นเดียวกับรายงานสถานภาพ เพื่อให้รายงานผลลัพธ์ของแต่ละ Track เป็นอิสระต่อกัน</p></div>
+                {medalsWithoutParticipantMatch > 0 && <span>มี {medalsWithoutParticipantMatch.toLocaleString("th-TH")} รายการเหรียญที่ยังจับคู่กับข้อมูลผู้เข้าร่วมไม่ได้</span>}
+              </div>
+              <div className="track-medal-report-grid">
+                {trackReportData.map((entry) => {
+                  const color = TRACK_COLORS[entry.track] ?? "#2F6BFF";
+                  return (
+                    <article className="track-medal-report-card" key={`${entry.track}-medals`} style={{ "--report-track-color": color } as React.CSSProperties}>
+                      <header><div><i style={{ background: color }} /><h3>{entry.track}</h3></div><strong>{entry.medals.length.toLocaleString("th-TH")}<small> เหรียญ</small></strong></header>
+                      <div className="track-medal-type-list">
+                        {entry.medalCountsByType.map((type) => (
+                          <div key={type.name}><span><i style={{ background: type.color }} />{type.name}</span><strong>{type.count.toLocaleString("th-TH")}</strong></div>
+                        ))}
+                      </div>
+                      <button type="button" onClick={() => openMedalDirectory("ทั้งหมด", "ทั้งหมด", entry.track)}>ดูรายชื่อผู้ได้รับเหรียญใน {entry.track} <span aria-hidden="true">→</span></button>
+                    </article>
+                  );
+                })}
+              </div>
+            </section>
+          </section>
         ) : (
           <section className="people-view">
             <button
@@ -1658,7 +1781,7 @@ export default function Dashboard() {
             </header>
 
             <div className="medal-directory-summary">
-              <article><span>{medalTypeFilter === "ทั้งหมด" ? (medalSeasonFilter === "ทั้งหมด" ? "ผู้ได้รับเหรียญทั้งหมด" : `ผู้ได้รับเหรียญ • ${medalSeasonFilter}`) : `ผลลัพธ์ • ${medalTypeFilter}`}</span><strong>{visibleMedalRecipients.length.toLocaleString("th-TH")}</strong><small>คน • ตัวเลขเปลี่ยนตามตัวกรอง</small></article>
+              <article><span>{medalTrackFilter === "ทั้งหมด" ? (medalTypeFilter === "ทั้งหมด" ? (medalSeasonFilter === "ทั้งหมด" ? "ผู้ได้รับเหรียญทั้งหมด" : `ผู้ได้รับเหรียญ • ${medalSeasonFilter}`) : `ผลลัพธ์ • ${medalTypeFilter}`) : `${medalTrackFilter} • ${medalTypeFilter === "ทั้งหมด" ? "ทุกประเภทเหรียญ" : medalTypeFilter}`}</span><strong>{visibleMedalRecipients.length.toLocaleString("th-TH")}</strong><small>คน • ตัวเลขเปลี่ยนตามตัวกรอง</small></article>
               {medalTypes.map((type) => <article key={type.name} className={medalTypeFilter === type.name ? "is-selected" : ""}><i style={{ background: type.color }} /><span>{type.name}</span><strong>{(filteredMedalCounts[type.name] ?? 0).toLocaleString("th-TH")}</strong><small>คน • ใน Season ที่เลือก</small></article>)}
             </div>
 
@@ -1670,6 +1793,13 @@ export default function Dashboard() {
                   {medalSeasons.map((season) => <button className={medalSeasonFilter === season ? "active" : ""} type="button" key={season} onClick={() => setMedalSeasonFilter(season)}>{season}</button>)}
                 </div>
               </div>
+              <div className="medal-filter-group" role="group" aria-label="กรองตาม Track">
+                <strong>Track</strong>
+                <div className="medal-filter-row">
+                  <button className={medalTrackFilter === "ทั้งหมด" ? "active" : ""} type="button" onClick={() => setMedalTrackFilter("ทั้งหมด")}>ทุก Track</button>
+                  {TRACK_NAMES.map((track) => <button className={medalTrackFilter === track ? "active" : ""} type="button" key={track} onClick={() => setMedalTrackFilter(track)}>{track}</button>)}
+                </div>
+              </div>
               <div className="medal-filter-group" role="group" aria-label="กรองตามประเภทเหรียญ">
                 <strong>ประเภทเหรียญ</strong>
                 <div className="medal-filter-row">
@@ -1679,13 +1809,13 @@ export default function Dashboard() {
               </div>
             </div>
 
-            <div className="medal-result-heading"><span>รายการที่แสดง • {medalSeasonFilter === "ทั้งหมด" ? "ทุก Season" : medalSeasonFilter} • {medalTypeFilter === "ทั้งหมด" ? "ทุกประเภทเหรียญ" : medalTypeFilter}</span><strong>{visibleMedalRecipients.length.toLocaleString("th-TH")} คน</strong></div>
-            <div className="medal-recipient-list" key={`${medalSeasonFilter}-${medalTypeFilter}`}>
+            <div className="medal-result-heading"><span>รายการที่แสดง • {medalTrackFilter === "ทั้งหมด" ? "ทุก Track" : medalTrackFilter} • {medalSeasonFilter === "ทั้งหมด" ? "ทุก Season" : medalSeasonFilter} • {medalTypeFilter === "ทั้งหมด" ? "ทุกประเภทเหรียญ" : medalTypeFilter}</span><strong>{visibleMedalRecipients.length.toLocaleString("th-TH")} คน</strong></div>
+            <div className="medal-recipient-list" key={`${medalTrackFilter}-${medalSeasonFilter}-${medalTypeFilter}`}>
               {visibleMedalRecipients.map((recipient, index) => {
                 const matchedParticipant = participantByMedal(recipient);
                 const extraAward = recipient.award.replace(/^เหรียญทองแดง(?:\s*\([^)]*\))?\s*,?\s*|^เหรียญเงิน(?:\s*\([^)]*\))?\s*,?\s*|^เหรียญทอง(?:\s*\([^)]*\))?\s*,?\s*/, "").trim();
                 return (
-                  <article className="medal-recipient-card" key={`${medalSeasonFilter}-${medalTypeFilter}-${recipient.key}-${recipient.season}-${recipient.medalType}-${index}`}>
+                  <article className="medal-recipient-card" key={`${medalTrackFilter}-${medalSeasonFilter}-${medalTypeFilter}-${recipient.key}-${recipient.season}-${recipient.medalType}-${index}`}>
                     <span className="medal-recipient-index">{String(index + 1).padStart(2, "0")}</span>
                     <div className="medal-recipient-main">
                       <div><span>{recipient.season}</span><span>{recipient.code || "ไม่ระบุรหัส"}</span></div>
