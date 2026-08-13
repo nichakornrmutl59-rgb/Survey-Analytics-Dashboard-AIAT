@@ -1589,3 +1589,38 @@ td code { font-family: ui-monospace, monospace; font-size: 10px; background: #ed
     grid-template-columns: 1fr;
   }
 }
+
+
+/* v16: show percentages in gender donut legend */
+.gender-card .gender-inline-legend > div {
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+}
+.gender-legend-metric {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  justify-content: flex-end;
+  white-space: nowrap;
+}
+.gender-legend-metric strong {
+  color: #18336f;
+  font-size: 13px;
+  font-weight: 800;
+}
+.gender-legend-metric small {
+  color: #6f80aa;
+  font-size: 11px;
+  font-weight: 700;
+}
+@media (max-width: 640px) {
+  .gender-legend-metric {
+    gap: 6px;
+  }
+  .gender-legend-metric strong {
+    font-size: 12px;
+  }
+  .gender-legend-metric small {
+    font-size: 10px;
+  }
+}

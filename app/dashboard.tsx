@@ -877,6 +877,7 @@ export default function Dashboard() {
   const total = participants.length;
   const genderColors = ["#2F6BFF", "#FF4FA3", "#6D4AFF"] as const;
   const genderTotal = genderEntries.reduce((sum, [, count]) => sum + count, 0);
+  const genderPercent = (count: number) => `${((count / Math.max(genderTotal, 1)) * 100).toLocaleString("th-TH", { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%`;
   const genderGradient = genderEntries.reduce((result, [, count], index) => {
     const previous = genderEntries.slice(0, index).reduce((sum, [, value]) => sum + value, 0);
     const start = (previous / Math.max(genderTotal, 1)) * 360;
@@ -974,7 +975,10 @@ export default function Dashboard() {
                         <div key={label}>
                           <i style={{ background: genderColors[index] ?? "#19BCEB" }} />
                           <span>{label}</span>
-                          <strong>{count.toLocaleString("th-TH")}</strong>
+                          <div className="gender-legend-metric">
+                            <strong>{count.toLocaleString("th-TH")}</strong>
+                            <small>{genderPercent(count)}</small>
+                          </div>
                         </div>
                       ))}
                     </div>
