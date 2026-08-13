@@ -789,32 +789,35 @@ export default function Dashboard() {
     { name: "AI Developer", color: "#2F6BFF" },
     { name: "AI Participant", color: "#19BCEB" },
     { name: "AI Designer", color: "#6D4AFF" },
-    { name: "ไม่ได้เหรียญ", color: "#A7B2CF" },
   ] as const;
+  const reportMedalRecipients = useMemo(
+    () => medalRecipients.filter((item) => item.medalType !== "ไม่ได้เหรียญ"),
+    [medalRecipients],
+  );
   const medalCounts = useMemo(
-    () => medalRecipients.reduce<Record<string, number>>((result, item) => {
+    () => reportMedalRecipients.reduce<Record<string, number>>((result, item) => {
       result[item.medalType] = (result[item.medalType] ?? 0) + 1;
       return result;
     }, {}),
-    [medalRecipients],
+    [reportMedalRecipients],
   );
   const medalSeasons = ["Season 1", "Season 2", "Season 3", "Season 4", "Season 5"];
   const medalSeasonSummary = useMemo(
     () => medalSeasons.map((season) => ({
       season,
-      total: medalRecipients.filter((item) => item.season === season).length,
-      counts: medalTypes.map((type) => ({ ...type, value: medalRecipients.filter((item) => item.season === season && item.medalType === type.name).length })),
+      total: reportMedalRecipients.filter((item) => item.season === season).length,
+      counts: medalTypes.map((type) => ({ ...type, value: reportMedalRecipients.filter((item) => item.season === season && item.medalType === type.name).length })),
     })),
-    [medalRecipients],
+    [reportMedalRecipients],
   );
   const medalRecipientsInTrack = useMemo(
     () => medalTrackFilter === "ทั้งหมด"
-      ? medalRecipients
-      : medalRecipients.filter((recipient) => {
+      ? reportMedalRecipients
+      : reportMedalRecipients.filter((recipient) => {
           const participant = findParticipantForMedal(recipient, participants);
           return participant ? participantHasTrack(participant, medalTrackFilter) : false;
         }),
-    [medalRecipients, medalTrackFilter, participants],
+    [reportMedalRecipients, medalTrackFilter, participants],
   );
   const medalRecipientsInSeason = useMemo(
     () => medalSeasonFilter === "ทั้งหมด"
@@ -845,7 +848,7 @@ export default function Dashboard() {
       ...group,
       count: people.filter((person) => person.group === group.name).length,
     }));
-    const medals = medalRecipients.filter((recipient) => {
+    const medals = reportMedalRecipients.filter((recipient) => {
       const participant = findParticipantForMedal(recipient, participants);
       return participant ? participantHasTrack(participant, track) : false;
     });
@@ -854,10 +857,10 @@ export default function Dashboard() {
       count: medals.filter((recipient) => recipient.medalType === type.name).length,
     }));
     return { track, people, status, medals, medalCountsByType };
-  }), [medalRecipients, participants]);
+  }), [reportMedalRecipients, participants]);
   const trackMembershipTotal = useMemo(() => trackReportData.reduce((sum, item) => sum + item.people.length, 0), [trackReportData]);
   const multiTrackParticipantCount = useMemo(() => participants.filter((person) => parseTracks(person.track).length > 1).length, [participants]);
-  const medalsWithoutParticipantMatch = useMemo(() => medalRecipients.filter((recipient) => !findParticipantForMedal(recipient, participants)).length, [medalRecipients, participants]);
+  const medalsWithoutParticipantMatch = useMemo(() => reportMedalRecipients.filter((recipient) => !findParticipantForMedal(recipient, participants)).length, [reportMedalRecipients, participants]);
 
   const filtered = useMemo(() => {
     const normalizedQuery = query.trim().toLocaleLowerCase("th");
@@ -1328,7 +1331,7 @@ export default function Dashboard() {
                 <div>
                   <span>ผลสัมฤทธิ์ของผู้เข้าร่วม • SEASON 1–5</span>
                   <h2 id="medal-heading">รางวัล / เหรียญของผู้เข้าร่วม</h2>
-                  <p>สรุปทั้งเหรียญและรางวัล AI Developer, AI Participant, AI Designer รวมถึงผู้ที่ไม่ได้เหรียญ โดยเปิดดูรายชื่อและรายละเอียดแต่ละคนได้</p>
+                  <p>สรุปเฉพาะผู้ได้รับเหรียญและรางวัล AI Developer, AI Participant, AI Designer โดยเปิดดูรายชื่อและรายละเอียดแต่ละคนได้</p>
                 </div>
                 <button type="button" onClick={() => openMedalDirectory()}>
                   ดูรายชื่อรางวัล / เหรียญทั้งหมด <b aria-hidden="true">→</b>
@@ -1338,7 +1341,7 @@ export default function Dashboard() {
               <div className="medal-overview-grid">
                 <button className="medal-total-card" type="button" onClick={() => openMedalDirectory()}>
                   <span>ผู้มีข้อมูลรางวัลทั้งหมด</span>
-                  <strong>{medalRecipients.length.toLocaleString("th-TH")}</strong>
+                  <strong>{reportMedalRecipients.length.toLocaleString("th-TH")}</strong>
                   <small>รายการ • คลิกเพื่อดูรายชื่อและสังกัด</small>
                   <i aria-hidden="true">🏅</i>
                 </button>
@@ -1359,12 +1362,12 @@ export default function Dashboard() {
               </div>
 
               <div className="medal-season-panel">
-                <div className="medal-season-heading"><h3>รางวัล / เหรียญในแต่ละ Season</h3><span>7 ประเภท • รวมรางวัลและผู้ไม่ได้เหรียญ</span></div>
+                <div className="medal-season-heading"><h3>รางวัล / เหรียญในแต่ละ Season</h3><span>6 ประเภท • รายงานเฉพาะผู้ได้รับรางวัล</span></div>
                 <div className="medal-season-list">
                   {medalSeasonSummary.map(({ season, total: seasonMedals, counts }) => (
                     <button key={season} type="button" onClick={() => openMedalDirectory(season)}>
                       <div><strong>{season}</strong><span>{seasonMedals.toLocaleString("th-TH")} คน</span></div>
-                      <div className="medal-season-stack" aria-label={`${season} มีผู้ได้รับเหรียญ ${seasonMedals} คน`}>
+                      <div className="medal-season-stack" aria-label={`${season} มีผู้ได้รับรางวัลหรือเหรียญ ${seasonMedals} คน`}>
                         {counts.map((entry) => entry.value > 0 ? <i key={entry.name} title={`${entry.name} ${entry.value} คน`} style={{ width: `${(entry.value / Math.max(seasonMedals, 1)) * 100}%`, background: entry.color }} /> : null)}
                       </div>
                       <small>{counts.map((entry) => `${entry.name.replace("เหรียญ", "")} ${entry.value}`).join(" • ")}</small>
@@ -1428,7 +1431,7 @@ export default function Dashboard() {
                 <p>รายงานเฉพาะผลรางวัลของแต่ละ Track แยก AI Innovator, AI Engineer และ AI Researcher โดยคนที่อยู่มากกว่า 1 Track จะถูกนับซ้ำในทุก Track ที่สังกัด</p>
               </div>
               <div className="track-report-summary award-report-summary">
-                <article><span>รายการรางวัลทั้งหมด</span><strong>{medalRecipients.length.toLocaleString("th-TH")}</strong><small>จากชีทรางวัล / เหรียญ</small></article>
+                <article><span>รายการรางวัลทั้งหมด</span><strong>{reportMedalRecipients.length.toLocaleString("th-TH")}</strong><small>เฉพาะผู้ได้รับรางวัล / เหรียญ</small></article>
                 <article><span>Track memberships</span><strong>{trackReportData.reduce((sum, entry) => sum + entry.medals.length, 0).toLocaleString("th-TH")}</strong><small>นับซ้ำเมื่ออยู่หลาย Track</small></article>
                 <article><span>จับคู่ข้อมูลไม่ได้</span><strong>{medalsWithoutParticipantMatch.toLocaleString("th-TH")}</strong><small>รายการที่ยังไม่พบผู้เข้าร่วม</small></article>
               </div>
@@ -1436,7 +1439,7 @@ export default function Dashboard() {
 
             <section className="track-medal-report-section standalone-award-report" aria-labelledby="track-medal-report-heading">
               <div className="track-medal-report-heading">
-                <div><h2 id="track-medal-report-heading">ผลรางวัลของแต่ละ Track</h2><p>แสดงเหรียญทอง / เงิน / ทองแดง, AI Developer, AI Participant, AI Designer และไม่ได้เหรียญ แยกตาม Track</p></div>
+                <div><h2 id="track-medal-report-heading">ผลรางวัลของแต่ละ Track</h2><p>แสดงเฉพาะเหรียญทอง / เงิน / ทองแดง, AI Developer, AI Participant และ AI Designer แยกตาม Track</p></div>
                 {medalsWithoutParticipantMatch > 0 && <span>มี {medalsWithoutParticipantMatch.toLocaleString("th-TH")} รายการรางวัลที่ยังจับคู่กับข้อมูลผู้เข้าร่วมไม่ได้</span>}
               </div>
               <div className="track-medal-report-grid">
@@ -1800,7 +1803,7 @@ export default function Dashboard() {
             <header className="medal-directory-heading">
               <span>AWARD / MEDAL DIRECTORY • SEASON 1–5</span>
               <h2>รางวัล / เหรียญของผู้เข้าร่วม</h2>
-              <p>ข้อมูลจากชีทรายชื่อรางวัล แยกเป็นเหรียญทอง เงิน ทองแดง, AI Developer, AI Participant, AI Designer และไม่ได้เหรียญ</p>
+              <p>ข้อมูลจากชีทรายชื่อรางวัล แยกเป็นเหรียญทอง เงิน ทองแดง, AI Developer, AI Participant และ AI Designer</p>
             </header>
 
             <div className="medal-directory-summary">
