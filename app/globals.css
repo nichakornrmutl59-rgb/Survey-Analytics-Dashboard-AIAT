@@ -2258,3 +2258,238 @@ td code { font-family: ui-monospace, monospace; font-size: 10px; background: #ed
   .view-switch button { flex: 0 0 auto; padding-inline: 12px; }
   .award-report-view { padding-top: 44px; }
 }
+
+/* v24: participant demographics inside Track outcome report */
+.track-demographic-section {
+  margin-top: 22px;
+  padding: clamp(24px, 3vw, 36px);
+  border: 1px solid rgba(47,107,255,.13);
+  border-radius: 28px;
+  background: radial-gradient(circle at 100% 0%, rgba(25,188,235,.08), transparent 28%), linear-gradient(145deg, rgba(255,255,255,.96), rgba(247,249,255,.94));
+  box-shadow: 0 16px 42px rgba(47,107,255,.06);
+}
+.track-demographic-heading h2 {
+  margin: 6px 0 8px;
+  color: #132653;
+  font-family: "Noto Sans Thai", sans-serif;
+  font-size: clamp(25px, 2.6vw, 36px);
+  line-height: 1.2;
+  letter-spacing: -.02em;
+}
+.track-demographic-heading > div > p:last-child {
+  max-width: 900px;
+  margin: 0;
+  color: #65759a;
+  font-size: 11px;
+  line-height: 1.75;
+}
+.track-demographic-list {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.track-demographic-card {
+  min-width: 0;
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(47,107,255,.12);
+  border-radius: 24px;
+  background: rgba(255,255,255,.92);
+}
+.track-demographic-card::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 5px;
+  height: 100%;
+  background: var(--report-track-color);
+}
+.track-demographic-card > header {
+  padding: 0 0 17px 2px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  border-bottom: 1px solid rgba(47,107,255,.08);
+}
+.track-demographic-card > header > div {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex-wrap: wrap;
+}
+.track-demographic-card > header i {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  flex: 0 0 auto;
+}
+.track-demographic-card > header h3 {
+  margin: 0;
+  color: #152b60;
+  font-size: 20px;
+  line-height: 1.2;
+}
+.track-demographic-card > header span {
+  color: #7c8cb0;
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+}
+.track-demographic-card > header > strong {
+  color: var(--report-track-color);
+  font-family: "Noto Sans Thai", sans-serif;
+  font-size: 28px;
+  line-height: 1;
+  white-space: nowrap;
+}
+.track-demographic-card > header > strong small {
+  margin-left: 4px;
+  color: #7d8db2;
+  font-family: inherit;
+  font-size: 8px;
+  font-weight: 650;
+}
+.track-demographic-columns {
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: .78fr 1fr 1.35fr;
+  gap: 16px;
+  align-items: start;
+}
+.track-demographic-block {
+  min-width: 0;
+  padding: 17px;
+  border: 1px solid rgba(47,107,255,.09);
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(250,252,255,.96), rgba(255,255,255,.88));
+}
+.track-demographic-block h4 {
+  margin: 0 0 14px;
+  color: #20386d;
+  font-size: 12px;
+  font-weight: 800;
+}
+.track-demographic-gender {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.track-demographic-gender > div {
+  min-width: 0;
+  padding: 10px 11px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  border: 1px solid rgba(47,107,255,.08);
+  border-radius: 13px;
+  background: rgba(255,255,255,.82);
+}
+.track-demographic-gender > div > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: #52648d;
+  font-size: 10px;
+  font-weight: 700;
+}
+.track-demographic-gender i {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+}
+.track-demographic-gender strong {
+  color: #18336f;
+  font-size: 11px;
+  white-space: nowrap;
+}
+.track-demographic-gender strong small {
+  margin-left: 6px;
+  color: #8493b5;
+  font-size: 8px;
+  font-weight: 650;
+}
+.track-demographic-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.track-demographic-bars > div > div:first-child {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: center;
+}
+.track-demographic-bars > div > div:first-child span {
+  color: #52648d;
+  font-size: 9px;
+  line-height: 1.35;
+}
+.track-demographic-bars > div > div:first-child strong {
+  color: #18336f;
+  font-size: 10px;
+  white-space: nowrap;
+}
+.track-demographic-bar {
+  height: 7px;
+  margin-top: 5px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #edf2ff;
+}
+.track-demographic-bar > span {
+  height: 100%;
+  display: block;
+  border-radius: inherit;
+}
+.track-demographic-bars > div > small {
+  margin-top: 3px;
+  display: block;
+  color: #8a98b7;
+  font-size: 7px;
+  text-align: right;
+}
+.education-breakdown {
+  max-height: 300px;
+  overflow-y: auto;
+  padding-right: 3px;
+}
+@media (max-width: 1100px) {
+  .track-demographic-columns {
+    grid-template-columns: 1fr 1fr;
+  }
+  .track-demographic-block:last-child {
+    grid-column: 1 / -1;
+  }
+}
+@media (max-width: 720px) {
+  .track-demographic-section {
+    padding: 19px 16px;
+    border-radius: 22px;
+  }
+  .track-demographic-card {
+    padding: 19px 16px;
+    border-radius: 20px;
+  }
+  .track-demographic-card > header {
+    align-items: flex-start;
+  }
+  .track-demographic-card > header > strong {
+    font-size: 23px;
+  }
+  .track-demographic-columns {
+    grid-template-columns: 1fr;
+  }
+  .track-demographic-block:last-child {
+    grid-column: auto;
+  }
+  .education-breakdown {
+    max-height: none;
+    overflow: visible;
+  }
+}

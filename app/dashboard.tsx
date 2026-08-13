@@ -848,6 +848,20 @@ export default function Dashboard() {
       ...group,
       count: people.filter((person) => person.group === group.name).length,
     }));
+    const genderCounts = countDerived(people, (person) => normalizeGender(person.gender));
+    const gender = [
+      { label: "ชาย", count: genderCounts["ชาย"] ?? 0, color: "#2F6BFF" },
+      { label: "หญิง", count: genderCounts["หญิง"] ?? 0, color: "#FF4FA3" },
+      { label: "อื่น ๆ", count: (genderCounts["อื่น ๆ / ไม่ประสงค์ระบุ"] ?? 0) + (genderCounts["ไม่ระบุ"] ?? 0), color: "#6D4AFF" },
+    ].filter((item) => item.count > 0);
+    const ageCounts = countDerived(people, (person) => ageRange(person.age));
+    const age = ["ต่ำกว่า 18 ปี", "18–22 ปี", "23–29 ปี", "30–39 ปี", "40–49 ปี", "50 ปีขึ้นไป", "ไม่ระบุ"]
+      .map((label, index) => ({ label, count: ageCounts[label] ?? 0, color: ["#19BCEB", "#2F6BFF", "#6D4AFF", "#FF4FA3", "#FF7A1A", "#E9A11B", "#A7B2CF"][index] }))
+      .filter((item) => item.count > 0);
+    const educationCounts = countDerived(people, (person) => normalizeEducation(person.educationLevel));
+    const education = ["ประถมศึกษา", "มัธยมศึกษาตอนต้น", "มัธยมศึกษาตอนปลาย", "ปวช. / ปวส. / อนุปริญญา", "ปริญญาตรี", "ปริญญาโท", "ปริญญาเอก", "อื่น ๆ", "ไม่ระบุ"]
+      .map((label, index) => ({ label, count: educationCounts[label] ?? 0, color: ["#19BCEB", "#2F6BFF", "#4E5DE7", "#6D4AFF", "#FF4FA3", "#FF7A1A", "#E9A11B", "#8D78E6", "#A7B2CF"][index] }))
+      .filter((item) => item.count > 0);
     const medals = reportMedalRecipients.filter((recipient) => {
       const participant = findParticipantForMedal(recipient, participants);
       return participant ? participantHasTrack(participant, track) : false;
@@ -856,7 +870,7 @@ export default function Dashboard() {
       ...type,
       count: medals.filter((recipient) => recipient.medalType === type.name).length,
     }));
-    return { track, people, status, medals, medalCountsByType };
+    return { track, people, status, gender, age, education, medals, medalCountsByType };
   }), [reportMedalRecipients, participants]);
   const trackMembershipTotal = useMemo(() => trackReportData.reduce((sum, item) => sum + item.people.length, 0), [trackReportData]);
   const multiTrackParticipantCount = useMemo(() => participants.filter((person) => parseTracks(person.track).length > 1).length, [participants]);
@@ -1418,6 +1432,67 @@ export default function Dashboard() {
                 );
               })}
             </div>
+
+            <section className="track-demographic-section" aria-labelledby="track-demographic-heading">
+              <div className="track-demographic-heading">
+                <div>
+                  <p className="eyebrow">TRACK DEMOGRAPHICS</p>
+                  <h2 id="track-demographic-heading">ข้อมูลพื้นฐานผู้เข้าร่วมโครงการ แยกตาม Track</h2>
+                  <p>เพศ อายุ และระดับการศึกษาใช้ฐานสมาชิกของแต่ละ Track โดยคนที่อยู่มากกว่า 1 Track จะถูกนับซ้ำในทุก Track ที่สังกัดเช่นเดียวกับรายงานสถานภาพ</p>
+                </div>
+              </div>
+              <div className="track-demographic-list">
+                {trackReportData.map((entry) => {
+                  const color = TRACK_COLORS[entry.track] ?? "#2F6BFF";
+                  const totalPeople = Math.max(entry.people.length, 1);
+                  return (
+                    <article className="track-demographic-card" key={`${entry.track}-demographics`} style={{ "--report-track-color": color } as React.CSSProperties}>
+                      <header>
+                        <div><i style={{ background: color }} /><h3>{entry.track}</h3><span>ข้อมูลพื้นฐาน</span></div>
+                        <strong>{entry.people.length.toLocaleString("th-TH")}<small> memberships</small></strong>
+                      </header>
+                      <div className="track-demographic-columns">
+                        <section className="track-demographic-block">
+                          <h4>เพศ</h4>
+                          <div className="track-demographic-gender">
+                            {entry.gender.map((item) => (
+                              <div key={item.label}>
+                                <span><i style={{ background: item.color }} />{item.label}</span>
+                                <strong>{item.count.toLocaleString("th-TH")}<small>{percent(item.count, entry.people.length)}%</small></strong>
+                              </div>
+                            ))}
+                          </div>
+                        </section>
+                        <section className="track-demographic-block">
+                          <h4>ช่วงอายุ</h4>
+                          <div className="track-demographic-bars">
+                            {entry.age.map((item) => (
+                              <div key={item.label}>
+                                <div><span>{item.label}</span><strong>{item.count.toLocaleString("th-TH")}</strong></div>
+                                <div className="track-demographic-bar"><span style={{ width: `${(item.count / totalPeople) * 100}%`, background: item.color }} /></div>
+                                <small>{percent(item.count, entry.people.length)}%</small>
+                              </div>
+                            ))}
+                          </div>
+                        </section>
+                        <section className="track-demographic-block">
+                          <h4>ระดับการศึกษา</h4>
+                          <div className="track-demographic-bars education-breakdown">
+                            {entry.education.map((item) => (
+                              <div key={item.label}>
+                                <div><span>{item.label}</span><strong>{item.count.toLocaleString("th-TH")}</strong></div>
+                                <div className="track-demographic-bar"><span style={{ width: `${(item.count / totalPeople) * 100}%`, background: item.color }} /></div>
+                                <small>{percent(item.count, entry.people.length)}%</small>
+                              </div>
+                            ))}
+                          </div>
+                        </section>
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+            </section>
           </section>
         ) : view === "award-report" ? (
           <section className="track-report-view award-report-view">
