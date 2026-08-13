@@ -791,7 +791,7 @@ export default function Dashboard() {
     { name: "AI Designer", color: "#6D4AFF" },
   ] as const;
   const reportMedalRecipients = useMemo(
-    () => medalRecipients.filter((item) => item.medalType !== "ไม่ได้เหรียญ"),
+    () => medalRecipients.filter((item) => medalTypes.some((type) => type.name === item.medalType)),
     [medalRecipients],
   );
   const medalCounts = useMemo(

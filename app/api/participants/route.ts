@@ -358,16 +358,78 @@ async function loadSheet(sheet: (typeof SHEETS)[number]) {
     .map((row, index) => normalize(sheet.group, row, index + 1, headers));
 }
 
-function medalType(value?: string) {
-  const normalized = clean(value);
+const AWARD_TYPES = [
+  "เหรียญทอง",
+  "เหรียญเงิน",
+  "เหรียญทองแดง",
+  "AI Developer",
+  "AI Participant",
+  "AI Designer",
+] as const;
+
+type AwardType = (typeof AWARD_TYPES)[number];
+
+function medalType(value?: string): AwardType | "" {
+  const normalized = clean(value).replace(/\s+/g, " ").trim();
   const lower = normalized.toLocaleLowerCase("en");
-  if (normalized.startsWith("เหรียญทองแดง")) return "เหรียญทองแดง";
-  if (normalized.startsWith("เหรียญเงิน")) return "เหรียญเงิน";
-  if (normalized.startsWith("เหรียญทอง")) return "เหรียญทอง";
-  if (lower.includes("ai developer")) return "AI Developer";
-  if (lower.includes("ai participant")) return "AI Participant";
-  if (lower.includes("ai designer")) return "AI Designer";
-  return "ไม่ได้เหรียญ";
+  if (!normalized) return "";
+  if (normalized.startsWith("เหรียญทองแดง") || /(?:^|\b)bronze(?:\s+medal)?(?:\b|$)/i.test(normalized)) return "เหรียญทองแดง";
+  if (normalized.startsWith("เหรียญเงิน") || /(?:^|\b)silver(?:\s+medal)?(?:\b|$)/i.test(normalized)) return "เหรียญเงิน";
+  if (normalized.startsWith("เหรียญทอง") || /(?:^|\b)gold(?:\s+medal)?(?:\b|$)/i.test(normalized)) return "เหรียญทอง";
+
+  // Award sheets are not perfectly consistent across seasons: some use
+  // "AI Developer" while others use only "Developer" (same for Participant/Designer).
+  if (/^(?:ai\s*)?developer(?:\b|\s|[-–—_/,(])/i.test(lower) || /\bai\s*developer\b/i.test(lower)) return "AI Developer";
+  if (/^(?:ai\s*)?participant(?:\b|\s|[-–—_/,(])/i.test(lower) || /\bai\s*participant\b/i.test(lower)) return "AI Participant";
+  if (/^(?:ai\s*)?designer(?:\b|\s|[-–—_/,(])/i.test(lower) || /\bai\s*designer\b/i.test(lower)) return "AI Designer";
+  return "";
+}
+
+function isAwardHeader(value?: string) {
+  const header = clean(value).toLocaleLowerCase("th");
+  return /รางวัล|เหรียญ|award|medal|prize|ประเภท.*(?:รางวัล|เหรียญ)|ผล.*(?:รางวัล|เหรียญ)/i.test(header);
+}
+
+function detectAwardColumn(headers: string[], rows: string[][]) {
+  let bestIndex = -1;
+  let bestScore = -1;
+
+  const width = Math.max(headers.length, ...rows.map((row) => row.length), 0);
+  for (let index = 0; index < width; index += 1) {
+    const recognized = rows.reduce((count, row) => count + (medalType(row[index]) ? 1 : 0), 0);
+    if (!recognized) continue;
+    const headerBonus = isAwardHeader(headers[index]) ? rows.length * 4 + 100 : 0;
+    const score = recognized * 10 + headerBonus;
+    if (score > bestScore) {
+      bestScore = score;
+      bestIndex = index;
+    }
+  }
+
+  return bestIndex;
+}
+
+function awardFromRow(headers: string[], row: string[], awardColumn: number) {
+  const preferred = awardColumn >= 0 ? clean(row[awardColumn]) : "";
+  const preferredType = medalType(preferred);
+  if (preferredType) return { award: preferred, medalType: preferredType };
+
+  // Prefer any other reward/medal-labelled column before scanning the rest of the row.
+  for (let index = 0; index < headers.length; index += 1) {
+    if (index === awardColumn || !isAwardHeader(headers[index])) continue;
+    const value = clean(row[index]);
+    const type = medalType(value);
+    if (type) return { award: value, medalType: type };
+  }
+
+  for (let index = 0; index < row.length; index += 1) {
+    if (index === awardColumn) continue;
+    const value = clean(row[index]);
+    const type = medalType(value);
+    if (type) return { award: value, medalType: type };
+  }
+
+  return { award: preferred, medalType: "" as const };
 }
 
 async function loadMedalSheet(sheet: (typeof MEDAL_SHEETS)[number]) {
@@ -386,10 +448,16 @@ async function loadMedalSheet(sheet: (typeof MEDAL_SHEETS)[number]) {
     throw new Error(`ชีท ${sheet.name} ไม่ได้เปิดสิทธิ์ให้อ่านด้วยลิงก์`);
   }
 
-  return parseCsv(csv)
+  const parsed = parseCsv(csv);
+  const headers = parsed[0] ?? [];
+  const dataRows = parsed
     .slice(1)
-    .filter((row) => clean(row[1]) || clean(row[3]) || clean(row[4]))
-    .map((row, index) => ({
+    .filter((row) => clean(row[1]) || clean(row[3]) || clean(row[4]));
+  const awardColumn = detectAwardColumn(headers, dataRows);
+
+  return dataRows.map((row, index) => {
+    const detectedAward = awardFromRow(headers, row, awardColumn);
+    return {
       key: `medal-${sheet.season}-${clean(row[1]) || index + 1}`,
       season: sheet.season,
       code: clean(row[1]),
@@ -397,9 +465,10 @@ async function loadMedalSheet(sheet: (typeof MEDAL_SHEETS)[number]) {
       firstName: clean(row[3]),
       lastName: clean(row[4]),
       organization: clean(row[5]),
-      award: clean(row[6]),
-      medalType: medalType(row[6]),
-    }));
+      award: detectedAward.award,
+      medalType: detectedAward.medalType,
+    };
+  });
 }
 
 export async function GET() {
