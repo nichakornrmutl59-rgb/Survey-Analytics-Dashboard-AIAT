@@ -1624,3 +1624,88 @@ td code { font-family: ui-monospace, monospace; font-size: 10px; background: #ed
     font-size: 10px;
   }
 }
+
+
+/* v17: clarify season path colors and add legend/details */
+.season-explainer {
+  margin-top: 18px;
+  padding: 18px 20px;
+  border: 1px solid rgba(47,107,255,.10);
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(245,248,255,.92), rgba(255,255,255,.86));
+}
+.season-explainer > p {
+  margin: 0;
+  color: #5f6e90;
+  font-size: 13px;
+  line-height: 1.7;
+}
+.season-legend {
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+.season-legend-item {
+  min-width: 0;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid rgba(47,107,255,.10);
+  border-radius: 14px;
+  background: rgba(255,255,255,.85);
+}
+.season-legend-item i {
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  flex: 0 0 auto;
+  box-shadow: 0 0 0 5px rgba(47,107,255,.04);
+}
+.season-legend-item strong {
+  display: block;
+  color: #18336f;
+  font-size: 12px;
+  font-weight: 800;
+}
+.season-legend-item span {
+  display: block;
+  margin-top: 2px;
+  color: #6f80aa;
+  font-size: 10px;
+  font-weight: 650;
+}
+.season-chart { margin-top: 20px; gap: 20px; }
+.season-row { grid-template-columns: 90px 1fr 52px; align-items: start; }
+.season-row > strong { padding-top: 6px; }
+.season-row > span { padding-top: 6px; color: #5f6e90; font-weight: 700; }
+.season-stack-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.season-stack-wrap > small {
+  color: #6f80aa;
+  font-size: 10px;
+  line-height: 1.5;
+}
+.season-stack {
+  height: 28px;
+  border-radius: 10px;
+  background: #e9efff;
+  box-shadow: inset 0 0 0 1px rgba(47,107,255,.05);
+}
+@media (max-width: 1100px) {
+  .season-legend { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 720px) {
+  .season-explainer { padding: 15px 16px; }
+  .season-explainer > p { font-size: 12px; }
+  .season-legend { grid-template-columns: 1fr; }
+  .season-row { grid-template-columns: 1fr; gap: 8px; }
+  .season-row > strong,
+  .season-row > span { padding-top: 0; }
+  .season-row > span { text-align: left; }
+  .season-stack-wrap > small { font-size: 9px; }
+}

@@ -901,6 +901,11 @@ export default function Dashboard() {
     },
     "",
   );
+  const seasonLegendData = GROUPS.map((group) => ({
+    ...group,
+    count: totals[group.name] ?? 0,
+    percent: percent(totals[group.name] ?? 0, total),
+  }));
 
   return (
     <main>
@@ -1065,17 +1070,42 @@ export default function Dashboard() {
 
             <section className="panel season-panel">
               <div className="panel-heading"><div><h2>เส้นทางของผู้เข้าร่วมในแต่ละ Season</h2></div></div>
+              <div className="season-explainer">
+                <p>สีในแต่ละแถบแสดง “เส้นทางปัจจุบัน” ของผู้เข้าร่วมใน Season นั้น ๆ และความยาวของสีคือสัดส่วนของคนในกลุ่มนั้น</p>
+                <div className="season-legend" role="list" aria-label="คำอธิบายสีของเส้นทางผู้เข้าร่วม">
+                  {seasonLegendData.map((group) => (
+                    <div className="season-legend-item" key={group.name} role="listitem">
+                      <i style={{ background: group.color }} aria-hidden="true" />
+                      <div>
+                        <strong>{group.name}</strong>
+                        <span>{group.count.toLocaleString("th-TH")} คน • {group.percent}%</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
               <div className="season-chart">
                 {seasons.map((season) => {
-                  const seasonTotal = participants.filter((item) => item.season === season).length;
+                  const seasonParticipants = participants.filter((item) => item.season === season);
+                  const seasonTotal = seasonParticipants.length;
+                  const seasonBreakdown = GROUPS
+                    .map((group) => {
+                      const value = seasonParticipants.filter((item) => item.group === group.name).length;
+                      return value ? `${group.short} ${value} คน (${percent(value, seasonTotal)}%)` : null;
+                    })
+                    .filter(Boolean)
+                    .join(" • ");
                   return (
                     <div className="season-row" key={season}>
                       <strong>{season}</strong>
-                      <div className="season-stack">
-                        {GROUPS.map((group) => {
-                          const value = participants.filter((item) => item.season === season && item.group === group.name).length;
-                          return value ? <span key={group.name} title={`${group.short}: ${value}`} style={{ width: `${(value / seasonTotal) * 100}%`, background: group.color }} /> : null;
-                        })}
+                      <div className="season-stack-wrap">
+                        <div className="season-stack" title={seasonBreakdown} aria-label={`${season}: ${seasonBreakdown}`}>
+                          {GROUPS.map((group) => {
+                            const value = seasonParticipants.filter((item) => item.group === group.name).length;
+                            return value ? <span key={group.name} title={`${group.short}: ${value} คน (${percent(value, seasonTotal)}%)`} style={{ width: `${(value / seasonTotal) * 100}%`, background: group.color }} /> : null;
+                          })}
+                        </div>
+                        <small>{seasonBreakdown}</small>
                       </div>
                       <span>{seasonTotal}</span>
                     </div>
