@@ -1575,6 +1575,57 @@ export default function Dashboard() {
               </div>
             </div>
 
+            <section className="medal-section award-report-overview-section" aria-labelledby="award-report-overview-heading">
+              <div className="medal-section-heading">
+                <div>
+                  <span>ผลสัมฤทธิ์ของผู้เข้าร่วม • SEASON 1–5</span>
+                  <h2 id="award-report-overview-heading">รางวัล / เหรียญของผู้เข้าร่วม</h2>
+                  <p>สรุปเฉพาะผู้ได้รับเหรียญและรางวัล AI Developer, AI Participant, AI Designer พร้อมดูรายละเอียดรวมและแยกตาม Season</p>
+                </div>
+                <button type="button" onClick={() => openMedalDirectory()}>
+                  ดูรายชื่อรางวัล / เหรียญทั้งหมด <b aria-hidden="true">→</b>
+                </button>
+              </div>
+
+              <div className="medal-overview-grid">
+                <button className="medal-total-card" type="button" onClick={() => openMedalDirectory()}>
+                  <span>ผู้มีข้อมูลรางวัลทั้งหมด</span>
+                  <strong>{reportMedalRecipients.length.toLocaleString("th-TH")}</strong>
+                  <small>รายการ • คลิกเพื่อดูรายชื่อและสังกัด</small>
+                  <i aria-hidden="true">🏅</i>
+                </button>
+                {medalTypes.map((type) => (
+                  <button
+                    className={`medal-type-card medal-type-${type.name === "เหรียญทอง" ? "gold" : type.name === "เหรียญเงิน" ? "silver" : type.name === "เหรียญทองแดง" ? "bronze" : "award"}`}
+                    type="button"
+                    key={`award-report-${type.name}`}
+                    onClick={() => openMedalDirectory("ทั้งหมด", type.name)}
+                  >
+                    <i style={{ background: type.color }} />
+                    <span>{type.name}</span>
+                    <strong>{(medalCounts[type.name] ?? 0).toLocaleString("th-TH")}</strong>
+                    <small>คน • ดูข้อมูลเชิงคุณภาพ</small>
+                    <b aria-hidden="true">→</b>
+                  </button>
+                ))}
+              </div>
+
+              <div className="medal-season-panel">
+                <div className="medal-season-heading"><h3>รางวัล / เหรียญในแต่ละ Season</h3><span>6 ประเภท • รายงานเฉพาะผู้ได้รับรางวัล</span></div>
+                <div className="medal-season-list">
+                  {medalSeasonSummary.map(({ season, total: seasonMedals, counts }) => (
+                    <button key={`award-report-${season}`} type="button" onClick={() => openMedalDirectory(season)}>
+                      <div><strong>{season}</strong><span>{seasonMedals.toLocaleString("th-TH")} คน</span></div>
+                      <div className="medal-season-stack" aria-label={`${season} มีผู้ได้รับรางวัลหรือเหรียญ ${seasonMedals} คน`}>
+                        {counts.map((entry) => entry.value > 0 ? <i key={entry.name} title={`${entry.name} ${entry.value} คน`} style={{ width: `${(entry.value / Math.max(seasonMedals, 1)) * 100}%`, background: entry.color }} /> : null)}
+                      </div>
+                      <small>{counts.map((entry) => `${entry.name.replace("เหรียญ", "")} ${entry.value}`).join(" • ")}</small>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </section>
+
             <section className="track-medal-report-section standalone-award-report" aria-labelledby="track-medal-report-heading">
               <div className="track-medal-report-heading">
                 <div><h2 id="track-medal-report-heading">ผลรางวัลของแต่ละ Track</h2><p>แสดงเฉพาะเหรียญทอง / เงิน / ทองแดง, AI Developer, AI Participant และ AI Designer แยกตาม Track</p></div>

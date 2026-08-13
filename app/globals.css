@@ -2649,3 +2649,19 @@ td code { font-family: ui-monospace, monospace; font-size: 10px; background: #ed
     font-size: 8px;
   }
 }
+
+
+/* v31: award overview repeated inside the dedicated award report page */
+.award-report-overview-section {
+  margin-top: 8px;
+  margin-bottom: 30px;
+}
+.award-report-view .award-report-overview-section + .standalone-award-report {
+  margin-top: 0;
+}
+@media (max-width: 760px) {
+  .award-report-overview-section {
+    margin-top: 0;
+    margin-bottom: 22px;
+  }
+}
