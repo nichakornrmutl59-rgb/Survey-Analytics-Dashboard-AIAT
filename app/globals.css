@@ -2606,3 +2606,46 @@ td code { font-family: ui-monospace, monospace; font-size: 10px; background: #ed
     transform: none;
   }
 }
+
+/* v30: clickable Track demographic directories */
+.track-demographic-block-heading {
+  margin: 0 0 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.track-demographic-block-heading h4 {
+  margin: 0;
+}
+.track-demographic-block-heading button {
+  flex: 0 0 auto;
+  padding: 7px 10px;
+  border: 1px solid color-mix(in srgb, var(--report-track-color) 22%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--report-track-color) 8%, white);
+  color: var(--report-track-color);
+  font: inherit;
+  font-size: 9px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform .16s ease, box-shadow .16s ease, background .16s ease;
+}
+.track-demographic-block-heading button:hover {
+  transform: translateY(-1px);
+  background: color-mix(in srgb, var(--report-track-color) 13%, white);
+  box-shadow: 0 8px 18px color-mix(in srgb, var(--report-track-color) 12%, transparent);
+}
+.track-demographic-block-heading button:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--report-track-color) 18%, transparent);
+  outline-offset: 2px;
+}
+@media (max-width: 520px) {
+  .track-demographic-block-heading {
+    align-items: flex-start;
+  }
+  .track-demographic-block-heading button {
+    padding: 7px 9px;
+    font-size: 8px;
+  }
+}

@@ -515,6 +515,7 @@ export default function Dashboard() {
   const [showTrackHouses, setShowTrackHouses] = useState(false);
   const [selectedHouse, setSelectedHouse] = useState<string | null>(null);
   const [demographicDirectory, setDemographicDirectory] = useState<"gender" | "age" | null>(null);
+  const [demographicTrack, setDemographicTrack] = useState<string | null>(null);
   const [demographicFilter, setDemographicFilter] = useState<string | null>(null);
   const [selectedStudySeason, setSelectedStudySeason] = useState<string | null>(null);
   const [studyLevelFilter, setStudyLevelFilter] = useState("ทั้งหมด");
@@ -611,31 +612,41 @@ export default function Dashboard() {
       .map((label) => [label, counts[label] ?? 0] as [string, number])
       .filter(([, count]) => count > 0);
   }, [participants]);
+  const demographicBaseParticipants = useMemo(
+    () => demographicTrack
+      ? participants.filter((person) => participantHasTrack(person, demographicTrack))
+      : participants,
+    [demographicTrack, participants],
+  );
   const demographicDirectoryGroups = useMemo(() => {
     if (!demographicDirectory) return [] as Array<[string, Participant[]]>;
     if (demographicDirectory === "gender") {
-      return genderEntries
-        .map(([label]) => [label, participants.filter((person) => {
+      const labels = ["ชาย", "หญิง", "อื่น ๆ"];
+      return labels
+        .map((label) => [label, demographicBaseParticipants.filter((person) => {
           const normalized = normalizeGender(person.gender);
           return label === "อื่น ๆ" ? normalized !== "ชาย" && normalized !== "หญิง" : normalized === label;
         })] as [string, Participant[]])
         .filter(([, people]) => people.length > 0);
     }
-    return ageEntries
-      .map(([label]) => [label, participants.filter((person) => ageRange(person.age) === label)] as [string, Participant[]])
+    const labels = ["ต่ำกว่า 18 ปี", "18–22 ปี", "23–29 ปี", "30–39 ปี", "40–49 ปี", "50 ปีขึ้นไป", "ไม่ระบุ"];
+    return labels
+      .map((label) => [label, demographicBaseParticipants.filter((person) => ageRange(person.age) === label)] as [string, Participant[]])
       .filter(([, people]) => people.length > 0);
-  }, [ageEntries, demographicDirectory, genderEntries, participants]);
+  }, [demographicBaseParticipants, demographicDirectory]);
   const visibleDemographicParticipants = useMemo(() => {
     if (!demographicDirectory) return [] as Participant[];
-    if (!demographicFilter) return participants;
+    if (!demographicFilter) return demographicBaseParticipants;
     return demographicDirectoryGroups.find(([label]) => label === demographicFilter)?.[1] ?? [];
-  }, [demographicDirectory, demographicDirectoryGroups, demographicFilter, participants]);
-  const openDemographicDirectory = (type: "gender" | "age") => {
+  }, [demographicBaseParticipants, demographicDirectory, demographicDirectoryGroups, demographicFilter]);
+  const openDemographicDirectory = (type: "gender" | "age", track: string | null = null) => {
+    setDemographicTrack(track);
     setDemographicFilter(null);
     setDemographicDirectory(type);
   };
   const closeDemographicDirectory = () => {
     setDemographicDirectory(null);
+    setDemographicTrack(null);
     setDemographicFilter(null);
   };
 
@@ -1499,7 +1510,10 @@ export default function Dashboard() {
                       </header>
                       <div className="track-demographic-columns">
                         <section className="track-demographic-block">
-                          <h4>เพศ</h4>
+                          <div className="track-demographic-block-heading">
+                            <h4>เพศ</h4>
+                            <button type="button" onClick={() => openDemographicDirectory("gender", entry.track)}>ดูรายชื่อ →</button>
+                          </div>
                           <div className="track-demographic-gender">
                             {entry.gender.map((item) => (
                               <div key={item.label}>
@@ -1510,7 +1524,10 @@ export default function Dashboard() {
                           </div>
                         </section>
                         <section className="track-demographic-block">
-                          <h4>ช่วงอายุ</h4>
+                          <div className="track-demographic-block-heading">
+                            <h4>ช่วงอายุ</h4>
+                            <button type="button" onClick={() => openDemographicDirectory("age", entry.track)}>ดูรายชื่อ →</button>
+                          </div>
                           <div className="track-demographic-bars">
                             {entry.age.map((item) => (
                               <div key={item.label}>
@@ -1770,15 +1787,15 @@ export default function Dashboard() {
           <section className="track-house-directory demographic-directory" role="dialog" aria-modal="true" aria-label={demographicDirectory === "gender" ? "รายชื่อตามเพศ" : "รายชื่อตามช่วงอายุ"}>
             <button className="drawer-close" type="button" onClick={closeDemographicDirectory} aria-label="ปิดรายชื่อข้อมูลพื้นฐาน">×</button>
             <header className="track-house-directory-heading demographic-directory-heading">
-              <span>PARTICIPANT DEMOGRAPHICS</span>
-              <h2>{demographicDirectory === "gender" ? "รายชื่อตามเพศ" : "รายชื่อตามช่วงอายุ"}</h2>
-              <p>ผู้เข้าร่วมทั้งหมด <strong>{participants.length.toLocaleString("th-TH")}</strong> คน เลือกกลุ่มด้านล่างเพื่อดูว่าเป็นใครบ้าง</p>
+              <span>{demographicTrack ? `${demographicTrack.toUpperCase()} • TRACK DEMOGRAPHICS` : "PARTICIPANT DEMOGRAPHICS"}</span>
+              <h2>{demographicDirectory === "gender" ? "รายชื่อตามเพศ" : "รายชื่อตามช่วงอายุ"}{demographicTrack ? ` • ${demographicTrack}` : ""}</h2>
+              <p>{demographicTrack ? `สมาชิก ${demographicTrack}` : "ผู้เข้าร่วมทั้งหมด"} <strong>{demographicBaseParticipants.length.toLocaleString("th-TH")}</strong> คน เลือกกลุ่มด้านล่างเพื่อดูว่าเป็นใครบ้าง</p>
             </header>
 
             <div className="track-house-filter-grid demographic-filter-grid" role="group" aria-label={demographicDirectory === "gender" ? "เลือกเพศ" : "เลือกช่วงอายุ"}>
               <button className={!demographicFilter ? "active" : ""} type="button" onClick={() => setDemographicFilter(null)}>
                 <span>ทั้งหมด</span>
-                <strong>{participants.length.toLocaleString("th-TH")} คน</strong>
+                <strong>{demographicBaseParticipants.length.toLocaleString("th-TH")} คน</strong>
               </button>
               {demographicDirectoryGroups.map(([label, people]) => (
                 <button className={demographicFilter === label ? "active" : ""} type="button" key={label} onClick={() => setDemographicFilter(label)}>
