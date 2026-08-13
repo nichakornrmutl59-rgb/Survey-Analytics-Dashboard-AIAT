@@ -59,12 +59,15 @@ const GROUP_COLOR: Record<string, string> = Object.fromEntries(
   GROUPS.map((group) => [group.name, group.color]),
 );
 
-const TRACK_NAMES = ["AI Innovator", "AI Engineer", "AI Researcher"] as const;
+const TRACK_NAMES = ["AI Innovator", "AI Engineer", "AI Researcher", "AI Developer", "AI Participant", "AI Designer"] as const;
 
 const TRACK_COLORS: Record<string, string> = {
   "AI Engineer": "#2F6BFF",
   "AI Innovator": "#FF7A1A",
   "AI Researcher": "#FF4FA3",
+  "AI Developer": "#19BCEB",
+  "AI Participant": "#22A06B",
+  "AI Designer": "#6D4AFF",
 };
 
 const WORK_TYPES = [
@@ -1379,7 +1382,7 @@ export default function Dashboard() {
               <div>
                 <p className="eyebrow">TRACK OUTCOME REPORT</p>
                 <h1>สถานภาพและผลลัพธ์ แยกตาม Track</h1>
-                <p>รายงานนี้นับแบบ Track membership หากผู้เข้าร่วมคนเดียวอยู่มากกว่า 1 Track จะถูกนับซ้ำแยกในแต่ละ Track เพื่อให้ผลลัพธ์ของ AI Innovator, AI Engineer และ AI Researcher แยกจากกันชัดเจน</p>
+                <p>รายงานนี้นับแบบ Track membership หากผู้เข้าร่วมคนเดียวอยู่มากกว่า 1 Track จะถูกนับซ้ำแยกในแต่ละ Track เพื่อให้ผลลัพธ์ของทั้ง 6 Track — AI Innovator, AI Engineer, AI Researcher, AI Developer, AI Participant และ AI Designer — แยกจากกันชัดเจน</p>
               </div>
               <div className="track-report-summary">
                 <article><span>Track memberships</span><strong>{trackMembershipTotal.toLocaleString("th-TH")}</strong><small>รวมแบบนับซ้ำตาม Track</small></article>
