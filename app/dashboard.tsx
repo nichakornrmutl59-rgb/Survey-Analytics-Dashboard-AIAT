@@ -59,15 +59,12 @@ const GROUP_COLOR: Record<string, string> = Object.fromEntries(
   GROUPS.map((group) => [group.name, group.color]),
 );
 
-const TRACK_NAMES = ["AI Innovator", "AI Engineer", "AI Researcher", "AI Developer", "AI Participant", "AI Designer"] as const;
+const TRACK_NAMES = ["AI Innovator", "AI Engineer", "AI Researcher"] as const;
 
 const TRACK_COLORS: Record<string, string> = {
   "AI Engineer": "#2F6BFF",
   "AI Innovator": "#FF7A1A",
   "AI Researcher": "#FF4FA3",
-  "AI Developer": "#19BCEB",
-  "AI Participant": "#22A06B",
-  "AI Designer": "#6D4AFF",
 };
 
 const WORK_TYPES = [
@@ -789,6 +786,10 @@ export default function Dashboard() {
     { name: "เหรียญทอง", color: "#F2A900" },
     { name: "เหรียญเงิน", color: "#8591AA" },
     { name: "เหรียญทองแดง", color: "#C66A2B" },
+    { name: "AI Developer", color: "#2F6BFF" },
+    { name: "AI Participant", color: "#19BCEB" },
+    { name: "AI Designer", color: "#6D4AFF" },
+    { name: "ไม่ได้เหรียญ", color: "#A7B2CF" },
   ] as const;
   const medalCounts = useMemo(
     () => medalRecipients.reduce<Record<string, number>>((result, item) => {
@@ -1325,24 +1326,24 @@ export default function Dashboard() {
               <div className="medal-section-heading">
                 <div>
                   <span>ผลสัมฤทธิ์ของผู้เข้าร่วม • SEASON 1–5</span>
-                  <h2 id="medal-heading">ผู้ที่ได้รับเหรียญ</h2>
-                  <p>สรุปจากรายชื่อรางวัลราย Season และเปิดดูรายละเอียดเชิงคุณภาพของผู้ได้รับเหรียญแต่ละคนได้</p>
+                  <h2 id="medal-heading">รางวัล / เหรียญของผู้เข้าร่วม</h2>
+                  <p>สรุปทั้งเหรียญและรางวัล AI Developer, AI Participant, AI Designer รวมถึงผู้ที่ไม่ได้เหรียญ โดยเปิดดูรายชื่อและรายละเอียดแต่ละคนได้</p>
                 </div>
                 <button type="button" onClick={() => openMedalDirectory()}>
-                  ดูรายชื่อผู้ได้รับเหรียญทั้งหมด <b aria-hidden="true">→</b>
+                  ดูรายชื่อรางวัล / เหรียญทั้งหมด <b aria-hidden="true">→</b>
                 </button>
               </div>
 
               <div className="medal-overview-grid">
                 <button className="medal-total-card" type="button" onClick={() => openMedalDirectory()}>
-                  <span>ผู้ได้รับเหรียญทั้งหมด</span>
+                  <span>ผู้มีข้อมูลรางวัลทั้งหมด</span>
                   <strong>{medalRecipients.length.toLocaleString("th-TH")}</strong>
-                  <small>คน • คลิกเพื่อดูรายชื่อและสังกัด</small>
+                  <small>รายการ • คลิกเพื่อดูรายชื่อและสังกัด</small>
                   <i aria-hidden="true">🏅</i>
                 </button>
                 {medalTypes.map((type) => (
                   <button
-                    className={`medal-type-card medal-type-${type.name === "เหรียญทอง" ? "gold" : type.name === "เหรียญเงิน" ? "silver" : "bronze"}`}
+                    className={`medal-type-card medal-type-${type.name === "เหรียญทอง" ? "gold" : type.name === "เหรียญเงิน" ? "silver" : type.name === "เหรียญทองแดง" ? "bronze" : "award"}`}
                     type="button"
                     key={type.name}
                     onClick={() => openMedalDirectory("ทั้งหมด", type.name)}
@@ -1357,7 +1358,7 @@ export default function Dashboard() {
               </div>
 
               <div className="medal-season-panel">
-                <div className="medal-season-heading"><h3>จำนวนผู้ได้รับเหรียญในแต่ละ Season</h3><span>ทอง • เงิน • ทองแดง</span></div>
+                <div className="medal-season-heading"><h3>รางวัล / เหรียญในแต่ละ Season</h3><span>7 ประเภท • รวมรางวัลและผู้ไม่ได้เหรียญ</span></div>
                 <div className="medal-season-list">
                   {medalSeasonSummary.map(({ season, total: seasonMedals, counts }) => (
                     <button key={season} type="button" onClick={() => openMedalDirectory(season)}>
@@ -1382,7 +1383,7 @@ export default function Dashboard() {
               <div>
                 <p className="eyebrow">TRACK OUTCOME REPORT</p>
                 <h1>สถานภาพและผลลัพธ์ แยกตาม Track</h1>
-                <p>รายงานนี้นับแบบ Track membership หากผู้เข้าร่วมคนเดียวอยู่มากกว่า 1 Track จะถูกนับซ้ำแยกในแต่ละ Track เพื่อให้ผลลัพธ์ของทั้ง 6 Track — AI Innovator, AI Engineer, AI Researcher, AI Developer, AI Participant และ AI Designer — แยกจากกันชัดเจน</p>
+                <p>รายงานนี้นับแบบ Track membership หากผู้เข้าร่วมคนเดียวอยู่มากกว่า 1 Track จะถูกนับซ้ำแยกในแต่ละ Track เพื่อให้ผลลัพธ์ของ AI Innovator, AI Engineer และ AI Researcher แยกจากกันชัดเจน</p>
               </div>
               <div className="track-report-summary">
                 <article><span>Track memberships</span><strong>{trackMembershipTotal.toLocaleString("th-TH")}</strong><small>รวมแบบนับซ้ำตาม Track</small></article>
@@ -1416,21 +1417,21 @@ export default function Dashboard() {
 
             <section className="track-medal-report-section" aria-labelledby="track-medal-report-heading">
               <div className="track-medal-report-heading">
-                <div><p className="eyebrow">MEDAL ONLY REPORT</p><h2 id="track-medal-report-heading">Report เฉพาะเหรียญ แยกตาม Track</h2><p>ผู้ได้รับเหรียญที่อยู่มากกว่า 1 Track จะถูกนับในทุก Track เช่นเดียวกับรายงานสถานภาพ เพื่อให้รายงานผลลัพธ์ของแต่ละ Track เป็นอิสระต่อกัน</p></div>
-                {medalsWithoutParticipantMatch > 0 && <span>มี {medalsWithoutParticipantMatch.toLocaleString("th-TH")} รายการเหรียญที่ยังจับคู่กับข้อมูลผู้เข้าร่วมไม่ได้</span>}
+                <div><p className="eyebrow">AWARD / MEDAL REPORT</p><h2 id="track-medal-report-heading">Report รางวัล / เหรียญ แยกตาม Track</h2><p>ทั้งเหรียญ รางวัล AI Developer / AI Participant / AI Designer และผู้ไม่ได้เหรียญ จะถูกแยกตาม Track โดยคนที่อยู่มากกว่า 1 Track จะถูกนับซ้ำในทุก Track ที่สังกัด</p></div>
+                {medalsWithoutParticipantMatch > 0 && <span>มี {medalsWithoutParticipantMatch.toLocaleString("th-TH")} รายการรางวัลที่ยังจับคู่กับข้อมูลผู้เข้าร่วมไม่ได้</span>}
               </div>
               <div className="track-medal-report-grid">
                 {trackReportData.map((entry) => {
                   const color = TRACK_COLORS[entry.track] ?? "#2F6BFF";
                   return (
                     <article className="track-medal-report-card" key={`${entry.track}-medals`} style={{ "--report-track-color": color } as React.CSSProperties}>
-                      <header><div><i style={{ background: color }} /><h3>{entry.track}</h3></div><strong>{entry.medals.length.toLocaleString("th-TH")}<small> เหรียญ</small></strong></header>
+                      <header><div><i style={{ background: color }} /><h3>{entry.track}</h3></div><strong>{entry.medals.length.toLocaleString("th-TH")}<small> รายการ</small></strong></header>
                       <div className="track-medal-type-list">
                         {entry.medalCountsByType.map((type) => (
                           <div key={type.name}><span><i style={{ background: type.color }} />{type.name}</span><strong>{type.count.toLocaleString("th-TH")}</strong></div>
                         ))}
                       </div>
-                      <button type="button" onClick={() => openMedalDirectory("ทั้งหมด", "ทั้งหมด", entry.track)}>ดูรายชื่อผู้ได้รับเหรียญใน {entry.track} <span aria-hidden="true">→</span></button>
+                      <button type="button" onClick={() => openMedalDirectory("ทั้งหมด", "ทั้งหมด", entry.track)}>ดูรายชื่อรางวัล / เหรียญใน {entry.track} <span aria-hidden="true">→</span></button>
                     </article>
                   );
                 })}
@@ -1775,16 +1776,16 @@ export default function Dashboard() {
 
       {showMedals && (
         <div className="drawer-backdrop medal-directory-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setShowMedals(false); }}>
-          <section className="medal-directory" role="dialog" aria-modal="true" aria-label="รายชื่อผู้ได้รับเหรียญ">
-            <button className="drawer-close" type="button" onClick={() => setShowMedals(false)} aria-label="ปิดรายชื่อผู้ได้รับเหรียญ">×</button>
+          <section className="medal-directory" role="dialog" aria-modal="true" aria-label="รายชื่อรางวัลและเหรียญ">
+            <button className="drawer-close" type="button" onClick={() => setShowMedals(false)} aria-label="ปิดรายชื่อรางวัลและเหรียญ">×</button>
             <header className="medal-directory-heading">
-              <span>MEDAL RECIPIENTS • SEASON 1–5</span>
-              <h2>ผู้ที่ได้รับเหรียญ</h2>
-              <p>ข้อมูลเชิงคุณภาพจากชีทรายชื่อรางวัล ประกอบด้วยรหัส ชื่อ สังกัด Season และประเภทรางวัล</p>
+              <span>AWARD / MEDAL DIRECTORY • SEASON 1–5</span>
+              <h2>รางวัล / เหรียญของผู้เข้าร่วม</h2>
+              <p>ข้อมูลจากชีทรายชื่อรางวัล แยกเป็นเหรียญทอง เงิน ทองแดง, AI Developer, AI Participant, AI Designer และไม่ได้เหรียญ</p>
             </header>
 
             <div className="medal-directory-summary">
-              <article><span>{medalTrackFilter === "ทั้งหมด" ? (medalTypeFilter === "ทั้งหมด" ? (medalSeasonFilter === "ทั้งหมด" ? "ผู้ได้รับเหรียญทั้งหมด" : `ผู้ได้รับเหรียญ • ${medalSeasonFilter}`) : `ผลลัพธ์ • ${medalTypeFilter}`) : `${medalTrackFilter} • ${medalTypeFilter === "ทั้งหมด" ? "ทุกประเภทเหรียญ" : medalTypeFilter}`}</span><strong>{visibleMedalRecipients.length.toLocaleString("th-TH")}</strong><small>คน • ตัวเลขเปลี่ยนตามตัวกรอง</small></article>
+              <article><span>{medalTrackFilter === "ทั้งหมด" ? (medalTypeFilter === "ทั้งหมด" ? (medalSeasonFilter === "ทั้งหมด" ? "ผู้มีข้อมูลรางวัลทั้งหมด" : `ผู้ได้รับเหรียญ • ${medalSeasonFilter}`) : `ผลลัพธ์ • ${medalTypeFilter}`) : `${medalTrackFilter} • ${medalTypeFilter === "ทั้งหมด" ? "ทุกประเภทรางวัล" : medalTypeFilter}`}</span><strong>{visibleMedalRecipients.length.toLocaleString("th-TH")}</strong><small>คน • ตัวเลขเปลี่ยนตามตัวกรอง</small></article>
               {medalTypes.map((type) => <article key={type.name} className={medalTypeFilter === type.name ? "is-selected" : ""}><i style={{ background: type.color }} /><span>{type.name}</span><strong>{(filteredMedalCounts[type.name] ?? 0).toLocaleString("th-TH")}</strong><small>คน • ใน Season ที่เลือก</small></article>)}
             </div>
 
@@ -1803,8 +1804,8 @@ export default function Dashboard() {
                   {TRACK_NAMES.map((track) => <button className={medalTrackFilter === track ? "active" : ""} type="button" key={track} onClick={() => setMedalTrackFilter(track)}>{track}</button>)}
                 </div>
               </div>
-              <div className="medal-filter-group" role="group" aria-label="กรองตามประเภทเหรียญ">
-                <strong>ประเภทเหรียญ</strong>
+              <div className="medal-filter-group" role="group" aria-label="กรองตามประเภทรางวัล / เหรียญ">
+                <strong>ประเภทรางวัล / เหรียญ</strong>
                 <div className="medal-filter-row">
                   <button className={medalTypeFilter === "ทั้งหมด" ? "active" : ""} type="button" onClick={() => setMedalTypeFilter("ทั้งหมด")}>ทุกประเภท</button>
                   {medalTypes.map((type) => <button className={medalTypeFilter === type.name ? "active" : ""} type="button" key={type.name} onClick={() => setMedalTypeFilter(type.name)}><i style={{ background: type.color }} />{type.name}</button>)}
@@ -1812,11 +1813,11 @@ export default function Dashboard() {
               </div>
             </div>
 
-            <div className="medal-result-heading"><span>รายการที่แสดง • {medalTrackFilter === "ทั้งหมด" ? "ทุก Track" : medalTrackFilter} • {medalSeasonFilter === "ทั้งหมด" ? "ทุก Season" : medalSeasonFilter} • {medalTypeFilter === "ทั้งหมด" ? "ทุกประเภทเหรียญ" : medalTypeFilter}</span><strong>{visibleMedalRecipients.length.toLocaleString("th-TH")} คน</strong></div>
+            <div className="medal-result-heading"><span>รายการที่แสดง • {medalTrackFilter === "ทั้งหมด" ? "ทุก Track" : medalTrackFilter} • {medalSeasonFilter === "ทั้งหมด" ? "ทุก Season" : medalSeasonFilter} • {medalTypeFilter === "ทั้งหมด" ? "ทุกประเภทรางวัล" : medalTypeFilter}</span><strong>{visibleMedalRecipients.length.toLocaleString("th-TH")} คน</strong></div>
             <div className="medal-recipient-list" key={`${medalTrackFilter}-${medalSeasonFilter}-${medalTypeFilter}`}>
               {visibleMedalRecipients.map((recipient, index) => {
                 const matchedParticipant = participantByMedal(recipient);
-                const extraAward = recipient.award.replace(/^เหรียญทองแดง(?:\s*\([^)]*\))?\s*,?\s*|^เหรียญเงิน(?:\s*\([^)]*\))?\s*,?\s*|^เหรียญทอง(?:\s*\([^)]*\))?\s*,?\s*/, "").trim();
+                const extraAward = recipient.award.replace(/^เหรียญทองแดง(?:\s*\([^)]*\))?\s*,?\s*|^เหรียญเงิน(?:\s*\([^)]*\))?\s*,?\s*|^เหรียญทอง(?:\s*\([^)]*\))?\s*,?\s*|^AI\s*Developer\s*,?\s*|^AI\s*Participant\s*,?\s*|^AI\s*Designer\s*,?\s*/i, "").trim();
                 return (
                   <article className="medal-recipient-card" key={`${medalTrackFilter}-${medalSeasonFilter}-${medalTypeFilter}-${recipient.key}-${recipient.season}-${recipient.medalType}-${index}`}>
                     <span className="medal-recipient-index">{String(index + 1).padStart(2, "0")}</span>
@@ -1827,7 +1828,7 @@ export default function Dashboard() {
                     </div>
                     <div className="medal-recipient-award">
                       <span><i style={{ background: medalTypes.find((type) => type.name === recipient.medalType)?.color }} />{recipient.medalType}</span>
-                      <p>{extraAward || "ไม่มีรางวัลพิเศษที่ระบุเพิ่มเติม"}</p>
+                      <p>{extraAward || "ไม่มีรายละเอียดรางวัลเพิ่มเติม"}</p>
                     </div>
                     <div className="medal-recipient-actions">
                       {matchedParticipant ? <button type="button" onMouseDown={(event) => event.stopPropagation()} onClick={(event) => { event.preventDefault(); event.stopPropagation(); setSelected({ ...matchedParticipant }); }}>ดูข้อมูลรายบุคคล →</button> : <span>ยังไม่พบในแบบติดตามผล</span>}
@@ -1835,7 +1836,7 @@ export default function Dashboard() {
                   </article>
                 );
               })}
-              {visibleMedalRecipients.length === 0 && <div className="empty-state"><strong>ไม่พบผู้ได้รับเหรียญตามตัวกรองนี้</strong><p>ลองเลือก Season หรือประเภทเหรียญอื่น</p></div>}
+              {visibleMedalRecipients.length === 0 && <div className="empty-state"><strong>ไม่พบรายการรางวัล / เหรียญตามตัวกรองนี้</strong><p>ลองเลือก Season หรือประเภทรางวัล / เหรียญอื่น</p></div>}
             </div>
           </section>
         </div>

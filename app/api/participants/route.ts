@@ -360,10 +360,14 @@ async function loadSheet(sheet: (typeof SHEETS)[number]) {
 
 function medalType(value?: string) {
   const normalized = clean(value);
+  const lower = normalized.toLocaleLowerCase("en");
   if (normalized.startsWith("เหรียญทองแดง")) return "เหรียญทองแดง";
   if (normalized.startsWith("เหรียญเงิน")) return "เหรียญเงิน";
   if (normalized.startsWith("เหรียญทอง")) return "เหรียญทอง";
-  return "";
+  if (lower.includes("ai developer")) return "AI Developer";
+  if (lower.includes("ai participant")) return "AI Participant";
+  if (lower.includes("ai designer")) return "AI Designer";
+  return "ไม่ได้เหรียญ";
 }
 
 async function loadMedalSheet(sheet: (typeof MEDAL_SHEETS)[number]) {
@@ -395,8 +399,7 @@ async function loadMedalSheet(sheet: (typeof MEDAL_SHEETS)[number]) {
       organization: clean(row[5]),
       award: clean(row[6]),
       medalType: medalType(row[6]),
-    }))
-    .filter((recipient) => recipient.medalType);
+    }));
 }
 
 export async function GET() {
