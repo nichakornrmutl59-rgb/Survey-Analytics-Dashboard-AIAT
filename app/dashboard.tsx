@@ -892,7 +892,6 @@ export default function Dashboard() {
   const trackMembershipTotal = useMemo(() => trackReportData.reduce((sum, item) => sum + item.people.length, 0), [trackReportData]);
   const multiTrackParticipantCount = useMemo(() => participants.filter((person) => parseTracks(person.track).length > 1).length, [participants]);
   const medalsWithoutParticipantMatch = useMemo(() => reportMedalRecipients.filter((recipient) => !findParticipantForMedal(recipient, participants)).length, [reportMedalRecipients, participants]);
-  const awardDataMismatch = useMemo(() => awardDiagnostics.filter((item) => item.unresolvedRows > 0 || item.categoryMismatch || item.sourceRows !== item.expectedRows), [awardDiagnostics]);
 
   const filtered = useMemo(() => {
     const normalizedQuery = query.trim().toLocaleLowerCase("th");
@@ -1528,17 +1527,6 @@ export default function Dashboard() {
                 <article><span>Track memberships</span><strong>{trackReportData.reduce((sum, entry) => sum + entry.medals.length, 0).toLocaleString("th-TH")}</strong><small>นับซ้ำเมื่ออยู่หลาย Track</small></article>
                 <article><span>จับคู่ข้อมูลไม่ได้</span><strong>{medalsWithoutParticipantMatch.toLocaleString("th-TH")}</strong><small>รายการที่ยังไม่พบผู้เข้าร่วม</small></article>
               </div>
-              {awardDataMismatch.length > 0 && (
-                <div className="award-source-warning" role="status">
-                  <strong>ตรวจพบข้อมูลรางวัลที่ยังอ่านไม่ครบจากชีทต้นทาง</strong>
-                  <p>ระบบจะไม่เดาประเภทรางวัลให้เอง รายการที่อ่านไม่ได้จะแจ้งแยกตาม Season เพื่อป้องกันยอดคลาดเคลื่อน</p>
-                  <div>
-                    {awardDataMismatch.map((item) => (
-                      <span key={item.season}>{item.season}: อ่านได้ {item.recognizedRows.toLocaleString("th-TH")}/{item.expectedRows.toLocaleString("th-TH")} รายการ</span>
-                    ))}
-                  </div>
-                </div>
-              )}
             </div>
 
             <section className="track-medal-report-section standalone-award-report" aria-labelledby="track-medal-report-heading">
@@ -1909,16 +1897,6 @@ export default function Dashboard() {
               <h2>รางวัล / เหรียญของผู้เข้าร่วม</h2>
               <p>ข้อมูลจากชีทรายชื่อรางวัล แยกเป็นเหรียญทอง เงิน ทองแดง, AI Developer, AI Participant และ AI Designer</p>
             </header>
-            {awardDataMismatch.length > 0 && (
-              <div className="award-source-warning compact" role="status">
-                <strong>ข้อมูลบาง Season ยังจำแนกประเภทรางวัลได้ไม่ครบ</strong>
-                <div>{awardDataMismatch.map((item) => <span key={item.season}>{item.season} {item.recognizedRows.toLocaleString("th-TH")}/{item.expectedRows.toLocaleString("th-TH")}</span>)}</div>
-                {awardDataMismatch.some((item) => item.unresolvedAwardValues?.length) && (
-                  <p className="award-debug-values">ค่ารางวัลที่ยังอ่านไม่ออก: {Array.from(new Set(awardDataMismatch.flatMap((item) => item.unresolvedAwardValues ?? []))).slice(0, 12).join(" • ")}</p>
-                )}
-              </div>
-            )}
-
             <div className="medal-directory-summary">
               <article><span>{medalTrackFilter === "ทั้งหมด" ? (medalTypeFilter === "ทั้งหมด" ? (medalSeasonFilter === "ทั้งหมด" ? "ผู้มีข้อมูลรางวัลทั้งหมด" : `ผู้ได้รับเหรียญ • ${medalSeasonFilter}`) : `ผลลัพธ์ • ${medalTypeFilter}`) : `${medalTrackFilter} • ${medalTypeFilter === "ทั้งหมด" ? "ทุกประเภทรางวัล" : medalTypeFilter}`}</span><strong>{visibleMedalRecipients.length.toLocaleString("th-TH")}</strong><small>คน • ตัวเลขเปลี่ยนตามตัวกรอง</small></article>
               {medalTypes.map((type) => <article key={type.name} className={medalTypeFilter === type.name ? "is-selected" : ""}><i style={{ background: type.color }} /><span>{type.name}</span><strong>{(filteredMedalCounts[type.name] ?? 0).toLocaleString("th-TH")}</strong><small>คน • ใน Season ที่เลือก</small></article>)}
