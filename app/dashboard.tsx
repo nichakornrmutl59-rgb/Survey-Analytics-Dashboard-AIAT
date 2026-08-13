@@ -979,6 +979,21 @@ export default function Dashboard() {
     const end = ((previous + count) / Math.max(genderTotal, 1)) * 360;
     return `${result}${index ? ", " : ""}${genderColors[index] ?? "#19BCEB"} ${start}deg ${end}deg`;
   }, "");
+  const genderCalloutPoints = genderEntries.map(([, count], index) => {
+    const previous = genderEntries.slice(0, index).reduce((sum, [, value]) => sum + value, 0);
+    const midpoint = ((previous + count / 2) / Math.max(genderTotal, 1)) * 360;
+    const radians = (midpoint * Math.PI) / 180;
+    const radius = 134;
+    return {
+      x: 210 + Math.sin(radians) * radius,
+      y: 175 - Math.cos(radians) * radius,
+    };
+  });
+  const genderCalloutTargets = [
+    { x: 337, y: 238 },
+    { x: 145, y: 76 },
+    { x: 245, y: 48 },
+  ];
   const trackTotal = tracks.reduce((sum, [, count]) => sum + count, 0);
   const trackGradient = tracks.reduce((result, [track, count], index) => {
     const previous = tracks.slice(0, index).reduce((sum, [, value]) => sum + value, 0);
@@ -1070,6 +1085,20 @@ export default function Dashboard() {
                   <div className="demographic-card-heading"><span>เพศ</span><div className="demographic-total"><small>รวม</small><strong>{total.toLocaleString("th-TH")}</strong></div></div>
                   <div className="gender-donut-wrap">
                     <div className="gender-donut-stage">
+                      <svg className="gender-callout-lines" viewBox="0 0 420 350" aria-hidden="true">
+                        {genderEntries.map(([label], index) => {
+                          const point = genderCalloutPoints[index];
+                          const target = genderCalloutTargets[index];
+                          const color = genderColors[index] ?? "#19BCEB";
+                          if (!point || !target) return null;
+                          return (
+                            <g key={`${label}-leader`}>
+                              <line x1={point.x} y1={point.y} x2={target.x} y2={target.y} stroke={color} />
+                              <circle cx={point.x} cy={point.y} r="5.5" fill="#fff" stroke={color} />
+                            </g>
+                          );
+                        })}
+                      </svg>
                       {genderEntries.map(([label, count], index) => (
                         <div className={`gender-callout gender-callout-${index + 1}`} key={`${label}-callout`}>
                           <div className="gender-callout-badge">

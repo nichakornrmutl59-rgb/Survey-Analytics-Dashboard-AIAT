@@ -2547,3 +2547,62 @@ td code { font-family: ui-monospace, monospace; font-size: 10px; background: #ed
   line-height: 1.65;
   word-break: break-word;
 }
+
+
+/* v29: align gender callout leaders to the actual donut segments */
+.gender-callout-lines {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  overflow: visible;
+  pointer-events: none;
+}
+.gender-callout-lines line {
+  stroke-width: 2;
+  stroke-linecap: round;
+  opacity: .58;
+}
+.gender-callout-lines circle {
+  stroke-width: 3;
+  filter: drop-shadow(0 2px 5px rgba(47,107,255,.14));
+}
+.gender-callout {
+  z-index: 4;
+}
+.gender-callout::before,
+.gender-callout::after {
+  display: none !important;
+}
+.gender-callout-1 {
+  right: 0;
+  top: 67%;
+  transform: translateY(-50%);
+}
+.gender-callout-2 {
+  left: 0;
+  top: 48px;
+}
+.gender-callout-3 {
+  left: 58%;
+  top: 4px;
+  bottom: auto;
+  transform: translateX(-50%);
+}
+.gender-callout-badge {
+  box-shadow: 0 12px 26px rgba(21,48,108,.11), 0 0 0 1px rgba(255,255,255,.65) inset;
+}
+@media (max-width: 900px) {
+  .gender-callout-1 { right: 2px; top: 68%; }
+  .gender-callout-2 { left: 2px; top: 38px; }
+  .gender-callout-3 { left: 58%; top: 2px; }
+}
+@media (max-width: 640px) {
+  .gender-callout-lines { display: none; }
+  .gender-callout-1,
+  .gender-callout-2,
+  .gender-callout-3 {
+    transform: none;
+  }
+}
