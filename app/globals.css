@@ -1709,3 +1709,165 @@ td code { font-family: ui-monospace, monospace; font-size: 10px; background: #ed
   .season-row > span { text-align: left; }
   .season-stack-wrap > small { font-size: 9px; }
 }
+
+
+/* v18: move gender percentages to callout badges around donut */
+.gender-card .gender-donut-wrap {
+  gap: 18px;
+}
+.gender-donut-stage {
+  position: relative;
+  width: min(420px, 100%);
+  min-height: 350px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.gender-card .gender-donut {
+  width: clamp(236px, 21vw, 282px);
+  position: relative;
+  z-index: 2;
+}
+.gender-callout {
+  position: absolute;
+  z-index: 3;
+}
+.gender-callout-badge {
+  min-width: 94px;
+  padding: 9px 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid rgba(47,107,255,.12);
+  border-radius: 999px;
+  background: rgba(255,255,255,.96);
+  box-shadow: 0 14px 24px rgba(47,107,255,.10);
+  position: relative;
+}
+.gender-callout-badge i {
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  flex: 0 0 auto;
+}
+.gender-callout-badge span {
+  color: #5f6e90;
+  font-size: 10px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.gender-callout-badge strong {
+  color: #17316d;
+  font-size: 12px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+.gender-callout::after {
+  content: "";
+  position: absolute;
+  background: rgba(47,107,255,.22);
+  border-radius: 999px;
+}
+.gender-callout::before {
+  content: "";
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  background: #fff;
+  border: 2px solid rgba(47,107,255,.22);
+  box-shadow: 0 0 0 4px rgba(255,255,255,.9);
+}
+.gender-callout-1 {
+  right: 2px;
+  top: 52%;
+  transform: translateY(-50%);
+}
+.gender-callout-1::after {
+  left: -36px;
+  top: 50%;
+  width: 36px;
+  height: 2px;
+}
+.gender-callout-1::before {
+  left: -43px;
+  top: calc(50% - 5px);
+}
+.gender-callout-2 {
+  left: 14px;
+  top: 42px;
+}
+.gender-callout-2::after {
+  right: -28px;
+  bottom: -12px;
+  width: 32px;
+  height: 2px;
+  transform: rotate(35deg);
+  transform-origin: right center;
+}
+.gender-callout-2::before {
+  right: -35px;
+  bottom: -19px;
+}
+.gender-callout-3 {
+  left: 42px;
+  bottom: 44px;
+}
+.gender-callout-3::after {
+  right: -26px;
+  top: -6px;
+  width: 30px;
+  height: 2px;
+  transform: rotate(-36deg);
+  transform-origin: right center;
+}
+.gender-callout-3::before {
+  right: -33px;
+  top: -13px;
+}
+.gender-card .gender-inline-legend > div {
+  padding: 11px 13px;
+}
+.gender-card .gender-inline-legend span {
+  font-size: 11px;
+}
+.gender-card .gender-inline-legend strong {
+  font-size: 13px;
+}
+@media (max-width: 900px) {
+  .gender-donut-stage {
+    min-height: 320px;
+  }
+  .gender-card .gender-donut {
+    width: min(252px, 62vw);
+  }
+  .gender-callout-1 { right: 10px; }
+  .gender-callout-2 { left: 6px; }
+  .gender-callout-3 { left: 28px; }
+}
+@media (max-width: 640px) {
+  .gender-donut-stage {
+    min-height: 0;
+    padding-top: 8px;
+    display: grid;
+    gap: 12px;
+  }
+  .gender-callout {
+    position: static;
+    transform: none;
+  }
+  .gender-callout::before,
+  .gender-callout::after {
+    display: none;
+  }
+  .gender-callout-badge {
+    width: 100%;
+    justify-content: space-between;
+    border-radius: 14px;
+  }
+  .gender-card .gender-donut {
+    order: -1;
+    width: min(212px, 64vw);
+    margin: 0 auto;
+  }
+}

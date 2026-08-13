@@ -972,18 +972,26 @@ export default function Dashboard() {
                 <article className="panel demographic-card gender-card">
                   <div className="demographic-card-heading"><span>เพศ</span><div className="demographic-total"><small>รวม</small><strong>{total.toLocaleString("th-TH")}</strong></div></div>
                   <div className="gender-donut-wrap">
-                    <div className="donut gender-donut" style={{ background: `conic-gradient(${genderGradient || "#e5e7eb 0deg 360deg"})` }}>
-                      <div><strong>{genderTotal.toLocaleString("th-TH")}</strong><span>ผู้เข้าร่วม</span></div>
+                    <div className="gender-donut-stage">
+                      {genderEntries.map(([label, count], index) => (
+                        <div className={`gender-callout gender-callout-${index + 1}`} key={`${label}-callout`}>
+                          <div className="gender-callout-badge">
+                            <i style={{ background: genderColors[index] ?? "#19BCEB" }} />
+                            <span>{label}</span>
+                            <strong>{genderPercent(count)}</strong>
+                          </div>
+                        </div>
+                      ))}
+                      <div className="donut gender-donut" style={{ background: `conic-gradient(${genderGradient || "#e5e7eb 0deg 360deg"})` }}>
+                        <div><strong>{genderTotal.toLocaleString("th-TH")}</strong><span>ผู้เข้าร่วม</span></div>
+                      </div>
                     </div>
                     <div className="gender-inline-legend" aria-label="สรุปจำนวนตามเพศ">
                       {genderEntries.map(([label, count], index) => (
                         <div key={label}>
                           <i style={{ background: genderColors[index] ?? "#19BCEB" }} />
                           <span>{label}</span>
-                          <div className="gender-legend-metric">
-                            <strong>{count.toLocaleString("th-TH")}</strong>
-                            <small>{genderPercent(count)}</small>
-                          </div>
+                          <strong>{count.toLocaleString("th-TH")}</strong>
                         </div>
                       ))}
                     </div>
