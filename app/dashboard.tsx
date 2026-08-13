@@ -1509,10 +1509,9 @@ export default function Dashboard() {
                         <strong>{entry.people.length.toLocaleString("th-TH")}<small> memberships</small></strong>
                       </header>
                       <div className="track-demographic-columns">
-                        <section className="track-demographic-block">
+                        <section className="track-demographic-block track-demographic-block-action">
                           <div className="track-demographic-block-heading">
                             <h4>เพศ</h4>
-                            <button type="button" onClick={() => openDemographicDirectory("gender", entry.track)}>ดูรายชื่อ →</button>
                           </div>
                           <div className="track-demographic-gender">
                             {entry.gender.map((item) => (
@@ -1522,11 +1521,14 @@ export default function Dashboard() {
                               </div>
                             ))}
                           </div>
+                          <button className="demographic-directory-button track-demographic-directory-button" type="button" onClick={() => openDemographicDirectory("gender", entry.track)}>
+                            <span className="button-label">ดูรายชื่อตามเพศ</span>
+                            <span className="button-icon" aria-hidden="true">→</span>
+                          </button>
                         </section>
-                        <section className="track-demographic-block">
+                        <section className="track-demographic-block track-demographic-block-action">
                           <div className="track-demographic-block-heading">
                             <h4>ช่วงอายุ</h4>
-                            <button type="button" onClick={() => openDemographicDirectory("age", entry.track)}>ดูรายชื่อ →</button>
                           </div>
                           <div className="track-demographic-bars">
                             {entry.age.map((item) => (
@@ -1537,6 +1539,10 @@ export default function Dashboard() {
                               </div>
                             ))}
                           </div>
+                          <button className="demographic-directory-button track-demographic-directory-button" type="button" onClick={() => openDemographicDirectory("age", entry.track)}>
+                            <span className="button-label">ดูรายชื่อตามช่วงอายุ</span>
+                            <span className="button-icon" aria-hidden="true">→</span>
+                          </button>
                         </section>
                         <section className="track-demographic-block">
                           <h4>ระดับการศึกษา</h4>

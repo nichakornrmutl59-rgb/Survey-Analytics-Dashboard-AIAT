@@ -2368,6 +2368,10 @@ td code { font-family: ui-monospace, monospace; font-size: 10px; background: #ed
   border-radius: 18px;
   background: linear-gradient(180deg, rgba(250,252,255,.96), rgba(255,255,255,.88));
 }
+.track-demographic-block-action {
+  display: flex;
+  flex-direction: column;
+}
 .track-demographic-block h4 {
   margin: 0 0 14px;
   color: #20386d;
@@ -2607,7 +2611,7 @@ td code { font-family: ui-monospace, monospace; font-size: 10px; background: #ed
   }
 }
 
-/* v30: clickable Track demographic directories */
+/* v32: make Track demographic directory buttons match overview style */
 .track-demographic-block-heading {
   margin: 0 0 14px;
   display: flex;
@@ -2618,25 +2622,35 @@ td code { font-family: ui-monospace, monospace; font-size: 10px; background: #ed
 .track-demographic-block-heading h4 {
   margin: 0;
 }
-.track-demographic-block-heading button {
-  flex: 0 0 auto;
-  padding: 7px 10px;
-  border: 1px solid color-mix(in srgb, var(--report-track-color) 22%, transparent);
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--report-track-color) 8%, white);
+.track-demographic-directory-button {
+  width: 100%;
+  margin-top: 14px;
+  padding: 12px 13px 12px 15px;
+  border-color: color-mix(in srgb, var(--report-track-color) 18%, rgba(47,107,255,.12));
+  background: linear-gradient(135deg, color-mix(in srgb, var(--report-track-color) 9%, white), rgba(255,255,255,.98));
   color: var(--report-track-color);
-  font: inherit;
-  font-size: 9px;
-  font-weight: 800;
-  cursor: pointer;
-  transition: transform .16s ease, box-shadow .16s ease, background .16s ease;
+  box-shadow: 0 10px 22px color-mix(in srgb, var(--report-track-color) 10%, transparent), inset 0 1px 0 rgba(255,255,255,.92);
 }
-.track-demographic-block-heading button:hover {
-  transform: translateY(-1px);
-  background: color-mix(in srgb, var(--report-track-color) 13%, white);
-  box-shadow: 0 8px 18px color-mix(in srgb, var(--report-track-color) 12%, transparent);
+.track-demographic-directory-button .button-label {
+  font-size: 12px;
 }
-.track-demographic-block-heading button:focus-visible {
+.track-demographic-directory-button .button-label::before {
+  background: var(--report-track-color);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--report-track-color) 14%, white);
+}
+.track-demographic-directory-button .button-icon {
+  color: var(--report-track-color);
+  box-shadow: 0 8px 18px color-mix(in srgb, var(--report-track-color) 16%, transparent);
+}
+.track-demographic-directory-button:hover {
+  border-color: color-mix(in srgb, var(--report-track-color) 28%, rgba(47,107,255,.18));
+  background: linear-gradient(135deg, color-mix(in srgb, var(--report-track-color) 12%, white), rgba(255,255,255,1));
+  box-shadow: 0 15px 28px color-mix(in srgb, var(--report-track-color) 12%, transparent), inset 0 1px 0 rgba(255,255,255,.95);
+}
+.track-demographic-directory-button:hover .button-icon {
+  box-shadow: 0 10px 20px color-mix(in srgb, var(--report-track-color) 18%, transparent);
+}
+.track-demographic-directory-button:focus-visible {
   outline: 3px solid color-mix(in srgb, var(--report-track-color) 18%, transparent);
   outline-offset: 2px;
 }
@@ -2644,9 +2658,11 @@ td code { font-family: ui-monospace, monospace; font-size: 10px; background: #ed
   .track-demographic-block-heading {
     align-items: flex-start;
   }
-  .track-demographic-block-heading button {
-    padding: 7px 9px;
-    font-size: 8px;
+  .track-demographic-directory-button {
+    padding: 11px 12px 11px 14px;
+  }
+  .track-demographic-directory-button .button-label {
+    font-size: 11px;
   }
 }
 
