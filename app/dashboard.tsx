@@ -980,6 +980,15 @@ export default function Dashboard() {
     setTrackSummaryQuery("");
     setTrackSummaryPage(1);
   };
+  const openTrackStatusPeople = (track: string, status: string | null = null) => {
+    setQuery("");
+    setGroupFilter(status ?? "ทั้งหมด");
+    setTrackFilter(track);
+    setSeasonFilter("ทั้งหมด");
+    setWorkFilter("ทั้งหมด");
+    setPage(1);
+    setView("people");
+  };
   const closeTrackSummaryDirectory = () => {
     setTrackSummaryDirectory(null);
     setTrackSummaryTrackFilter("ทั้งหมด");
@@ -1564,13 +1573,16 @@ export default function Dashboard() {
                       <div><i style={{ background: color }} /><span>สถานภาพปัจจุบัน</span><h2>{entry.track}</h2></div>
                       <strong>{entry.people.length.toLocaleString("th-TH")}<small> คน</small></strong>
                     </header>
+                    <button className="track-status-all-button" type="button" onClick={() => openTrackStatusPeople(entry.track)}>
+                      <span>ดูรายชื่อทั้งหมดใน {entry.track}</span><b aria-hidden="true">→</b>
+                    </button>
                     <div className="track-status-list">
                       {entry.status.map((group) => (
-                        <div className="track-status-row" key={group.name}>
-                          <div><span><i style={{ background: group.color }} />{group.name}</span><strong>{group.count.toLocaleString("th-TH")} คน</strong></div>
+                        <button className="track-status-row" type="button" key={group.name} onClick={() => openTrackStatusPeople(entry.track, group.name)} aria-label={`ดูรายชื่อ ${entry.track} สถานะ ${group.name} ${group.count.toLocaleString("th-TH")} คน`}>
+                          <div><span><i style={{ background: group.color }} />{group.name}</span><strong>{group.count.toLocaleString("th-TH")} คน <b aria-hidden="true">→</b></strong></div>
                           <div className="track-status-bar"><span style={{ width: `${(group.count / Math.max(entry.people.length, 1)) * 100}%`, background: group.color }} /></div>
                           <small>{percent(group.count, entry.people.length)}%</small>
-                        </div>
+                        </button>
                       ))}
                     </div>
                   </article>

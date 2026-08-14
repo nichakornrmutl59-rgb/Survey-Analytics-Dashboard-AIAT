@@ -2837,3 +2837,78 @@ td code { font-family: ui-monospace, monospace; font-size: 10px; background: #ed
   .track-summary-track-filters button { min-height: 36px; padding: 7px 10px; font-size: 9px; }
   .track-summary-pagination { align-items: flex-start; flex-direction: column; }
 }
+
+
+/* v40: clickable Track status cards and status rows */
+.track-status-all-button {
+  width: 100%;
+  margin-top: 14px;
+  padding: 10px 12px 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border: 1px solid color-mix(in srgb, var(--report-track-color) 18%, transparent);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--report-track-color) 7%, white);
+  color: var(--report-track-color);
+  font: inherit;
+  font-size: 10px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform .16s ease, border-color .16s ease, box-shadow .16s ease, background .16s ease;
+}
+.track-status-all-button b {
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 7px 16px color-mix(in srgb, var(--report-track-color) 13%, transparent);
+}
+.track-status-all-button:hover {
+  transform: translateY(-1px);
+  border-color: color-mix(in srgb, var(--report-track-color) 34%, transparent);
+  background: color-mix(in srgb, var(--report-track-color) 11%, white);
+  box-shadow: 0 10px 22px color-mix(in srgb, var(--report-track-color) 10%, transparent);
+}
+.track-status-row {
+  width: 100%;
+  padding: 10px 10px 8px;
+  display: block;
+  border: 1px solid transparent;
+  border-radius: 13px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: transform .15s ease, border-color .15s ease, background .15s ease, box-shadow .15s ease;
+}
+.track-status-row:hover {
+  transform: translateY(-1px);
+  border-color: rgba(47,107,255,.10);
+  background: rgba(247,249,255,.92);
+  box-shadow: 0 8px 18px rgba(47,107,255,.06);
+}
+.track-status-row:focus-visible,
+.track-status-all-button:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--report-track-color) 20%, transparent);
+  outline-offset: 2px;
+}
+.track-status-row > div:first-child strong b {
+  margin-left: 5px;
+  color: var(--report-track-color);
+  font-size: 12px;
+}
+@media (max-width: 640px) {
+  .track-status-all-button {
+    font-size: 9px;
+  }
+  .track-status-row {
+    padding-inline: 8px;
+  }
+}
