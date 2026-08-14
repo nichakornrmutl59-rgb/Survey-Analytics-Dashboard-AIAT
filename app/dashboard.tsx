@@ -93,7 +93,7 @@ const WORK_TYPES = [
 const SECTORS = [
   { name: "Public Services", color: "#2F6BFF" },
   { name: "Healthcare", color: "#19BCEB" },
-  { name: "Education Technology", color: "#6D4AFF" },
+  { name: "Education Technology", color: "#19BCEB" },
   { name: "Tourism", color: "#FF4FA3" },
   { name: "Manufacturing", color: "#FF7A1A" },
   { name: "Finance", color: "#163A8A" },
@@ -815,7 +815,7 @@ export default function Dashboard() {
     { name: "เหรียญเงิน", color: "#8591AA" },
     { name: "เหรียญทองแดง", color: "#C66A2B" },
     { name: "AI Developer", color: "#2F6BFF" },
-    { name: "AI Designer", color: "#6D4AFF" },
+    { name: "AI Designer", color: "#19BCEB" },
     { name: "AI Participant", color: "#19BCEB" },
   ] as const;
   const reportMedalRecipients = useMemo(
@@ -880,7 +880,7 @@ export default function Dashboard() {
     const gender = [
       { label: "ชาย", count: genderCounts["ชาย"] ?? 0, color: "#2F6BFF" },
       { label: "หญิง", count: genderCounts["หญิง"] ?? 0, color: "#FF4FA3" },
-      { label: "อื่น ๆ", count: (genderCounts["อื่น ๆ / ไม่ประสงค์ระบุ"] ?? 0) + (genderCounts["ไม่ระบุ"] ?? 0), color: "#6D4AFF" },
+      { label: "อื่น ๆ", count: (genderCounts["อื่น ๆ / ไม่ประสงค์ระบุ"] ?? 0) + (genderCounts["ไม่ระบุ"] ?? 0), color: "#19BCEB" },
     ].filter((item) => item.count > 0);
     const ageCounts = countDerived(people, (person) => ageRange(person.age));
     const age = ["ต่ำกว่า 18 ปี", "18–22 ปี", "23–29 ปี", "30–39 ปี", "40–49 ปี", "50 ปีขึ้นไป", "ไม่ระบุ"]
@@ -981,7 +981,7 @@ export default function Dashboard() {
   };
 
   const total = participants.length;
-  const genderColors = ["#2F6BFF", "#FF4FA3", "#6D4AFF"] as const;
+  const genderColors = ["#2F6BFF", "#FF4FA3", "#19BCEB"] as const;
   const genderTotal = genderEntries.reduce((sum, [, count]) => sum + count, 0);
   const genderPercent = (count: number) => `${((count / Math.max(genderTotal, 1)) * 100).toLocaleString("th-TH", { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%`;
   const genderGradient = genderEntries.reduce((result, [, count], index) => {
