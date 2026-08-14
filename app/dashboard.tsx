@@ -195,6 +195,25 @@ function participantHasTrack(person: Participant, track: string) {
   return parseTracks(person.track).includes(track);
 }
 
+function participantIdentityKey(person: Participant) {
+  const normalizedName = `${person.firstName ?? ""}${person.lastName ?? ""}`
+    .normalize("NFKC")
+    .toLocaleLowerCase("th")
+    .replace(/[\s.'’"()\-–—]/g, "");
+  if (normalizedName) return `name:${normalizedName}`;
+
+  const normalizedEmail = (person.email ?? "").trim().toLocaleLowerCase("en");
+  if (normalizedEmail) return `email:${normalizedEmail}`;
+
+  const normalizedPhone = (person.phone ?? "").replace(/\D/g, "");
+  if (normalizedPhone) return `phone:${normalizedPhone}`;
+
+  const normalizedCode = (person.code ?? "").trim().toLocaleLowerCase("en");
+  if (normalizedCode) return `code:${normalizedCode}`;
+
+  return person.key;
+}
+
 function countTrackMemberships(items: Participant[]) {
   return items.reduce<Record<string, number>>((result, person) => {
     parseTracks(person.track).forEach((track) => {
@@ -901,7 +920,19 @@ export default function Dashboard() {
     return { track, people, status, gender, age, education, medals, medalCountsByType };
   }), [reportMedalRecipients, participants]);
   const trackMembershipTotal = useMemo(() => trackReportData.reduce((sum, item) => sum + item.people.length, 0), [trackReportData]);
-  const multiTrackParticipantCount = useMemo(() => participants.filter((person) => parseTracks(person.track).length > 1).length, [participants]);
+  const participantTrackSummary = useMemo(() => {
+    const tracksByPerson = new Map<string, Set<string>>();
+    participants.forEach((person) => {
+      const identity = participantIdentityKey(person);
+      const tracks = tracksByPerson.get(identity) ?? new Set<string>();
+      parseTracks(person.track).forEach((track) => tracks.add(track));
+      tracksByPerson.set(identity, tracks);
+    });
+    return {
+      uniqueParticipantCount: tracksByPerson.size,
+      multiTrackParticipantCount: Array.from(tracksByPerson.values()).filter((tracks) => tracks.size > 1).length,
+    };
+  }, [participants]);
   const medalsWithoutParticipantMatch = useMemo(() => reportMedalRecipients.filter((recipient) => !findParticipantForMedal(recipient, participants)).length, [reportMedalRecipients, participants]);
 
   const filtered = useMemo(() => {
@@ -1460,8 +1491,8 @@ export default function Dashboard() {
               </div>
               <div className="track-report-summary">
                 <article><span>จำนวนตาม Track</span><strong>{trackMembershipTotal.toLocaleString("th-TH")}</strong><small>คน • รวมแบบนับซ้ำตาม Track</small></article>
-                <article><span>ผู้เข้าร่วมจริง</span><strong>{participants.length.toLocaleString("th-TH")}</strong><small>จำนวนบุคคลไม่ซ้ำ</small></article>
-                <article><span>อยู่หลาย Track</span><strong>{multiTrackParticipantCount.toLocaleString("th-TH")}</strong><small>คนที่ถูกนับในมากกว่า 1 Track</small></article>
+                <article><span>ผู้เข้าร่วมจริง</span><strong>{participantTrackSummary.uniqueParticipantCount.toLocaleString("th-TH")}</strong><small>จำนวนบุคคลไม่ซ้ำ</small></article>
+                <article><span>อยู่หลาย Track</span><strong>{participantTrackSummary.multiTrackParticipantCount.toLocaleString("th-TH")}</strong><small>คนที่ถูกนับในมากกว่า 1 Track</small></article>
               </div>
             </div>
 
