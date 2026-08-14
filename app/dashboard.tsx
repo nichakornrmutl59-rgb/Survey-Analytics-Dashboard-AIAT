@@ -815,8 +815,8 @@ export default function Dashboard() {
     { name: "เหรียญเงิน", color: "#8591AA" },
     { name: "เหรียญทองแดง", color: "#C66A2B" },
     { name: "AI Developer", color: "#2F6BFF" },
-    { name: "AI Participant", color: "#19BCEB" },
     { name: "AI Designer", color: "#6D4AFF" },
+    { name: "AI Participant", color: "#19BCEB" },
   ] as const;
   const reportMedalRecipients = useMemo(
     () => medalRecipients.filter((item) => medalTypes.some((type) => type.name === item.medalType)),
@@ -1402,7 +1402,7 @@ export default function Dashboard() {
                 <div>
                   <span>ผลสัมฤทธิ์ของผู้เข้าร่วม • SEASON 1–5</span>
                   <h2 id="medal-heading">รางวัล / เหรียญของผู้เข้าร่วม</h2>
-                  <p>สรุปเฉพาะผู้ได้รับเหรียญและรางวัล AI Developer, AI Participant, AI Designer โดยเปิดดูรายชื่อและรายละเอียดแต่ละคนได้</p>
+                  <p>สรุปเฉพาะผู้ได้รับเหรียญและรางวัล AI Developer, AI Designer, AI Participant โดยเปิดดูรายชื่อและรายละเอียดแต่ละคนได้</p>
                 </div>
                 <button type="button" onClick={() => openMedalDirectory()}>
                   ดูรายชื่อรางวัล / เหรียญทั้งหมด <b aria-hidden="true">→</b>
@@ -1586,7 +1586,7 @@ export default function Dashboard() {
                 <div>
                   <span>ผลสัมฤทธิ์ของผู้เข้าร่วม • SEASON 1–5</span>
                   <h2 id="award-report-overview-heading">รางวัล / เหรียญของผู้เข้าร่วม</h2>
-                  <p>สรุปเฉพาะผู้ได้รับเหรียญและรางวัล AI Developer, AI Participant, AI Designer พร้อมดูรายละเอียดรวมและแยกตาม Season</p>
+                  <p>สรุปเฉพาะผู้ได้รับเหรียญและรางวัล AI Developer, AI Designer, AI Participant พร้อมดูรายละเอียดรวมและแยกตาม Season</p>
                 </div>
                 <button type="button" onClick={() => openMedalDirectory()}>
                   ดูรายชื่อรางวัล / เหรียญทั้งหมด <b aria-hidden="true">→</b>
@@ -1634,7 +1634,7 @@ export default function Dashboard() {
 
             <section className="track-medal-report-section standalone-award-report" aria-labelledby="track-medal-report-heading">
               <div className="track-medal-report-heading">
-                <div><h2 id="track-medal-report-heading">ผลรางวัลของแต่ละ Track</h2><p>แสดงเฉพาะเหรียญทอง / เงิน / ทองแดง, AI Developer, AI Participant และ AI Designer แยกตาม Track</p></div>
+                <div><h2 id="track-medal-report-heading">ผลรางวัลของแต่ละ Track</h2><p>แสดงเฉพาะเหรียญทอง / เงิน / ทองแดง, AI Developer, AI Designer และ AI Participant แยกตาม Track</p></div>
                 {medalsWithoutParticipantMatch > 0 && <span>มี {medalsWithoutParticipantMatch.toLocaleString("th-TH")} รายการรางวัลที่ยังจับคู่กับข้อมูลผู้เข้าร่วมไม่ได้</span>}
               </div>
               <div className="track-medal-report-grid">
@@ -1998,7 +1998,7 @@ export default function Dashboard() {
             <header className="medal-directory-heading">
               <span>AWARD / MEDAL DIRECTORY • SEASON 1–5</span>
               <h2>รางวัล / เหรียญของผู้เข้าร่วม</h2>
-              <p>ข้อมูลจากชีทรายชื่อรางวัล แยกเป็นเหรียญทอง เงิน ทองแดง, AI Developer, AI Participant และ AI Designer</p>
+              <p>ข้อมูลจากชีทรายชื่อรางวัล แยกเป็นเหรียญทอง เงิน ทองแดง, AI Developer, AI Designer และ AI Participant</p>
             </header>
             <div className="medal-directory-summary">
               <article><span>{medalTrackFilter === "ทั้งหมด" ? (medalTypeFilter === "ทั้งหมด" ? (medalSeasonFilter === "ทั้งหมด" ? "ผู้มีข้อมูลรางวัลทั้งหมด" : `ผู้ได้รับเหรียญ • ${medalSeasonFilter}`) : `ผลลัพธ์ • ${medalTypeFilter}`) : `${medalTrackFilter} • ${medalTypeFilter === "ทั้งหมด" ? "ทุกประเภทรางวัล" : medalTypeFilter}`}</span><strong>{visibleMedalRecipients.length.toLocaleString("th-TH")}</strong><small>คน • ตัวเลขเปลี่ยนตามตัวกรอง</small></article>
