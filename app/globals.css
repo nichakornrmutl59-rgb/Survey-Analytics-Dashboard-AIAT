@@ -2459,9 +2459,9 @@ td code { font-family: ui-monospace, monospace; font-size: 10px; background: #ed
   text-align: right;
 }
 .education-breakdown {
-  max-height: 300px;
-  overflow-y: auto;
-  padding-right: 3px;
+  max-height: none;
+  overflow: visible;
+  padding-right: 0;
 }
 @media (max-width: 1100px) {
   .track-demographic-columns {
