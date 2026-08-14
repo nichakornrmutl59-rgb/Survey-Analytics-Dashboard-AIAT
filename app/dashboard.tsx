@@ -546,6 +546,10 @@ export default function Dashboard() {
   const [incomeSummaryView, setIncomeSummaryView] = useState<"organizations" | "sectors" | null>(null);
   const [incomeListFilter, setIncomeListFilter] = useState<{ type: "organization" | "sector"; value: string } | null>(null);
   const [page, setPage] = useState(1);
+  const [trackSummaryDirectory, setTrackSummaryDirectory] = useState<"memberships" | "unique" | "multi" | null>(null);
+  const [trackSummaryTrackFilter, setTrackSummaryTrackFilter] = useState("ทั้งหมด");
+  const [trackSummaryQuery, setTrackSummaryQuery] = useState("");
+  const [trackSummaryPage, setTrackSummaryPage] = useState(1);
 
   const loadData = useCallback(async (quiet = false) => {
     if (quiet) setRefreshing(true);
@@ -920,19 +924,68 @@ export default function Dashboard() {
     return { track, people, status, gender, age, education, medals, medalCountsByType };
   }), [reportMedalRecipients, participants]);
   const trackMembershipTotal = useMemo(() => trackReportData.reduce((sum, item) => sum + item.people.length, 0), [trackReportData]);
-  const participantTrackSummary = useMemo(() => {
-    const tracksByPerson = new Map<string, Set<string>>();
+  const participantTrackDirectory = useMemo(() => {
+    const byPerson = new Map<string, { person: Participant; records: Participant[]; tracks: Set<string> }>();
     participants.forEach((person) => {
       const identity = participantIdentityKey(person);
-      const tracks = tracksByPerson.get(identity) ?? new Set<string>();
-      parseTracks(person.track).forEach((track) => tracks.add(track));
-      tracksByPerson.set(identity, tracks);
+      const current = byPerson.get(identity) ?? { person, records: [], tracks: new Set<string>() };
+      current.records.push(person);
+      parseTracks(person.track).forEach((track) => current.tracks.add(track));
+      // Prefer the record with the most contact/profile context as the representative row.
+      const score = (item: Participant) => [item.email, item.phone, item.organization, item.position, item.nickname, item.season].filter(Boolean).length;
+      if (score(person) > score(current.person)) current.person = person;
+      byPerson.set(identity, current);
     });
-    return {
-      uniqueParticipantCount: tracksByPerson.size,
-      multiTrackParticipantCount: Array.from(tracksByPerson.values()).filter((tracks) => tracks.size > 1).length,
-    };
+    return Array.from(byPerson.values()).map((entry) => ({
+      person: entry.person,
+      records: entry.records,
+      tracks: [
+        ...TRACK_NAMES.filter((track) => entry.tracks.has(track)),
+        ...Array.from(entry.tracks).filter((track) => !TRACK_NAMES.some((canonicalTrack) => canonicalTrack === track)),
+      ] as string[],
+    }));
   }, [participants]);
+  const participantTrackSummary = useMemo(() => ({
+    uniqueParticipantCount: participantTrackDirectory.length,
+    multiTrackParticipantCount: participantTrackDirectory.filter((entry) => entry.tracks.length > 1).length,
+  }), [participantTrackDirectory]);
+  const trackSummaryRows = useMemo(() => {
+    const normalizedQuery = trackSummaryQuery.trim().toLocaleLowerCase("th");
+    const rows = trackSummaryDirectory === "memberships"
+      ? participants.map((person) => ({ person, records: [person], tracks: parseTracks(person.track) }))
+      : participantTrackDirectory.filter((entry) => trackSummaryDirectory !== "multi" || entry.tracks.length > 1);
+    return rows.filter((entry) => {
+      const matchesTrack = trackSummaryTrackFilter === "ทั้งหมด" || entry.tracks.includes(trackSummaryTrackFilter);
+      if (!matchesTrack) return false;
+      if (!normalizedQuery) return true;
+      const person = entry.person;
+      const haystack = [person.code, person.title, person.firstName, person.lastName, person.nickname, person.email, person.phone, ...entry.tracks]
+        .join(" ")
+        .toLocaleLowerCase("th");
+      return haystack.includes(normalizedQuery);
+    });
+  }, [participantTrackDirectory, participants, trackSummaryDirectory, trackSummaryQuery, trackSummaryTrackFilter]);
+  const trackSummaryPageSize = 20;
+  const trackSummaryPageCount = Math.max(1, Math.ceil(trackSummaryRows.length / trackSummaryPageSize));
+  const visibleTrackSummaryRows = trackSummaryRows.slice((trackSummaryPage - 1) * trackSummaryPageSize, trackSummaryPage * trackSummaryPageSize);
+  const trackSummaryTrackCounts = useMemo(() => TRACK_NAMES.map((track) => [
+    track,
+    (trackSummaryDirectory === "memberships"
+      ? participants.filter((person) => participantHasTrack(person, track)).length
+      : participantTrackDirectory.filter((entry) => (trackSummaryDirectory !== "multi" || entry.tracks.length > 1) && entry.tracks.includes(track)).length),
+  ] as const), [participantTrackDirectory, participants, trackSummaryDirectory]);
+  const openTrackSummaryDirectory = (type: "memberships" | "unique" | "multi") => {
+    setTrackSummaryDirectory(type);
+    setTrackSummaryTrackFilter("ทั้งหมด");
+    setTrackSummaryQuery("");
+    setTrackSummaryPage(1);
+  };
+  const closeTrackSummaryDirectory = () => {
+    setTrackSummaryDirectory(null);
+    setTrackSummaryTrackFilter("ทั้งหมด");
+    setTrackSummaryQuery("");
+    setTrackSummaryPage(1);
+  };
   const medalsWithoutParticipantMatch = useMemo(() => reportMedalRecipients.filter((recipient) => !findParticipantForMedal(recipient, participants)).length, [reportMedalRecipients, participants]);
 
   const filtered = useMemo(() => {
@@ -1490,9 +1543,15 @@ export default function Dashboard() {
                 <p>รายงานนี้นับแยกตาม Track หากผู้เข้าร่วมคนเดียวอยู่มากกว่า 1 Track จะถูกนับซ้ำแยกในแต่ละ Track เพื่อให้ผลลัพธ์ของ AI Innovator, AI Engineer และ AI Researcher แยกจากกันชัดเจน</p>
               </div>
               <div className="track-report-summary">
-                <article><span>จำนวนตาม Track</span><strong>{trackMembershipTotal.toLocaleString("th-TH")}</strong><small>คน • รวมแบบนับซ้ำตาม Track</small></article>
-                <article><span>ผู้เข้าร่วมจริง</span><strong>{participantTrackSummary.uniqueParticipantCount.toLocaleString("th-TH")}</strong><small>จำนวนบุคคลไม่ซ้ำ</small></article>
-                <article><span>อยู่หลาย Track</span><strong>{participantTrackSummary.multiTrackParticipantCount.toLocaleString("th-TH")}</strong><small>คนที่ถูกนับในมากกว่า 1 Track</small></article>
+                <button type="button" onClick={() => openTrackSummaryDirectory("memberships")} aria-label={`ดูข้อมูลจำนวนตาม Track ${trackMembershipTotal.toLocaleString("th-TH")} คน`}>
+                  <span>จำนวนตาม Track</span><strong>{trackMembershipTotal.toLocaleString("th-TH")}</strong><small>คน • รวมแบบนับซ้ำตาม Track</small><b aria-hidden="true">ดูข้อมูล →</b>
+                </button>
+                <button type="button" onClick={() => openTrackSummaryDirectory("unique")} aria-label={`ดูผู้เข้าร่วมจริง ${participantTrackSummary.uniqueParticipantCount.toLocaleString("th-TH")} คน`}>
+                  <span>ผู้เข้าร่วมจริง</span><strong>{participantTrackSummary.uniqueParticipantCount.toLocaleString("th-TH")}</strong><small>จำนวนบุคคลไม่ซ้ำ</small><b aria-hidden="true">ดูข้อมูล →</b>
+                </button>
+                <button type="button" onClick={() => openTrackSummaryDirectory("multi")} aria-label={`ดูผู้ที่อยู่หลาย Track ${participantTrackSummary.multiTrackParticipantCount.toLocaleString("th-TH")} คน`}>
+                  <span>อยู่หลาย Track</span><strong>{participantTrackSummary.multiTrackParticipantCount.toLocaleString("th-TH")}</strong><small>คนที่ถูกนับในมากกว่า 1 Track</small><b aria-hidden="true">ดูข้อมูล →</b>
+                </button>
               </div>
             </div>
 
@@ -1863,6 +1922,70 @@ export default function Dashboard() {
               })}
               {!visibleIncomeParticipants.length && <div className="empty-state"><strong>ไม่พบข้อมูลตามตัวกรองนี้</strong></div>}
             </div>
+          </section>
+        </div>
+      )}
+
+      {trackSummaryDirectory && (
+        <div className="drawer-backdrop track-summary-directory-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) closeTrackSummaryDirectory(); }}>
+          <section className="track-house-directory track-summary-directory" role="dialog" aria-modal="true" aria-label={trackSummaryDirectory === "memberships" ? "รายชื่อตาม Track" : trackSummaryDirectory === "unique" ? "รายชื่อผู้เข้าร่วมจริง" : "รายชื่อผู้ที่อยู่หลาย Track"}>
+            <button className="drawer-close" type="button" onClick={closeTrackSummaryDirectory} aria-label="ปิดรายชื่อสรุป Track">×</button>
+            <header className="track-house-directory-heading track-summary-directory-heading">
+              <span>TRACK DIRECTORY</span>
+              <h2>{trackSummaryDirectory === "memberships" ? "จำนวนตาม Track" : trackSummaryDirectory === "unique" ? "ผู้เข้าร่วมจริง" : "ผู้ที่อยู่หลาย Track"}</h2>
+              <p>{trackSummaryDirectory === "memberships"
+                ? "แสดงรายการสมาชิกตาม Track และนับซ้ำเมื่อบุคคลเดียวอยู่มากกว่า 1 Track"
+                : trackSummaryDirectory === "unique"
+                  ? "รวมข้อมูลบุคคลเดียวกันให้เหลือ 1 คน แม้มีหลายรหัสหรือหลาย Track"
+                  : "แสดงเฉพาะผู้เข้าร่วมที่พบว่าอยู่มากกว่า 1 Track"} <strong>{trackSummaryRows.length.toLocaleString("th-TH")}</strong> คน</p>
+            </header>
+
+            <div className="track-summary-toolbar">
+              <label className="track-summary-search"><span aria-hidden="true">⌕</span><input value={trackSummaryQuery} onChange={(event) => { setTrackSummaryQuery(event.target.value); setTrackSummaryPage(1); }} placeholder="ค้นหารหัส ชื่อ ชื่อเล่น อีเมล หรือเบอร์โทร" /></label>
+              <div className="track-summary-track-filters" role="group" aria-label="กรองตาม Track">
+                <button className={trackSummaryTrackFilter === "ทั้งหมด" ? "active" : ""} type="button" onClick={() => { setTrackSummaryTrackFilter("ทั้งหมด"); setTrackSummaryPage(1); }}>ทั้งหมด</button>
+                {trackSummaryTrackCounts.map(([track, count]) => (
+                  <button className={trackSummaryTrackFilter === track ? "active" : ""} type="button" key={track} onClick={() => { setTrackSummaryTrackFilter(track); setTrackSummaryPage(1); }}>{track}<strong>{count.toLocaleString("th-TH")}</strong></button>
+                ))}
+              </div>
+            </div>
+
+            <div className="track-house-list-heading track-summary-list-heading">
+              <div><span>{trackSummaryTrackFilter === "ทั้งหมด" ? "ทุก Track" : trackSummaryTrackFilter}</span><strong>{trackSummaryRows.length.toLocaleString("th-TH")} รายการ</strong></div>
+            </div>
+
+            <div className="track-house-person-list track-summary-person-list">
+              {visibleTrackSummaryRows.map((entry, index) => {
+                const person = entry.person;
+                const seasons = Array.from(new Set(entry.records.map((record) => record.season).filter(Boolean)));
+                const codes = Array.from(new Set(entry.records.map((record) => record.code).filter(Boolean)));
+                const displayIndex = (trackSummaryPage - 1) * trackSummaryPageSize + index + 1;
+                return (
+                  <article className="track-house-person-card track-summary-person-card" key={`${participantIdentityKey(person)}-${entry.tracks.join("-")}-${displayIndex}`}>
+                    <span className="track-house-person-index">{String(displayIndex).padStart(2, "0")}</span>
+                    <div className="track-house-person-main">
+                      <div>{entry.tracks.map((track) => <span key={track} style={{ color: TRACK_COLORS[track] ?? "#2F6BFF" }}>{track}</span>)}</div>
+                      <h3>{person.title}{person.firstName} {person.lastName}</h3>
+                      <p>{person.nickname ? `ชื่อเล่น ${person.nickname}` : "ไม่ระบุชื่อเล่น"}</p>
+                    </div>
+                    <dl className="track-house-person-facts">
+                      <div><dt>รหัส</dt><dd>{codes.length ? codes.join(" / ") : "ไม่ระบุ"}</dd></div>
+                      <div><dt>Season</dt><dd>{seasons.length ? seasons.join(" / ") : "ไม่ระบุ"}</dd></div>
+                      <div><dt>สถานะปัจจุบัน</dt><dd>{person.group || "ไม่ระบุ"}</dd></div>
+                    </dl>
+                    <button className="track-house-person-action" type="button" onMouseDown={(event) => event.stopPropagation()} onClick={(event) => { event.preventDefault(); event.stopPropagation(); setSelected({ ...person, track: entry.tracks.join(", ") }); }}>ดูข้อมูลรายบุคคล →</button>
+                  </article>
+                );
+              })}
+              {visibleTrackSummaryRows.length === 0 && <div className="empty-state"><strong>ไม่พบข้อมูลตามตัวกรองนี้</strong></div>}
+            </div>
+
+            {trackSummaryPageCount > 1 && (
+              <div className="track-summary-pagination">
+                <span>หน้า {trackSummaryPage} จาก {trackSummaryPageCount}</span>
+                <div><button type="button" onClick={() => setTrackSummaryPage((current) => Math.max(1, current - 1))} disabled={trackSummaryPage === 1}>← ก่อนหน้า</button><button type="button" onClick={() => setTrackSummaryPage((current) => Math.min(trackSummaryPageCount, current + 1))} disabled={trackSummaryPage === trackSummaryPageCount}>ถัดไป →</button></div>
+              </div>
+            )}
           </section>
         </div>
       )}

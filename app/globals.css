@@ -2681,3 +2681,159 @@ td code { font-family: ui-monospace, monospace; font-size: 10px; background: #ed
     margin-bottom: 22px;
   }
 }
+
+/* v39: clickable Track summary KPI directories */
+.track-report-summary button {
+  min-width: 0;
+  padding: 15px 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  border: 1px solid rgba(47,107,255,.11);
+  border-radius: 16px;
+  background: rgba(255,255,255,.82);
+  font: inherit;
+  cursor: pointer;
+  transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease, background .18s ease;
+}
+.track-report-summary button:hover {
+  transform: translateY(-2px);
+  border-color: rgba(47,107,255,.26);
+  background: rgba(255,255,255,.98);
+  box-shadow: 0 14px 28px rgba(47,107,255,.10);
+}
+.track-report-summary button:focus-visible {
+  outline: 3px solid rgba(47,107,255,.18);
+  outline-offset: 2px;
+}
+.track-report-summary button b {
+  margin-top: 10px;
+  color: #2f6bff;
+  font-size: 9px;
+  font-weight: 800;
+}
+.track-summary-directory {
+  width: min(1180px, calc(100vw - 36px));
+}
+.track-summary-toolbar {
+  margin: 18px 0 14px;
+  display: grid;
+  grid-template-columns: minmax(260px, 1fr) minmax(0, 1.7fr);
+  gap: 12px;
+  align-items: center;
+}
+.track-summary-search {
+  min-height: 48px;
+  padding: 0 15px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  border: 1px solid rgba(47,107,255,.16);
+  border-radius: 14px;
+  background: #fff;
+}
+.track-summary-search span {
+  color: #64759b;
+  font-size: 18px;
+}
+.track-summary-search input {
+  width: 100%;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #18336f;
+  font: inherit;
+  font-size: 12px;
+}
+.track-summary-track-filters {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.track-summary-track-filters button {
+  min-height: 40px;
+  padding: 8px 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid rgba(47,107,255,.14);
+  border-radius: 999px;
+  background: #fff;
+  color: #53658f;
+  font: inherit;
+  font-size: 10px;
+  font-weight: 750;
+  cursor: pointer;
+}
+.track-summary-track-filters button strong {
+  min-width: 24px;
+  padding: 3px 6px;
+  border-radius: 999px;
+  background: #eef3ff;
+  color: #294fba;
+  font-size: 9px;
+}
+.track-summary-track-filters button.active {
+  border-color: transparent;
+  background: linear-gradient(135deg, #2f6bff, #6d4aff);
+  color: #fff;
+  box-shadow: 0 9px 20px rgba(47,107,255,.18);
+}
+.track-summary-track-filters button.active strong {
+  background: rgba(255,255,255,.18);
+  color: #fff;
+}
+.track-summary-person-card .track-house-person-main > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.track-summary-person-card .track-house-person-main > div > span {
+  padding: 4px 7px;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  font-size: 8px;
+  font-weight: 800;
+  opacity: .9;
+}
+.track-summary-pagination {
+  margin-top: 16px;
+  padding-top: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  border-top: 1px solid rgba(47,107,255,.10);
+  color: #6f80aa;
+  font-size: 10px;
+}
+.track-summary-pagination > div {
+  display: flex;
+  gap: 8px;
+}
+.track-summary-pagination button {
+  padding: 9px 12px;
+  border: 1px solid rgba(47,107,255,.14);
+  border-radius: 999px;
+  background: #fff;
+  color: #2f6bff;
+  font: inherit;
+  font-size: 10px;
+  font-weight: 750;
+  cursor: pointer;
+}
+.track-summary-pagination button:disabled {
+  opacity: .35;
+  cursor: default;
+}
+@media (max-width: 820px) {
+  .track-summary-toolbar { grid-template-columns: 1fr; }
+  .track-summary-track-filters { justify-content: flex-start; }
+}
+@media (max-width: 560px) {
+  .track-summary-directory { width: calc(100vw - 20px); }
+  .track-summary-track-filters button { min-height: 36px; padding: 7px 10px; font-size: 9px; }
+  .track-summary-pagination { align-items: flex-start; flex-direction: column; }
+}
