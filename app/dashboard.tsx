@@ -78,8 +78,8 @@ const TRACK_NAMES = ["AI Innovator", "AI Engineer", "AI Researcher"] as const;
 
 const TRACK_COLORS: Record<string, string> = {
   "AI Engineer": "#2F6BFF",
-  "AI Innovator": "#FF7A1A",
-  "AI Researcher": "#FF4FA3",
+  "AI Innovator": "#FF4FA3",
+  "AI Researcher": "#FF7A1A",
 };
 
 const WORK_TYPES = [
