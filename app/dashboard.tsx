@@ -1172,7 +1172,7 @@ export default function Dashboard() {
                 </div>
                 <div className="track-donut-layout">
                   <div className="donut track-donut" style={{ background: `conic-gradient(${trackGradient || "#e5e7eb 0deg 360deg"})` }}>
-                    <div><strong>{trackTotal.toLocaleString("th-TH")}</strong><span>Track memberships</span></div>
+                    <div><strong>{trackTotal.toLocaleString("th-TH")}</strong><span>คน (นับตาม Track)</span></div>
                   </div>
                   <div className="track-legend-list">
                     {tracks.map(([track, count]) => {
@@ -1265,7 +1265,6 @@ export default function Dashboard() {
                 <div>
                   <h2 id="status-summary-heading">ภาพรวมสถานะปัจจุบัน</h2>
                 </div>
-                <span>เลือกการ์ดเพื่อดูรายชื่อและรายละเอียด</span>
               </div>
 
               <div className="insight-grid status-insight-grid">
@@ -1456,12 +1455,11 @@ export default function Dashboard() {
             </button>
             <div className="track-report-heading">
               <div>
-                <p className="eyebrow">TRACK OUTCOME REPORT</p>
                 <h1>สถานภาพและผลลัพธ์ แยกตาม Track</h1>
-                <p>รายงานนี้นับแบบ Track membership หากผู้เข้าร่วมคนเดียวอยู่มากกว่า 1 Track จะถูกนับซ้ำแยกในแต่ละ Track เพื่อให้ผลลัพธ์ของ AI Innovator, AI Engineer และ AI Researcher แยกจากกันชัดเจน</p>
+                <p>รายงานนี้นับแยกตาม Track หากผู้เข้าร่วมคนเดียวอยู่มากกว่า 1 Track จะถูกนับซ้ำแยกในแต่ละ Track เพื่อให้ผลลัพธ์ของ AI Innovator, AI Engineer และ AI Researcher แยกจากกันชัดเจน</p>
               </div>
               <div className="track-report-summary">
-                <article><span>Track memberships</span><strong>{trackMembershipTotal.toLocaleString("th-TH")}</strong><small>รวมแบบนับซ้ำตาม Track</small></article>
+                <article><span>จำนวนตาม Track</span><strong>{trackMembershipTotal.toLocaleString("th-TH")}</strong><small>คน • รวมแบบนับซ้ำตาม Track</small></article>
                 <article><span>ผู้เข้าร่วมจริง</span><strong>{participants.length.toLocaleString("th-TH")}</strong><small>จำนวนบุคคลไม่ซ้ำ</small></article>
                 <article><span>อยู่หลาย Track</span><strong>{multiTrackParticipantCount.toLocaleString("th-TH")}</strong><small>คนที่ถูกนับในมากกว่า 1 Track</small></article>
               </div>
@@ -1474,7 +1472,7 @@ export default function Dashboard() {
                   <article className="track-status-report-card" key={entry.track} style={{ "--report-track-color": color } as React.CSSProperties}>
                     <header>
                       <div><i style={{ background: color }} /><span>สถานภาพปัจจุบัน</span><h2>{entry.track}</h2></div>
-                      <strong>{entry.people.length.toLocaleString("th-TH")}<small> memberships</small></strong>
+                      <strong>{entry.people.length.toLocaleString("th-TH")}<small> คน</small></strong>
                     </header>
                     <div className="track-status-list">
                       {entry.status.map((group) => (
@@ -1493,7 +1491,6 @@ export default function Dashboard() {
             <section className="track-demographic-section" aria-labelledby="track-demographic-heading">
               <div className="track-demographic-heading">
                 <div>
-                  <p className="eyebrow">TRACK DEMOGRAPHICS</p>
                   <h2 id="track-demographic-heading">ข้อมูลพื้นฐานผู้เข้าร่วมโครงการ แยกตาม Track</h2>
                   <p>เพศ อายุ และระดับการศึกษาใช้ฐานสมาชิกของแต่ละ Track โดยคนที่อยู่มากกว่า 1 Track จะถูกนับซ้ำในทุก Track ที่สังกัดเช่นเดียวกับรายงานสถานภาพ</p>
                 </div>
@@ -1505,8 +1502,8 @@ export default function Dashboard() {
                   return (
                     <article className="track-demographic-card" key={`${entry.track}-demographics`} style={{ "--report-track-color": color } as React.CSSProperties}>
                       <header>
-                        <div><i style={{ background: color }} /><h3>{entry.track}</h3><span>ข้อมูลพื้นฐาน</span></div>
-                        <strong>{entry.people.length.toLocaleString("th-TH")}<small> memberships</small></strong>
+                        <div><i style={{ background: color }} /><h3>{entry.track}</h3></div>
+                        <strong>{entry.people.length.toLocaleString("th-TH")}<small> คน</small></strong>
                       </header>
                       <div className="track-demographic-columns">
                         <section className="track-demographic-block track-demographic-block-action">
@@ -1576,7 +1573,7 @@ export default function Dashboard() {
               </div>
               <div className="track-report-summary award-report-summary">
                 <article><span>รายการรางวัลทั้งหมด</span><strong>{reportMedalRecipients.length.toLocaleString("th-TH")}</strong><small>เฉพาะผู้ได้รับรางวัล / เหรียญ</small></article>
-                <article><span>Track memberships</span><strong>{trackReportData.reduce((sum, entry) => sum + entry.medals.length, 0).toLocaleString("th-TH")}</strong><small>นับซ้ำเมื่ออยู่หลาย Track</small></article>
+                <article><span>จำนวนตาม Track</span><strong>{trackReportData.reduce((sum, entry) => sum + entry.medals.length, 0).toLocaleString("th-TH")}</strong><small>คน • นับซ้ำเมื่ออยู่หลาย Track</small></article>
                 <article><span>จับคู่ข้อมูลไม่ได้</span><strong>{medalsWithoutParticipantMatch.toLocaleString("th-TH")}</strong><small>รายการที่ยังไม่พบผู้เข้าร่วม</small></article>
               </div>
             </div>
@@ -1844,7 +1841,7 @@ export default function Dashboard() {
           <section className="track-house-directory demographic-directory" role="dialog" aria-modal="true" aria-label={demographicDirectory === "gender" ? "รายชื่อตามเพศ" : "รายชื่อตามช่วงอายุ"}>
             <button className="drawer-close" type="button" onClick={closeDemographicDirectory} aria-label="ปิดรายชื่อข้อมูลพื้นฐาน">×</button>
             <header className="track-house-directory-heading demographic-directory-heading">
-              <span>{demographicTrack ? `${demographicTrack.toUpperCase()} • TRACK DEMOGRAPHICS` : "PARTICIPANT DEMOGRAPHICS"}</span>
+              <span>{demographicTrack ? demographicTrack : "ข้อมูลพื้นฐานผู้เข้าร่วมโครงการ"}</span>
               <h2>{demographicDirectory === "gender" ? "รายชื่อตามเพศ" : "รายชื่อตามช่วงอายุ"}{demographicTrack ? ` • ${demographicTrack}` : ""}</h2>
               <p>{demographicTrack ? `สมาชิก ${demographicTrack}` : "ผู้เข้าร่วมทั้งหมด"} <strong>{demographicBaseParticipants.length.toLocaleString("th-TH")}</strong> คน เลือกกลุ่มด้านล่างเพื่อดูว่าเป็นใครบ้าง</p>
             </header>
