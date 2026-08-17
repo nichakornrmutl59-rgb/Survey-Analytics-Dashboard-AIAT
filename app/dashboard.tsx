@@ -1143,9 +1143,9 @@ export default function Dashboard() {
           <button className={view === "people" ? "active" : ""} type="button" onClick={() => setView("people")}>รายบุคคล</button>
         </nav>
         <div className="sync-status">
-          <span className="dataset-update-badge" aria-label="ข้อมูลชุดนี้อัปเดตวันที่ 17 ก.ค. 2569">
+          <span className="dataset-update-badge" aria-label="ข้อมูลชุดนี้อัปเดตวันที่ 16 ส.ค. 2569">
             <span>ข้อมูลชุดนี้อัปเดต</span>
-            <strong>17 ก.ค. 2569</strong>
+            <strong>16 ส.ค. 2569</strong>
           </span>
           <span className={error ? "status-dot error" : "status-dot"} />
           <div>
