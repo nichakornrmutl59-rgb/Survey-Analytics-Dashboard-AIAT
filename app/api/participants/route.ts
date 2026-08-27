@@ -3,10 +3,10 @@ import { isDashboardAuthenticated } from "../../auth";
 const SHEET_ID = process.env.GOOGLE_SHEET_ID?.trim() ?? "";
 
 const SHEETS = [
-  { name: "ทำงาน_354", group: "ทำงาน" },
-  { name: "เรียน_291", group: "เรียน" },
-  { name: "ทำงาน และเรียนไปด้วย_114", group: "เรียนและทำงาน" },
-  { name: "ว่างงาน_48", group: "ว่างงาน" },
+  { name: "ทำงาน_363", group: "ทำงาน" },
+  { name: "เรียน_295", group: "เรียน" },
+  { name: "ทำงาน และเรียนไปด้วย_118", group: "เรียนและทำงาน" },
+  { name: "ว่างงาน_50", group: "ว่างงาน" },
 ] as const;
 
 const MEDAL_SHEETS = [
